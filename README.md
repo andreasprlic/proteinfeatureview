@@ -34,6 +34,10 @@ Andreas Prlic - RCSB Protein Data Bank
 
 ==================
 
+# How to get started?
+
+Take a look at minimal.html for a most basic setup
+
 
 
 
