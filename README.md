@@ -1,7 +1,7 @@
-# proteinfeatureview
+# The Protein Feature View 
 ==================
 
-The Protein Feature View - a SVG library for visualising protein annotations
+SVG library for visualising protein annotations
 
 ==================
 
