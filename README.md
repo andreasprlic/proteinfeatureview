@@ -36,7 +36,7 @@ Andreas Prlic - RCSB Protein Data Bank
 
 # How to get started?
 
-Take a look at [minimal.html](minimal.html) for how to create a basic setup
+Take a look at [minimal.html](/andreasprlic/proteinfeatureview/blob/master/minimal.html) for how to create a basic setup
 
 
 
