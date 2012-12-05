@@ -26,6 +26,11 @@ GPL 3.0 http://www.gnu.org/licenses/gpl.html
 
 ==================
 
+# Author
+
+Andreas Prlic - RCSB Protein Data Bank
+
+==================
 
 
 
