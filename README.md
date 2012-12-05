@@ -1,4 +1,4 @@
-# The Protein Feature View 
+m# The Protein Feature View 
 ==================
 
 SVG library for visualising protein annotations
@@ -16,9 +16,10 @@ http://www.rcsb.org/pdb/protein/P06213
 
 # Dependencies
 
- jquery (V. 1.7.2)
- jqueryui (V. 1.8.22)
- jquery SVG (V. 1.4.5)
+ * jquery (V. 1.7.2)
+ * jqueryui (V. 1.8.22)
+ * jquery SVG (V. 1.4.5)
+
 ==================
 
 # License
