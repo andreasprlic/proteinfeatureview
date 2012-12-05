@@ -395,7 +395,8 @@ function EntityView() { with(this)
 		var pdbID = track.pdbID;
 		var desc  = track.desc;
 	
-		pageTracker._trackEvent('ProteinFeatureView', 'showPDBDialog', desc );		
+		if ( typeof pageTracker != 'undefined' ) 
+		    pageTracker._trackEvent('ProteinFeatureView', 'showPDBDialog', desc );		
 		$(dialogDiv).html("Show PDB ID " + pdbID + " ? <span><img src='/pdb/images/"+pdbID.toLowerCase()+"_bio_r_250.jpg?getBest=true' /></span>" );
 		$(dialogDiv).dialog({
 			title: pdbID + ' - ' + desc,
@@ -414,7 +415,8 @@ function EntityView() { with(this)
 
 		//$(dialogDiv).attr('title', data.uniprotID );
 
-		pageTracker._trackEvent('ProteinFeatureView', 'showSequenceDialog', data.uniprotID );
+		if ( typeof pageTracker != 'undefined' ) 
+		    pageTracker._trackEvent('ProteinFeatureView', 'showSequenceDialog', data.uniprotID );
 		var html = "";
 		if ( singlePDBmode ){
 			html ="<h3>" + data.uniprotID +"-" + data.name+"</h3>" ;
@@ -449,7 +451,8 @@ function EntityView() { with(this)
 		var pfamId = pfam.acc;
 		var desc = pfam.desc;
 		//$(dialogDiv).attr('title', pfamId + ' - '  + pfam.name);
-		pageTracker._trackEvent('ProteinFeatureView', 'showPfamDialog', pfamId );
+		if ( typeof pageTracker != 'undefined' ) 
+		    pageTracker._trackEvent('ProteinFeatureView', 'showPfamDialog', pfamId );
 		
 		
 		var html = "<h3> " + desc +  "</h3>"+
@@ -748,7 +751,8 @@ function EntityView() { with(this)
 		var title = "Showing a representative subset of PDB matches. Click for more ";
 		
 		var callback = function(){ 
-			pageTracker._trackEvent('ProteinFeatureView', 'showCondensedView', 'true' );
+    			if ( typeof pageTracker != 'undefined' ) 
+			    pageTracker._trackEvent('ProteinFeatureView', 'showCondensedView', 'true' );
 			setShowCondensed(false); $('#showCondensed').text("Show Condensed View"); } ;
 				
 		var totalTracks = getTotalNrPDBTracks();
@@ -805,8 +809,8 @@ function EntityView() { with(this)
 					
 					 if (trackdata.label == "Homology Models from Protein Model Portal") {
 							callbackexternal = function(event){
-								
-							pageTracker._trackEvent('ProteinFeatureView', 'showPMPDialog', data.uniprotID );	
+							if ( typeof pageTracker != 'undefined' ) 	
+							    pageTracker._trackEvent('ProteinFeatureView', 'showPMPDialog', data.uniprotID );	
 								
 							var html = "<h3>" + this.desc +"</h3>";
 							
@@ -1885,7 +1889,8 @@ function EntityView() { with(this)
 			var html = "<h3>"+txt+"</h3>"; 
 			html += "<ul>";
 
-			pageTracker._trackEvent('ProteinFeatureView', 'showUniProtDialog', txt );
+			if ( typeof pageTracker != 'undefined' ) 
+			    pageTracker._trackEvent('ProteinFeatureView', 'showUniProtDialog', txt );
 			
 			var seq = data.sequence.substr(this.start,(this.end-this.start+1));
 
@@ -1947,7 +1952,8 @@ function EntityView() { with(this)
 				html+="<li>View <a href='" + pdburl + this.name + "'>other PDB entries with the same E.C. number</a></li>";
 				html +="</ul>";
 				
-				pageTracker._trackEvent('ProteinFeatureView', 'showECDialog', this.name );
+				if ( typeof pageTracker != 'undefined' ) 
+				    pageTracker._trackEvent('ProteinFeatureView', 'showECDialog', this.name );
 				
 				$(dialogDiv).html(html);
 				$(dialogDiv).dialog({
@@ -3261,8 +3267,6 @@ function EntityView() { with(this)
 			} 
 
 	}};		
-		
-
 				
 		// end of file!
 		
