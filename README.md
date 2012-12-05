@@ -1,4 +1,4 @@
-proteinfeatureview
+# proteinfeatureview
 ==================
 
 The Protein Feature View - a SVG library for visualising protein annotations
@@ -14,13 +14,13 @@ http://www.rcsb.org/pdb/protein/P06213
 
 ==================
 
-Dependencies:
+# Dependencies
 
 jquery (V. XXX)
 
 ==================
 
-License:
+# License
 
 GPL 3.0 http://www.gnu.org/licenses/gpl.html
 
