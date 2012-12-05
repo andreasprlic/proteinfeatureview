@@ -1,4 +1,4 @@
-m# The Protein Feature View 
+# The Protein Feature View 
 ==================
 
 SVG library for visualising protein annotations
