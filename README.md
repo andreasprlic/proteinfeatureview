@@ -17,7 +17,7 @@ http://www.rcsb.org/pdb/protein/P06213
 # Dependencies
 
 jquery (V. XXX)
-
+jquery SVG (V. 1.4.5)
 ==================
 
 # License

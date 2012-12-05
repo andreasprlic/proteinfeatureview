@@ -122,12 +122,15 @@ function EntityView() { with(this)
 			return;
 		}
 		
-		var url = "/pdb/protein/"+uniprotID+"?type=json";
+		var url = ""
+		if ( typeof entityview_hostname != 'undefined' ) {
+		    url += entityview_hostname;
+		}
+		url += "/pdb/protein/"+uniprotID+"?type=json";
 
 		if (singlePDBmode ) {
 			url +=  "&display=" + displayPDB; 
 		}
-		//alert(singlePDBmode + " " + url);
 		
 		$.getJSON(url , function(json) {
 			setData(json);
@@ -144,7 +147,7 @@ function EntityView() { with(this)
 
 		$( parent ).bind('click',
 				function (path) {
-			//alert(path.target);
+
 			var g = path.target.parentNode;
 			var id = g.id;
 
@@ -170,7 +173,7 @@ function EntityView() { with(this)
 
 		//var mini =  getMinScale() ;
 
-		//alert(mini);
+
 		$(scrollBarDiv).slider({			
 			orientation: "horizontal",
 			range: "min",
@@ -190,7 +193,6 @@ function EntityView() { with(this)
 
 	EntityView.prototype.scollValueChanged = function(event, ui){with(this) {
 		var viewPercent = ui.value;
-		//alert(viewPercent);
 
 
 		var minScale =  getMinScale() ;
@@ -231,16 +233,16 @@ function EntityView() { with(this)
 			                    	'url':'/pdb/protein/'+uniprotID+'?type=json&track=jronn' }];
 		}
 
-		// hidden features...
-
-
-		//alert(asyncTracks[0].url);
 
 		for ( var i =0 ; i < asyncTracks.length ; i++){
 			var track = asyncTracks[i];
 
-			var url = track.url;
-			//alert(url);
+			var url = "";
+			if ( typeof entityview_hostname != 'undefined' ) {
+			    url += entityview_hostname;
+			}			
+			url += track.url;
+
 			loadURLAsync(url);
 		}
 
@@ -262,15 +264,15 @@ function EntityView() { with(this)
 				else if (typeof json.externalTracks != 'undefined') {
 					this.data.externalTracks = json.externalTracks;
 				} else if (typeof json.pdbsites != 'undefined') {
-					//alert(JSON.stringify(json));
+
 					this.data.pdbsites = json.pdbsites;
 				}else if (typeof json.hydropathy != 'undefined') {
-					//alert(JSON.stringify(json));
+
 					this.data.hydropathy_max = json.hydropathy.hydropathy_max;
 					this.data.hydropathy_min = json.hydropathy.hydropathy_min;
 					this.data.hydropathy = json.hydropathy;
 				} else if (typeof json.jronn != 'undefined') {
-					//alert(JSON.stringify(json));
+
 					this.data.jronn_max = json.jronn.jronn_max;
 					this.data.jronn_min = json.jronn.jronn_min;
 					this.data.jronn = json.jronn;
@@ -366,7 +368,6 @@ function EntityView() { with(this)
 
 	EntityView.prototype.repaint = function(){with(this){
 
-		//alert($(parent).width());
 
 		$("#uniprotsubheader").html("");
 
@@ -570,8 +571,6 @@ function EntityView() { with(this)
 			return;
 		}
 
-		//alert("drawInitial " + data.uniprotID);
-
 		sequence = new Object();	
 		sequence.length = data.length;
 		sequence.name=data.uniprotID;
@@ -715,7 +714,7 @@ function EntityView() { with(this)
 			var track = data.tracks[i];
 
 			if ( singlePDBmode) {
-				//alert(track.pdbID + " " + displayPDB);
+
 				if ( track.pdbID !=  displayPDB )
 					continue;
 				if ( counter > maxTracksSingleMode)
@@ -758,7 +757,7 @@ function EntityView() { with(this)
 			y = drawExpandCondensedSymbol(svg,pdbBottomY, title, callback);
 		} ;
 
-		//alert(JSON.stringify(data.externalTracks.names));
+
 		if ( ! singlePDBmode){
 
 			//if ( data.externalTracks.names.length > 0) 
@@ -829,7 +828,7 @@ function EntityView() { with(this)
 						};
 					 }
 					
-					//alert(trackdata.label);
+
 					if ( trackrows.length > 0) {
 					
 						if (trackdata.label == "Homology Models from Protein Model Portal") {
@@ -887,7 +886,7 @@ function EntityView() { with(this)
 		
 		var fullTrackCount = data.tracks.length;
 		if ( typeof data.backupTracks != 'undefined') {
-			//alert(data.tracks.length +" " + data.backupTracks.length);
+
 			fullTrackCount = data.backupTracks.length;
 		}
 		return fullTrackCount;
@@ -1163,7 +1162,7 @@ function EntityView() { with(this)
 		var colorMap = colors[colorPos];
 		if ( colorBy == "Resolution") {
 
-			//alert(colorBy + " " + track.resolution);		
+
 			if(typeof track.resolution == 'undefined') 
 				return bw_colors[6];
 
@@ -1172,7 +1171,7 @@ function EntityView() { with(this)
 			for ( var i = 0 ; i< (redblue_colors.length - 1) ; i++){
 			
 				if ( resolution < (i+1)*1000) {
-					//alert("i " + i + " " + resolution);
+
 					return redblue_colors[i];
 				}
 			}
@@ -1252,7 +1251,7 @@ function EntityView() { with(this)
 				}
 			}
 			data.tracks = newTracks;
-			//alert("new nr of tracks: " + data.tracks.length + " old size: " + data.backupTracks.length);
+
 
 		} else {
 			if ( typeof data.backupTracks != 'undefined') {
@@ -1409,7 +1408,7 @@ function EntityView() { with(this)
 			// width in view divided by 10 px font size
 			var max = Math.floor(availspace / 8.0)  ;
 			//console.log('avail space: ' + availspace +' px ' + " new max: " + max + " " + txt.getBoundingClientRect().width + " " + tlength);
-			//alert("text " + domain.name + " too long! " + max );
+
 
 			txt.firstChild.data = fullText.substring(0,max);
 
@@ -1624,7 +1623,7 @@ function EntityView() { with(this)
 				continue;
 
 			var color = colorDict[site.name];
-			//alert(site.name + " " + colorMap[site.name]);
+
 			
 			if ( typeof color == 'undefined'){
 				colorPos ++;
@@ -1703,7 +1702,7 @@ function EntityView() { with(this)
 				$(circle).bind('click', function(event){
 					var g = event.target;
 					//var id = g.id;
-					//alert(JSON.stringify(event.target));
+
 
 					executeJmolScript(g.jmol);
 				});
@@ -1822,13 +1821,13 @@ function EntityView() { with(this)
 			for ( var j = 0 ; j < rows.length ; j++ ){
 				var row = rows[j] ;
 				var foundOverlap = false;	
-				//alert("row " + j + " length: " + row.length);
+
 				for ( var k = 0 ; k < row.length ; k++ ){
 
 					featureCount++;
 					var r = row[k];
 					var overlap = this.getOverlap(range.start,range.end, r.start, r.end);
-					//alert("overlap? " + featureCount + " " + range.desc + " " + r.desc + " : " +overlap + " | " + range.start + "-" + range.end + " | " + r.start+ "-" +r.end);
+
 					if ( overlap > 0) {
 
 						foundOverlap = true;
@@ -1843,7 +1842,7 @@ function EntityView() { with(this)
 
 			}
 			//if (range.start == 1029 || range.start == 1023 || range.start == 980)
-		//	alert("adding row " + range.desc + "  to row " + lowestRow + " " + range.start + "-" + range.end + " row length: " + rows[lowestRow].length);
+
 			if ( rows.length < lowestRow +1) {
 				var rowArr = new Array();
 				rows.push(rowArr);
@@ -1889,7 +1888,7 @@ function EntityView() { with(this)
 			pageTracker._trackEvent('ProteinFeatureView', 'showUniProtDialog', txt );
 			
 			var seq = data.sequence.substr(this.start,(this.end-this.start+1));
-			//alert(seq.length + " " + this.start+ " " + this.end+ " | " + seq);
+
 			var url = "/pdb/search/smart.do?chainId_0=&eCutOff_0=0.001&maskLowComplexity_0=yes&searchTool_0=blast&smartComparator=and&smartSearchSubtype_0=SequenceQuery&structureId_0=&target=Current&sequence_0=";
 
 
@@ -1927,7 +1926,7 @@ function EntityView() { with(this)
 		var motifs = data.motifs.tracks;
 
 		var motifrows = breakTrackInRows(motifs);
-		//alert(" motif has " + motifrows.length + " rows" + JSON.stringify(motifrows));
+
 
 		y = drawGenericTrack(svg, motifrows, y, 'Motif', 'motifTrack', up_colors,undefined,callback, data.motifs.label);
 
@@ -2002,7 +2001,7 @@ function EntityView() { with(this)
 			fontSize: '10', fill: 'black'}
 		);
 
-		//alert(trackdata.label);
+
 		drawName(svg, g0, y, trackName, undefined, label);
 
 
@@ -2076,7 +2075,7 @@ function EntityView() { with(this)
 				color = paired_colors[0];
 
 
-			//alert(JSON.stringify(color));
+
 			var x1 = seq2Screen(range.start);
 
 			var defs = svg.defs();
@@ -2190,7 +2189,7 @@ function EntityView() { with(this)
 						colorPos = 0;
 
 					var color = mycolors[colorPos];
-					//alert(JSON.stringify(colorPos) + " " + JSON.stringify(mycolors));
+
 					var width = (range.end - range.start) +1 ;	
 
 					var x1 = seq2Screen(range.start);
@@ -2691,7 +2690,7 @@ function EntityView() { with(this)
 		var g = svg.group(
 				{fontWeight: 'bold',fontSize: 10, fill: 'black'}
 		); 
-		//alert(JSON.stringify(data.jronn));
+
 
 		drawName(svg, g, y, 'Disorder',undefined,data.jronn.label);
 
@@ -2702,7 +2701,7 @@ function EntityView() { with(this)
 		var max = 1;
 		//var min = 0;
 		//var max = 0.8;
-		//alert (min + " " + max);
+
 		var adjustedSize = parseFloat(max + Math.abs(min));
 
 		var heightScale = (trackHeightCharts-2)  / adjustedSize;
@@ -2710,12 +2709,12 @@ function EntityView() { with(this)
 		var red  = paired_colors[5];
 		var blue = paired_colors[1];
 
-		//alert(heightScale + " " + adjustedSize);
+
 		for ( var s = 0 ; s < sequence.length; s++){
 
 			var jronpos = data.jronn.tracks[s];
 			if ( typeof jronpos == 'undefined') {
-				//alert("jronpos undef " + s);
+
 				continue;
 			}
 
@@ -2778,7 +2777,7 @@ function EntityView() { with(this)
 		var adjustedSize = (max + Math.abs(min));
 
 		var heightScale = trackHeightCharts / adjustedSize;
-		//alert(heightScale + " " + adjustedSize);
+
 		for ( var s = 0 ; s < sequence.length; s++){
 
 			var hydro = data.hydropathy.tracks[s];
