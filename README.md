@@ -9,10 +9,11 @@ This is the library behind the view at RCSB PDB e.g
 
 http://www.rcsb.org/pdb/protein/P06213
 
+![Screenshot of Protein Feature View at RCSB](/images/P06213.jpg "Insulin receptor - P06213 (INSR_HUMAN)")
+
 ==================
 
 Dependencies:
-
 
 jquery (V. XXX)
 
