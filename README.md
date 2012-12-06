@@ -7,28 +7,22 @@ This is the library behind the Protein Feature View at [RCSB PDB](http://www.rcs
 ![Screenshot of Protein Feature View at RCSB]
 (https://raw.github.com/andreasprlic/proteinfeatureview/master/images/P06213.png "Insulin receptor - P06213 (INSR_HUMAN)")
 
-
-
-# Dependencies
+## Dependencies
 
     * jquery (V. 1.7.2)
     * jqueryui (V. 1.8.22)
     * jquery SVG (V. 1.4.5)
 
+## License
+
+GPL 3.0 [http://www.gnu.org/licenses/gpl.html](http://www.gnu.org/licenses/gpl.html)
 
 
-# License
+## Author
 
-    GPL 3.0 http://www.gnu.org/licenses/gpl.html
+Andreas Prlic - [RCSB Protein Data Bank](http://www.rcsb.org)
 
-
-# Author
-
-Andreas Prlic - RCSB Protein Data Bank
-
-***
-
-# How to get started?
+## How to get started?
 
 Take a look at [minimal.html](/andreasprlic/proteinfeatureview/blob/master/minimal.html) for how to create a basic setup
 
