@@ -18,7 +18,8 @@
 
   <!-- jquery SVG includes !-->
  <link rel="stylesheet" type="text/css" href="https://raw.github.com/andreasprlic/proteinfeatureview/master/svg/jquery.svg.css"/>
- <script src="https://raw.github.com/andreasprlic/proteinfeatureview/master/svg/jquery.svg.min.js"></script>
+ <link rel="stylesheet" type="text/css" href="https://raw.github.com/andreasprlic/proteinfeatureview/master/jquery/jquery-ui-custom.css"/>
+<script src="https://raw.github.com/andreasprlic/proteinfeatureview/master/svg/jquery.svg.min.js"></script>
  <script src="https://raw.github.com/andreasprlic/proteinfeatureview/master/svg/jquery.svgplot.min.js"></script>
  <script src="https://raw.github.com/andreasprlic/proteinfeatureview/master/svg/jquery.svggraph.min.js"></script>
 
@@ -73,9 +74,25 @@
     var uniprotID="P06213";
 
     <!-- still need to set Access Control policy on www.rcsb.org, until then we talk to one of the developmental servers, called ccquickly !-->
-    var entityview_hostname="http://ccquickly.rcsb.org";
-    var entityView = new Object();
+   
+    var masterURL = "http://ccnightly.rcsb.org/pdb/protein/";
+
+    var tracks= [ {'name':'pfam',
+                   'url':'http://ccnightly.rcsb.org/pdb/protein/'+uniprotID+'?type=json&track=pfam' },{
+                   'name':'pmp',
+                   'url':'http://ccnightly.rcsb.org//pdb/protein/'+uniprotID+'?type=json&track=pmp' },{
+                   'name':'hydropathy',
+                   'url':'http://ccnightly.rcsb.org//pdb/protein/'+uniprotID+'?type=json&track=hydropathy'},  {
+                   'name':'Disorder',
+                   'url':'http://ccnightly.rcsb.org//pdb/protein/'+uniprotID+'?type=json&track=jronn' }, {
+                   'name':'SCOP',
+                   'url':'http://ccnightly.rcsb.org//pdb/protein/'+uniprotID+'?type=json&track=scop' }
+                ];
+   
+   
+   var entityView = new Object();
     
+   
     $(function() {
 
       // for old IE, don't do anything
@@ -86,11 +103,12 @@
     
     			entityView = new EntityView();
     			
-    			entityView.setSizeDiv('#entityContainer');
-			entityView.setParentDiv('#entity');    			
-    			entityView.setDialogDiv('#dialog');
-    			entityView.setShowSeqres(true);
-    			entityView.setJmol(true);
+    		   	entityView.setSizeDiv('#entityContainer');
+                        entityView.setParentDiv('#entity');
+                        entityView.setDialogDiv('#dialog');
+                        entityView.setShowSeqres(true);
+                        entityView.setMasterURL(masterURL);
+                        entityView.setTracks(tracks);
     
     		}
     	entityView.reset();
