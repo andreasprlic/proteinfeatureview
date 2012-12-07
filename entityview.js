@@ -122,6 +122,7 @@ function EntityView() { with(this)
 		this.loadedCallback = function(){};
 		this.updatingPDBSites = false;
 		this.masterURL = "/pdb/protein/";
+		this.rcsbServer = "http://www.rcsb.org";
 		console.log("*** Protein Feature View V." + this.version + " ***");
 	}};
 
@@ -499,9 +500,9 @@ function EntityView() { with(this)
 		var html = "" ;
 		
 		if ( jmolPresent ) 
-			html += "<br/><a href=\" javascript:window.location = '/pdb/explore/explore.do?structureId='"+pdbID+"\">Show " + pdbID + " Structure Summary Page</a>";
+			html += "<br/><a href=\" javascript:window.location = '"+rcsbServer+"/pdb/explore/explore.do?structureId='"+pdbID+"\">Show " + pdbID + " Structure Summary Page</a>";
 			
-		html += "<span><img width='240' src='/pdb/images/"+pdbID.toLowerCase()+"_bio_r_250.jpg?getBest=true' /></span>";
+		html += "<span><img width='240' src='"+ rcsbServer + "/pdb/images/"+pdbID.toLowerCase()+"_bio_r_250.jpg?getBest=true' /></span>";
 		
 		$(dialogDiv).html(html);
 			
@@ -526,11 +527,11 @@ function EntityView() { with(this)
 		var html = "";
 		if ( singlePDBmode ){
 			html ="<h3>" + data.uniprotID +"-" + data.name+"</h3>" ;
-			html +="Show All <a href='/pdb/protein/" + data.uniprotID+"'>PDB-UniProtKB mappings</a> that are available for " + data.uniprotID ; 
+			html +="Show All <a href='"+rcsbServer+"/pdb/protein/" + data.uniprotID+"'>PDB-UniProtKB mappings</a> that are available for " + data.uniprotID ; 
 
 		} else {
 
-			html = "<ul><li><a href='/pdb/search/smartSubquery.do?smartSearchSubtype=UpAccessionIdQuery&accessionIdList=" + 
+			html = "<ul><li><a href='"+rcsbServer+"/pdb/search/smartSubquery.do?smartSearchSubtype=UpAccessionIdQuery&accessionIdList=" + 
 			data.uniprotID+"'>Show All PDB chains</a> that are linked to UniProtKB ID <b>" + data.uniprotID +"</b> - " + data.name +  " ?</li>" +
 			" <li>View UniProtKB record for <a href=\"http://www.uniprot.org/uniprot/"+data.uniprotID+"\" "+
 			" target=\"_new\">"+data.uniprotID+
@@ -566,7 +567,7 @@ function EntityView() { with(this)
 		" target=\"_new\">" + pfamId+
 		"<span class='iconSet-main icon-external'> &nbsp;</span> </a></li>" ;
 
-		html += "<li>Find <a href='/pdb/search/smartSubquery.do?smartSearchSubtype=PfamIdQuery&amp;pfamID="+pfamId+"'>other PDB entries with the same Pfam domain</a></li>";
+		html += "<li>Find <a href='"+rcsbServer+"/pdb/search/smartSubquery.do?smartSearchSubtype=PfamIdQuery&amp;pfamID="+pfamId+"'>other PDB entries with the same Pfam domain</a></li>";
 		html += "</ul>";
 
 		$(dialogDiv).html(html);
@@ -690,9 +691,6 @@ function EntityView() { with(this)
 
 		var desc = data.desc;
 
-		
-		
-
 		var header = "<h1>Protein Feature View - " + data.uniprotID;
 		
 		if ( typeof (data.name != 'undefined')) {
@@ -714,7 +712,7 @@ function EntityView() { with(this)
 		.attr("title","link to uniprot web site " + data.uniprotID)
 		.html(data.uniprotID + " <span class='iconSet-main icon-external' title='Link to UniProtKB entry. Up-to-date UniProt Ids are provided by the SIFTS project (http://www.ebi.ac.uk/pdbe/docs/sifts)'> &nbsp;</span>");
 
-		$('#searchinpdb').attr("href","/pdb/search/smart.do?smartComparator=and&smartSearchSubtype_0=UpAccessionIdQuery&target=Current&accessionIdList_0=" + data.uniprotID)
+		$('#searchinpdb').attr("href",rcsbServer+"/pdb/search/smart.do?smartComparator=and&smartSearchSubtype_0=UpAccessionIdQuery&target=Current&accessionIdList_0=" + data.uniprotID)
 		.attr("title","Find all matching PDB IDs for" + data.uniprotID)
 		.html("Search PDB");
 
@@ -976,7 +974,7 @@ function EntityView() { with(this)
 			}
 		} else {
 			var title = "Click here to view more details about " + data.uniprotID;
-			var callback = function(){ window.location =  "/pdb/protein/"+data.uniprotID;} ;
+			var callback = function(){ window.location =  rcsbServer+"/pdb/protein/"+data.uniprotID;} ;
 			y = drawExpandCondensedSymbol(svg,pdbBottomY, title, callback);
 		}
 
@@ -2074,7 +2072,7 @@ function EntityView() { with(this)
 			
 			var seq = data.sequence.substr(this.start,(this.end-this.start+1));
 			//alert(seq.length + " " + this.start+ " " + this.end+ " | " + seq);
-			var url = "/pdb/search/smart.do?chainId_0=&eCutOff_0=0.001&maskLowComplexity_0=yes&searchTool_0=blast&smartComparator=and&smartSearchSubtype_0=SequenceQuery&structureId_0=&target=Current&sequence_0=";
+			var url = rcsbServer+"/pdb/search/smart.do?chainId_0=&eCutOff_0=0.001&maskLowComplexity_0=yes&searchTool_0=blast&smartComparator=and&smartSearchSubtype_0=SequenceQuery&structureId_0=&target=Current&sequence_0=";
 
 
 			html += "<li>Find <a href='"+url+seq+"'>other PDB entries with this sequence motif</a></li>";
@@ -2123,7 +2121,7 @@ function EntityView() { with(this)
 
 			var brendaurl = "http://www.brenda-enzymes.org/php/result_flat.php4?ecno=";
 
-			var pdburl = "/pdb/search/smartSubquery.do?smartSearchSubtype=EnzymeClassificationQuery&Enzyme_Classification=";
+			var pdburl = rcsbServer+"/pdb/search/smartSubquery.do?smartSearchSubtype=EnzymeClassificationQuery&Enzyme_Classification=";
 
 			var callbackec = function(event){
 				
