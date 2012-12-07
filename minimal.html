@@ -41,6 +41,21 @@
     <!-- still need to set Access Control policy on www.rcsb.org, until then we talk to one of the developmental servers, called ccquickly !-->
     var entityview_hostname="http://ccquickly.rcsb.org";
     var entityView = new Object();
+
+    var masterURL = "http://ccnightly.rcsb.org/pdb/protein/";
+
+    var tracks= [ {'name':'pfam',
+    		   'url':'http://ccnightly.rcsb.org/pdb/protein/'+uniprotID+'?type=json&track=pfam' },{
+    		   'name':'pmp',
+    		   'url':'http://ccnightly.rcsb.org//pdb/protein/'+uniprotID+'?type=json&track=pmp' },{
+    		   'name':'hydropathy',
+    		   'url':'http://ccnightly.rcsb.org//pdb/protein/'+uniprotID+'?type=json&track=hydropathy'},  {
+    		   'name':'Disorder',
+    		   'url':'http://ccnightly.rcsb.org//pdb/protein/'+uniprotID+'?type=json&track=jronn' }, {
+    		   'name':'SCOP',
+    		   'url':'http://ccnightly.rcsb.org//pdb/protein/'+uniprotID+'?type=json&track=scop' } 
+                ];
+    
     
     $(function() {
 
@@ -56,7 +71,8 @@
 			entityView.setParentDiv('#entity');    			
     			entityView.setDialogDiv('#dialog');
     			entityView.setShowSeqres(true);
-    			entityView.setJmol(true);
+    			entityView.setMasterURL(masterURL);
+    			entityView.setTracks(tracks);
     
     		}
     	entityView.reset();

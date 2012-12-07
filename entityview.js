@@ -3,25 +3,8 @@
  * 
  *  @author Andreas Prlic
  *  @date 2012 July
- *
- *   Project page: https://github.com/andreasprlic/proteinfeatureview
- *   
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
  */
-
+//the main storage of the information on the page
 
 /** A No args constructor. Needs to call setParent and loadUniprot from the user side
  * 
@@ -71,9 +54,11 @@ function EntityView() { with(this)
 		this.colorDict = {};
 		
 		this.data = {};
-
+		this.pdbsitestore = {};
+		this.version = "2012-11-21";
+		
 		// THESE ARE THE PARAMETERS OF THE VIEW
-
+		
 		this.textLeft     = 20;
 		this.leftBorder   = 130;
 		this.bottomBorder = 15;
@@ -103,7 +88,9 @@ function EntityView() { with(this)
 		this.scrollBarDiv = "#svgScrollBar";
 
 		this.jmolPresent = false;
-
+		this.jmol  = new Object();
+		this.currentJmolPDB = "";
+		
 		this.bw_colors    = [{"color":"#f0f0f0","darkercolor":"#c0c0c0","lightercolor":"#ffffff","textcolor":"black"},
 		                  {"color":"#d9d9d9","darkercolor":"#aeaeae","lightercolor":"#ffffff","textcolor":"black"},
 		                  {"color":"#bdbdbd","darkercolor":"#979797","lightercolor":"#ffffff","textcolor":"black"},
@@ -128,7 +115,14 @@ function EntityView() { with(this)
 		                  {"color": "#abd9e9","darkercolor": "#89aeba","lightercolor": "#ffffff", "textcolor": "black"},
 		                  {"color": "#74add1","darkercolor": "#5d8aa7","lightercolor": "#c5ffff", "textcolor": "black"}];
 		
+		this.domain_colors = [ {"color":"#ff7f00","darkercolor":"#cc6600","lightercolor":"#ffd800","textcolor":"black"}
+		                  ];
+		
 		this.redblue_colors = this.redblue_colors.reverse();
+		this.loadedCallback = function(){};
+		this.updatingPDBSites = false;
+		this.masterURL = "/pdb/protein/";
+		console.log("*** Protein Feature View V." + this.version + " ***");
 	}};
 
 
@@ -138,16 +132,13 @@ function EntityView() { with(this)
 		if ( typeof uniprotId == 'undefined' ){
 			return;
 		}
-		
-		var url = ""
-		if ( typeof entityview_hostname != 'undefined' ) {
-		    url += entityview_hostname;
-		}
-		url += "/pdb/protein/"+uniprotID+"?type=json";
+ 
+		var url = masterURL+uniprotID+"?type=json";
 
 		if (singlePDBmode ) {
 			url +=  "&display=" + displayPDB; 
 		}
+		//console.log(singlePDBmode + " " + url);
 		
 		$.getJSON(url , function(json) {
 			setData(json);
@@ -156,9 +147,22 @@ function EntityView() { with(this)
 			var svg = $( parent ).svg('get');
 			drawInitial(svg);
 			registerEvents();
+			
+			// notify that a uniprot ID got loaded...
+			if(typeof loadedCallback == 'function'){
+				loadedCallback.call(this,uniprotId, json);
+			}
 		});
+		
+		
 
 	}};
+	
+	EntityView.prototype.setLoadedCallback = function(callback){
+		if(typeof callback == 'function'){
+			this.loadedCallback = callback;
+		}
+	};
 
 	EntityView.prototype.registerEvents = function(){with(this) {
 
@@ -190,7 +194,7 @@ function EntityView() { with(this)
 
 		//var mini =  getMinScale() ;
 
-
+		//alert(mini);
 		$(scrollBarDiv).slider({			
 			orientation: "horizontal",
 			range: "min",
@@ -210,6 +214,7 @@ function EntityView() { with(this)
 
 	EntityView.prototype.scollValueChanged = function(event, ui){with(this) {
 		var viewPercent = ui.value;
+		//alert(viewPercent);
 
 
 		var minScale =  getMinScale() ;
@@ -227,19 +232,48 @@ function EntityView() { with(this)
 		setScale(newScale);
 		repaint();
 	}};
+	
+	
+	/** set the URL to load the main data from. Can be used to specify a remote server.
+	 * 
+	 * @param url
+	 */
+	EntityView.prototype.setMasterURL = function(url){
+		this.masterURL = url;
+	};
+	
+	/** Configure which tracks to display. The passed parameter should be a JSON object of this style (that's just an example):
+	 * 
+	 * var tracks = [ {	'name':'pdbsites',
+			                    	'url':'/pdb/protein/'+uniprotID+'?type=json&track=pdbsites&display=' + displayPDB  
+			          },
+					  {	'name':'SCOP',
+					                'url':'/pdb/protein/'+uniprotID+'?type=json&track=scop&display=' + displayPDB 
+					  }] ;
+	 *  
+	 * Note: if you get this configuration wrong, This won't work correctly...  
+	 * 
+	 * See also setDefaultTracks();
+	 * @param tracks
+	 */
+	EntityView.prototype.setTracks= function (tracks) {
+		this.asyncTracks = tracks;
+	};
 
-	EntityView.prototype.setData = function(json){with(this){
-		this.data = json;
-		this.data.colors = this.paired_colors;
-
-
-		// trigger async loads...
-
+	/** Sets the tracks to be displayed to the default, that is used at the RCSB PDB site
+	 * 
+	 */
+	EntityView.prototype.setDefaultTracks = function(){with(this){
 		// single PDB mode does not show externl annotations
-		if ( singlePDBmode)
+		if ( singlePDBmode) {
 			this.asyncTracks = [{	'name':'pdbsites',
-			                    	'url':'/pdb/protein/'+uniprotID+'?type=json&track=pdbsites&display=' + displayPDB  }  ];
-		else {
+			                    	'url':'/pdb/protein/'+uniprotID+'?type=json&track=pdbsites&display=' + displayPDB  
+			                    },
+			                    {	'name':'SCOP',
+					                'url':'/pdb/protein/'+uniprotID+'?type=json&track=scop&display=' + displayPDB 
+					            }
+			                    	];
+		} else {
 			this.asyncTracks = [ {	'name':'pfam',
 			                    	'url':'/pdb/protein/'+uniprotID+'?type=json&track=pfam' },{	
 			                    	'name':'pmp',
@@ -247,19 +281,29 @@ function EntityView() { with(this)
 			                    	'name':'hydropathy',
 			                    	'url':'/pdb/protein/'+uniprotID+'?type=json&track=hydropathy'},  {
 			                    	'name':'Disorder',
-			                    	'url':'/pdb/protein/'+uniprotID+'?type=json&track=jronn' }];
+			                    	'url':'/pdb/protein/'+uniprotID+'?type=json&track=jronn' }, {
+			                    	'name':'SCOP',
+				                    'url':'/pdb/protein/'+uniprotID+'?type=json&track=scop' } 	
+			                    ];
+		}
+	}};
+	
+	EntityView.prototype.setData = function(json){with(this){
+		this.data = json;
+		this.data.colors = this.paired_colors;
+
+
+		// trigger async loads...
+		if ( typeof this.asyncTracks == 'undefined') {
+			this.setDefaultTracks();
 		}
 
 
 		for ( var i =0 ; i < asyncTracks.length ; i++){
 			var track = asyncTracks[i];
 
-			var url = "";
-			if ( typeof entityview_hostname != 'undefined' ) {
-			    url += entityview_hostname;
-			}			
-			url += track.url;
-
+			var url = track.url;
+			//alert(url);
 			loadURLAsync(url);
 		}
 
@@ -267,7 +311,7 @@ function EntityView() { with(this)
 	
 	EntityView.prototype.loadURLAsync = function(url){
 		var that = this;
-		//console.log("requesting " + url);
+		console.log("requesting " + url);
 		jQuery.ajax({ 
 			url: url, 
 			dataType: "json", 
@@ -276,31 +320,63 @@ function EntityView() { with(this)
 			context: that,
 			success: function(json){
 										
-				if ( typeof json.pfam != 'undefined')				
+				if ( typeof json.pfam != 'undefined') {				
 					this.data.pfam = json.pfam;
-				else if (typeof json.externalTracks != 'undefined') {
+					console.log("got pfam response");
+				} else if (typeof json.externalTracks != 'undefined') {
 					this.data.externalTracks = json.externalTracks;
+					console.log("got PMP response");
 				} else if (typeof json.pdbsites != 'undefined') {
-
+					//alert(JSON.stringify(json));
 					this.data.pdbsites = json.pdbsites;
+					this.updatingPDBSites = false;
+					console.log("got PDB sites response for " + json.pdbID);
+					this.pdbsitestore[json.pdbID] = json.pdbsites;
 				}else if (typeof json.hydropathy != 'undefined') {
-
+					//alert(JSON.stringify(json));
 					this.data.hydropathy_max = json.hydropathy.hydropathy_max;
 					this.data.hydropathy_min = json.hydropathy.hydropathy_min;
 					this.data.hydropathy = json.hydropathy;
+					console.log("got hydropathy response");
 				} else if (typeof json.jronn != 'undefined') {
-
+					//alert(JSON.stringify(json));
 					this.data.jronn_max = json.jronn.jronn_max;
 					this.data.jronn_min = json.jronn.jronn_min;
 					this.data.jronn = json.jronn;
+					console.log("got jronn response");
+				} else if ( typeof json.scop != 'undefined') {
+					this.data.scop = json.scop;
+					console.log("got scop response");
 				}
 			
 				this.repaint();
+			},
+			error: function(jqXHR, textStatus, errorThrown){
+				
+				console.log("ajax error: status code: " + jqXHR.status);
+				
+				 if (jqXHR.status === 0) {
+					 	console.log('Not connected. \n Verify Network.');
+		            } else if (jqXHR.status == 404) {
+		            	console.log('Requested page not found. [404]');
+		            } else if (jqXHR.status == 500) {
+		            	console.log('Internal Server Error [500].');
+		            } else if (exception === 'parsererror') {
+		            	console.log('Requested JSON parse failed.');
+		            } else if (exception === 'timeout') {
+		            	console.log('Time out error.');
+		            } else if (exception === 'abort') {
+		            	console.log('Ajax request aborted.');
+		            } else {
+		            	console.log('Uncaught Error.\n' + jqXHR.responseText);
+		            }
+				
+				
+				console.log('error during ajax request: ' + errorThrown);
+				console.log('textstatus: ' + textStatus);
+				console.log(jqXHR.responseText);
 			}
 		});
-		
-		
-		
 		
 	};
 		
@@ -385,7 +461,11 @@ function EntityView() { with(this)
 
 	EntityView.prototype.repaint = function(){with(this){
 
+		//alert($(parent).width());
 
+		if ( typeof parent == 'undefined')
+			return;
+		
 		$("#uniprotsubheader").html("");
 
 		var svg = $(parent ).svg('get');
@@ -409,19 +489,29 @@ function EntityView() { with(this)
 			return;
 		}
 
-		var pdbID = track.pdbID;
-		var desc  = track.desc;
-	
-		if ( typeof pageTracker != 'undefined' ) 
-		    pageTracker._trackEvent('ProteinFeatureView', 'showPDBDialog', desc );		
-		$(dialogDiv).html("Show PDB ID " + pdbID + " ? <span><img src='/pdb/images/"+pdbID.toLowerCase()+"_bio_r_250.jpg?getBest=true' /></span>" );
+		
+		var pdbID   = track.pdbID;
+		var desc    = track.desc;
+		var chainID = track.chainID;
+		
+		if ( typeof pageTracker != 'undefined')
+			pageTracker._trackEvent('ProteinFeatureView', 'showPDBDialog', desc );		
+		var html = "" ;
+		
+		if ( jmolPresent ) 
+			html += "<br/><a href=\" javascript:window.location = '/pdb/explore/explore.do?structureId='"+pdbID+"\">Show " + pdbID + " Structure Summary Page</a>";
+			
+		html += "<span><img width='240' src='/pdb/images/"+pdbID.toLowerCase()+"_bio_r_250.jpg?getBest=true' /></span>";
+		
+		$(dialogDiv).html(html);
+			
 		$(dialogDiv).dialog({
-			title: pdbID + ' - ' + desc,
-			height:380, 
+			title: 'Load in Jsmol ' + pdbID + ' - ' + desc,
+			height:420, 
 			width: 280,
 			modal: true,
 			buttons: { 
-				"OK": function() { $(this).dialog("close"); window.location = '/pdb/explore/explore.do?structureId='+pdbID ;},
+				"OK": function() { $(this).dialog("close"); entityView.load3DChain(pdbID, chainID); },
 				"Cancel": function() { $(this).dialog("close"); } 
 			}
 		});
@@ -431,9 +521,8 @@ function EntityView() { with(this)
 	EntityView.prototype.showSequenceDialog = function(){ with(this){
 
 		//$(dialogDiv).attr('title', data.uniprotID );
-
-		if ( typeof pageTracker != 'undefined' ) 
-		    pageTracker._trackEvent('ProteinFeatureView', 'showSequenceDialog', data.uniprotID );
+		if ( typeof pageTracker != 'undefined')
+			pageTracker._trackEvent('ProteinFeatureView', 'showSequenceDialog', data.uniprotID );
 		var html = "";
 		if ( singlePDBmode ){
 			html ="<h3>" + data.uniprotID +"-" + data.name+"</h3>" ;
@@ -442,7 +531,7 @@ function EntityView() { with(this)
 		} else {
 
 			html = "<ul><li><a href='/pdb/search/smartSubquery.do?smartSearchSubtype=UpAccessionIdQuery&accessionIdList=" + 
-			data.uniprotID+"'>Show All PDB entries</a> that are linked to UniProtKB ID <b>" + data.uniprotID +"</b> - " + data.name +  " ?</li>" +
+			data.uniprotID+"'>Show All PDB chains</a> that are linked to UniProtKB ID <b>" + data.uniprotID +"</b> - " + data.name +  " ?</li>" +
 			" <li>View UniProtKB record for <a href=\"http://www.uniprot.org/uniprot/"+data.uniprotID+"\" "+
 			" target=\"_new\">"+data.uniprotID+
 			"<span class='iconSet-main icon-external'> &nbsp;</span></a></li>" ;
@@ -468,8 +557,8 @@ function EntityView() { with(this)
 		var pfamId = pfam.acc;
 		var desc = pfam.desc;
 		//$(dialogDiv).attr('title', pfamId + ' - '  + pfam.name);
-		if ( typeof pageTracker != 'undefined' ) 
-		    pageTracker._trackEvent('ProteinFeatureView', 'showPfamDialog', pfamId );
+		if ( typeof pageTracker != 'undefined')
+			pageTracker._trackEvent('ProteinFeatureView', 'showPfamDialog', pfamId );
 		
 		
 		var html = "<h3> " + desc +  "</h3>"+
@@ -591,6 +680,10 @@ function EntityView() { with(this)
 			return;
 		}
 
+		
+		console.log("drawInitial " + data.uniprotID);
+		//alert("drawInitial " + data.uniprotID);
+
 		sequence = new Object();	
 		sequence.length = data.length;
 		sequence.name=data.uniprotID;
@@ -614,7 +707,7 @@ function EntityView() { with(this)
 		
 		//$('#uniprotheader').html(header);
 
-
+		
 		filterTracks();
 
 		$('#linktouniprot').attr("href","http://www.uniprot.org/uniprot/" + data.uniprotID)
@@ -689,6 +782,15 @@ function EntityView() { with(this)
 			drawSourceIndication(svg,'Pfam',pfamTopY, pfamY);
 		}
 		
+		
+		var domainTop = y;
+		
+		y = drawSCOP(svg,sequence,y);
+		
+		drawSourceIndication(svg,'Domains',domainTop, y);
+		
+		
+		
 		var algoTop = y;
 		
 		y = drawJronn(svg,sequence,y);
@@ -734,7 +836,7 @@ function EntityView() { with(this)
 			var track = data.tracks[i];
 
 			if ( singlePDBmode) {
-
+				//alert(track.pdbID + " " + displayPDB);
 				if ( track.pdbID !=  displayPDB )
 					continue;
 				if ( counter > maxTracksSingleMode)
@@ -767,9 +869,9 @@ function EntityView() { with(this)
 
 		var title = "Showing a representative subset of PDB matches. Click for more ";
 		
-		var callback = function(){ 
-    			if ( typeof pageTracker != 'undefined' ) 
-			    pageTracker._trackEvent('ProteinFeatureView', 'showCondensedView', 'true' );
+		var callback = function(){
+			if ( typeof pageTracker != 'undefined')
+				pageTracker._trackEvent('ProteinFeatureView', 'showCondensedView', 'true' );
 			setShowCondensed(false); $('#showCondensed').text("Show Condensed View"); } ;
 				
 		var totalTracks = getTotalNrPDBTracks();
@@ -778,7 +880,7 @@ function EntityView() { with(this)
 			y = drawExpandCondensedSymbol(svg,pdbBottomY, title, callback);
 		} ;
 
-
+		//alert(JSON.stringify(data.externalTracks.names));
 		if ( ! singlePDBmode){
 
 			//if ( data.externalTracks.names.length > 0) 
@@ -826,8 +928,8 @@ function EntityView() { with(this)
 					
 					 if (trackdata.label == "Homology Models from Protein Model Portal") {
 							callbackexternal = function(event){
-							if ( typeof pageTracker != 'undefined' ) 	
-							    pageTracker._trackEvent('ProteinFeatureView', 'showPMPDialog', data.uniprotID );	
+							if ( typeof pageTracker != 'undefined')
+								pageTracker._trackEvent('ProteinFeatureView', 'showPMPDialog', data.uniprotID );	
 								
 							var html = "<h3>" + this.desc +"</h3>";
 							
@@ -842,14 +944,14 @@ function EntityView() { with(this)
 								width: 300,
 								modal: true,
 								buttons: { 
-									//"OK": function() { $(this).dialog("close"); window.location = '/pdb/explore/explore.do?structureId='+pdbID ;},
+									"OK": function() { $(this).dialog("close"); window.location = url ;},
 									"Cancel": function() { $(this).dialog("close"); } 
 								}
 							});
 						};
 					 }
 					
-
+					//alert(trackdata.label);
 					if ( trackrows.length > 0) {
 					
 						if (trackdata.label == "Homology Models from Protein Model Portal") {
@@ -887,16 +989,16 @@ function EntityView() { with(this)
 		if ( counter > 0) {
 			if ( counter < fullTrackCount) {
 	
-				$("#clusterStats").html("Showing " + counter + " representative out of " + fullTrackCount + " PDB entries");
+				$("#clusterStats").html("Showing " + counter + " representative out of " + fullTrackCount + " PDB chains");
 			} else { 
-				$("#clusterStats").html("Showing all " + counter + " PDB entries");
+				$("#clusterStats").html("Showing all " + counter + " PDB chains");
 			}
 		} else {
 			
 			$("#clusterStats").html("Showing all PDB entries");
 		}
 
-
+	
 	}};
 	
 	
@@ -907,12 +1009,12 @@ function EntityView() { with(this)
 		
 		var fullTrackCount = data.tracks.length;
 		if ( typeof data.backupTracks != 'undefined') {
-
+			//alert(data.tracks.length +" " + data.backupTracks.length);
 			fullTrackCount = data.backupTracks.length;
 		}
 		return fullTrackCount;
 	}};
-
+		
 	/** draw a plus icon on the left side, that allows to expand the condensed view
 	 * 
 	 * @param svg
@@ -928,20 +1030,13 @@ function EntityView() { with(this)
 			id:'expandCondensed'+data.uniprotID,
 			fontWeight: 'bold', 
 			fontSize: '10', 
-			fill: 'black'}
-		);
+			fill: 'black'});
 
 
 		// a small spacer..
 
 		for ( var i =0 ; i < 3 ; i ++) {
-			svg.rect(g, (textLeft-5)  , y+1,  2 , 2,
-
-					{
-				fill: 'black'
-
-					}
-			);
+			svg.rect(g, (textLeft-5)  , y+1,  2 , 2,{fill: 'black'});
 
 			y+= trackHeight/2;
 		}
@@ -949,13 +1044,11 @@ function EntityView() { with(this)
 		// the box around the +
 
 		var rect = svg.rect(g, textLeft-9, y ,  10  , trackHeight,
-				{
-			fill: 'white',
+				{fill: 'white',
 			//fill: color,
 			stroke: color,
 			strokeWidth: 2
-				}
-		); 
+				}); 
 
 		//var text = svg.text(g, 0, y+trackHeight-1 , "+");  
 		// hprizontal bar of +
@@ -1092,6 +1185,9 @@ function EntityView() { with(this)
 			shortname = "Calc";
 			name = "Electronic annotation";
 			color = 'grey';
+		} else if ( name == "Domains"){
+			shortname = " ";
+			color = paired_colors[7].color;
 		}
 		
 	
@@ -1183,7 +1279,7 @@ function EntityView() { with(this)
 		var colorMap = colors[colorPos];
 		if ( colorBy == "Resolution") {
 
-
+			//alert(colorBy + " " + track.resolution);		
 			if(typeof track.resolution == 'undefined') 
 				return bw_colors[6];
 
@@ -1192,7 +1288,7 @@ function EntityView() { with(this)
 			for ( var i = 0 ; i< (redblue_colors.length - 1) ; i++){
 			
 				if ( resolution < (i+1)*1000) {
-
+					//alert("i " + i + " " + resolution);
 					return redblue_colors[i];
 				}
 			}
@@ -1271,8 +1367,9 @@ function EntityView() { with(this)
 					newTracks.push(track);
 				}
 			}
+			
 			data.tracks = newTracks;
-
+			//alert("new nr of tracks: " + data.tracks.length + " old size: " + data.backupTracks.length);
 
 		} else {
 			if ( typeof data.backupTracks != 'undefined') {
@@ -1280,8 +1377,77 @@ function EntityView() { with(this)
 
 			}
 		}
+		
+		checkUpdateSites4FirstTrack();
+		
 	}};
 
+	EntityView.prototype.checkUpdateSites4FirstTrack = function(){
+	
+		if ( typeof this.data.tracks == 'undefined') 
+			return;
+		
+		
+		if ( this.data.tracks.length < 1 )
+			return;
+		
+		var firstPDB = this.data.tracks[0].pdbID;
+		
+		this.updatePDBSiteTracks(firstPDB);
+	};
+	
+	
+	EntityView.prototype.updatePDBSiteTracks = function(apdbID){
+		var shouldUpdatePDBSites = this.shouldUpdatePDBSites(apdbID);
+	
+		// check should update PDB sites?		
+		if (! shouldUpdatePDBSites)
+			return;
+	
+		if ( typeof this.pdbsitestore[apdbID] != 'undefined') {
+			// we already have the loaded the requested PDB ID, so we can just re-use it...
+			this.data.pdbsites = this.pdbsitestore[apdbID];
+		} else {
+			this.loadPDBSiteTracks(apdbID);
+		}
+			
+	};
+	
+	/** Trigger a reload of PDB site tracks for a particular PDB ID...
+	 * 
+	 * @param pdbID
+	 */
+	EntityView.prototype.loadPDBSiteTracks = function(pdbID){
+		console.log("loading PDB site track for  " + pdbID +  " " + this.updatingPDBSites );
+		this.updatingPDBSites  = true;
+		var url = masterURL + this.data.uniprotID+'?type=json&track=pdbsites&display=' + pdbID;		
+		this.loadURLAsync(url);
+	};
+	
+	/** Checks if the SITE record track for a particular PDB ID should be updated
+	 * 
+	 *  @param pdbID
+	 */	
+	EntityView.prototype.shouldUpdatePDBSites = function(pdbID){ 
+		if ( this.updatingPDBSites == true)
+			return false;
+		
+		
+		if ( typeof this.data.pdbsites == 'undefined')
+			return true;
+		
+		// get PDB ID for the tracks...
+		if ( this.data.pdbsites.tracks.length < 1)
+			return true;
+				
+		var sitePDB = this.data.pdbsites.tracks[0].pdbID;
+				
+		if ( pdbID == sitePDB)
+			return false;
+		
+		return true;
+	};
+	
 	EntityView.prototype.getShowCondensed= function(){with(this){
 		return showCondensed;
 	}};
@@ -1298,7 +1464,7 @@ function EntityView() { with(this)
 			$(colorBox).css("background-color",color.color);
 
 
-			var colorMain = $("<div>").html( " Resolution < " + (i+1) + " A");
+			var colorMain = $("<div>").html( " Resolution < " + (i+1) + " &Aring;");
 			$(colorMain).append(colorBox);
 
 			$("#colorLegend").append(colorMain);
@@ -1313,7 +1479,7 @@ function EntityView() { with(this)
 		$(colorBox).css("background-color",color.color);
 
 
-		var colorMain = $("<div>").html( " Resolution >= " + i + " A");
+		var colorMain = $("<div>").html( " Resolution >= " + i + " &Aring;");
 		$(colorMain).append(colorBox);
 		$("#colorLegend").append(colorMain);
 		$("#colorLegend").append("<br/>");
@@ -1429,7 +1595,7 @@ function EntityView() { with(this)
 			// width in view divided by 10 px font size
 			var max = Math.floor(availspace / 8.0)  ;
 			//console.log('avail space: ' + availspace +' px ' + " new max: " + max + " " + txt.getBoundingClientRect().width + " " + tlength);
-
+			//alert("text " + domain.name + " too long! " + max );
 
 			txt.firstChild.data = fullText.substring(0,max);
 
@@ -1528,7 +1694,7 @@ function EntityView() { with(this)
 
 					var resolution = "";
 					if(typeof track.resolution != 'undefined') {
-						resolution =  " - " + (track.resolution / 1000) + " A";
+						resolution =  " - " + (track.resolution / 1000) + " " + '\u00C5';
 					}		
 					var d = new Date(track.releaseDate);
 					$(rect).attr("title","PDB ID " + track.pdbID + " chain " + track.chainID + " - " + track.desc +  " (" + rangeOrig.start+"-"+rangeOrig.end +") "+ resolution + " - " + d.toDateString() );
@@ -1596,8 +1762,6 @@ function EntityView() { with(this)
 			// PDB color...
 			gcolor = paired_colors[1];
 		}
-		
-	
 
 		var rect1 = new Object();
 		if ( orientation == 'up') {
@@ -1632,7 +1796,7 @@ function EntityView() { with(this)
 				strokeWidth:1
 					});
 		}
-		$(rect1).attr("title",feature.label + ' track');
+		$(rect1).attr("title",feature.label + ' track for ' + feature.tracks[0].pdbID + "." + feature.tracks[0].chainID);
 		$(rect1).bind('mouseover', function(event,ui) { popupTooltip(event,ui,$(this));});				
 		$(rect1).mouseout(function(event){hideTooltip();});
 		
@@ -1644,7 +1808,7 @@ function EntityView() { with(this)
 				continue;
 
 			var color = colorDict[site.name];
-
+			//alert(site.name + " " + colorMap[site.name]);
 			
 			if ( typeof color == 'undefined'){
 				colorPos ++;
@@ -1703,7 +1867,7 @@ function EntityView() { with(this)
 						});
 			}
 
-			var title = site.desc + " - " + site.name + " (" + site.start+")";
+			var title = feature.tracks[0].pdbID + "." + feature.tracks[0].chainID + ": " + site.desc + " - " + site.name + " (" + site.start+")";
 
 			$(rect).attr("title",title);
 			$(rect).bind('mouseover', function(event,ui) { popupTooltip(event,ui,$(this));});				
@@ -1723,9 +1887,9 @@ function EntityView() { with(this)
 				$(circle).bind('click', function(event){
 					var g = event.target;
 					//var id = g.id;
-
-
-					executeJmolScript(g.jmol);
+					//alert(JSON.stringify(event.target));
+					console.log(g.jmol);
+					Jmol.script(jmol,g.jmol);
 				});
 			}
 
@@ -1810,7 +1974,7 @@ function EntityView() { with(this)
 			$(txt).bind('mouseover', function(event,ui) { popupTooltip(event,ui,$(this));});				
 			$(txt).mouseout(function(event){hideTooltip();});
 		} else {
-			alert("no label for track " + text);
+			console.log("no label for track " + text);
 		}
 	}};
 
@@ -1842,13 +2006,13 @@ function EntityView() { with(this)
 			for ( var j = 0 ; j < rows.length ; j++ ){
 				var row = rows[j] ;
 				var foundOverlap = false;	
-
+				//alert("row " + j + " length: " + row.length);
 				for ( var k = 0 ; k < row.length ; k++ ){
 
 					featureCount++;
 					var r = row[k];
 					var overlap = this.getOverlap(range.start,range.end, r.start, r.end);
-
+					//alert("overlap? " + featureCount + " " + range.desc + " " + r.desc + " : " +overlap + " | " + range.start + "-" + range.end + " | " + r.start+ "-" +r.end);
 					if ( overlap > 0) {
 
 						foundOverlap = true;
@@ -1863,7 +2027,7 @@ function EntityView() { with(this)
 
 			}
 			//if (range.start == 1029 || range.start == 1023 || range.start == 980)
-
+		//	alert("adding row " + range.desc + "  to row " + lowestRow + " " + range.start + "-" + range.end + " row length: " + rows[lowestRow].length);
 			if ( rows.length < lowestRow +1) {
 				var rowArr = new Array();
 				rows.push(rowArr);
@@ -1905,12 +2069,11 @@ function EntityView() { with(this)
 			
 			var html = "<h3>"+txt+"</h3>"; 
 			html += "<ul>";
-
-			if ( typeof pageTracker != 'undefined' ) 
-			    pageTracker._trackEvent('ProteinFeatureView', 'showUniProtDialog', txt );
+			if ( typeof pageTracker != 'undefined')
+				pageTracker._trackEvent('ProteinFeatureView', 'showUniProtDialog', txt );
 			
 			var seq = data.sequence.substr(this.start,(this.end-this.start+1));
-
+			//alert(seq.length + " " + this.start+ " " + this.end+ " | " + seq);
 			var url = "/pdb/search/smart.do?chainId_0=&eCutOff_0=0.001&maskLowComplexity_0=yes&searchTool_0=blast&smartComparator=and&smartSearchSubtype_0=SequenceQuery&structureId_0=&target=Current&sequence_0=";
 
 
@@ -1948,7 +2111,7 @@ function EntityView() { with(this)
 		var motifs = data.motifs.tracks;
 
 		var motifrows = breakTrackInRows(motifs);
-
+		//alert(" motif has " + motifrows.length + " rows" + JSON.stringify(motifrows));
 
 		y = drawGenericTrack(svg, motifrows, y, 'Motif', 'motifTrack', up_colors,undefined,callback, data.motifs.label);
 
@@ -1969,8 +2132,8 @@ function EntityView() { with(this)
 				html+="<li>View <a href='" + pdburl + this.name + "'>other PDB entries with the same E.C. number</a></li>";
 				html +="</ul>";
 				
-				if ( typeof pageTracker != 'undefined' ) 
-				    pageTracker._trackEvent('ProteinFeatureView', 'showECDialog', this.name );
+				if ( typeof pageTracker != 'undefined')
+					pageTracker._trackEvent('ProteinFeatureView', 'showECDialog', this.name );
 				
 				$(dialogDiv).html(html);
 				$(dialogDiv).dialog({
@@ -2024,7 +2187,7 @@ function EntityView() { with(this)
 			fontSize: '10', fill: 'black'}
 		);
 
-
+		//alert(trackdata.label);
 		drawName(svg, g0, y, trackName, undefined, label);
 
 
@@ -2098,7 +2261,7 @@ function EntityView() { with(this)
 				color = paired_colors[0];
 
 
-
+			//alert(JSON.stringify(color));
 			var x1 = seq2Screen(range.start);
 
 			var defs = svg.defs();
@@ -2212,7 +2375,7 @@ function EntityView() { with(this)
 						colorPos = 0;
 
 					var color = mycolors[colorPos];
-
+					//alert(JSON.stringify(colorPos) + " " + JSON.stringify(mycolors));
 					var width = (range.end - range.start) +1 ;	
 
 					var x1 = seq2Screen(range.start);
@@ -2307,7 +2470,7 @@ function EntityView() { with(this)
 
 
 				} catch (e){
-					alert("Problem whil drawing generic track: " + e);
+					console.log("Problem while drawing generic track: " + e);
 				}
 			}
 			y+= trackHeight + 5;
@@ -2626,7 +2789,7 @@ function EntityView() { with(this)
 					}
 
 				} catch (e){
-					alert("Problem whil drawing generic track: " + e);
+					alert("Problem while drawing generic track: " + e);
 				}
 			}
 			y+= trackHeight + 5;
@@ -2673,13 +2836,13 @@ function EntityView() { with(this)
 			fontWeight: 'bold', 
 			fontSize: '10', fill: 'black'}
 		);
-
+		
 		drawName(svg, g, y, 'PDB Sites', function(event, name) {
 			if ( ! jmolPresent)
 				return;
 			//var tmp = "select " + site.pdbresnum + ":" + site.chainID + "; set display selected; color cpk; spacefill 0.5; wireframe 0.3 ;" ;
 
-			var sel = "select ";
+			var sel = "";			
 			for ( var i = 0 ; i < data.pdbsites.tracks.length ; i++){
 				var site = data.pdbsites.tracks[i];
 				if ( typeof site == 'undefined')
@@ -2689,8 +2852,10 @@ function EntityView() { with(this)
 				if ( i < data.pdbsites.tracks.length -1)
 					sel += ", ";
 			}
-			sel += ";set display selected; color cpk; spacefill 0.5; wireframe 0.3 ;";
-			executeJmolScript(sel);
+			
+			var cmd = "select " + sel + ";set display selected; color cpk; spacefill 0.5; wireframe 0.3 ;";
+						
+			Jmol.script(jmol,cmd);
 
 
 		}, data.pdbsites.label);
@@ -2702,6 +2867,16 @@ function EntityView() { with(this)
 		return y + siteTrackHeight + 2;
 	}};
 
+	EntityView.prototype.drawSCOP = function(svg,sequence,y){with(this){
+		if ( typeof data.scop == 'undefined') {
+			return y;
+		}
+		
+		var trackrows = breakTrackInRows(data.scop.tracks);
+		y = drawGenericTrack(svg,trackrows,y,'SCOP domains','scopDomains', domain_colors,undefined, undefined, data.scop.label);
+		
+		return y;
+	}};
 
 	EntityView.prototype.drawJronn = function(svg,sequence,y){with(this){
 
@@ -2713,7 +2888,7 @@ function EntityView() { with(this)
 		var g = svg.group(
 				{fontWeight: 'bold',fontSize: 10, fill: 'black'}
 		); 
-
+		//alert(JSON.stringify(data.jronn));
 
 		drawName(svg, g, y, 'Disorder',undefined,data.jronn.label);
 
@@ -2724,7 +2899,7 @@ function EntityView() { with(this)
 		var max = 1;
 		//var min = 0;
 		//var max = 0.8;
-
+		//alert (min + " " + max);
 		var adjustedSize = parseFloat(max + Math.abs(min));
 
 		var heightScale = (trackHeightCharts-2)  / adjustedSize;
@@ -2732,12 +2907,12 @@ function EntityView() { with(this)
 		var red  = paired_colors[5];
 		var blue = paired_colors[1];
 
-
+		//alert(heightScale + " " + adjustedSize);
 		for ( var s = 0 ; s < sequence.length; s++){
 
 			var jronpos = data.jronn.tracks[s];
 			if ( typeof jronpos == 'undefined') {
-
+				//alert("jronpos undef " + s);
 				continue;
 			}
 
@@ -2759,7 +2934,7 @@ function EntityView() { with(this)
 				
 			var tmph =  posHeight;
 			if ( tmph < 0)
-				alert(s + " score: " + score + " orig: " + jronpos.desc+ " tmph:"+ tmph + " posH: " + posHeight + " totalH:" + trackHeightCharts);
+				console.log(s + " score: " + score + " orig: " + jronpos.desc+ " tmph:"+ tmph + " posH: " + posHeight + " totalH:" + trackHeightCharts);
 			
 						
 			svg.rect(seq2Screen(s), y-posHeight+trackHeightCharts-2,  1* scale+1, tmph, 
@@ -2800,7 +2975,7 @@ function EntityView() { with(this)
 		var adjustedSize = (max + Math.abs(min));
 
 		var heightScale = trackHeightCharts / adjustedSize;
-
+		//alert(heightScale + " " + adjustedSize);
 		for ( var s = 0 ; s < sequence.length; s++){
 
 			var hydro = data.hydropathy.tracks[s];
@@ -2930,7 +3105,8 @@ function EntityView() { with(this)
 			try {
 				data.tracks = $(data.tracks).sort(sortResolution);
 			} catch (err){
-				alert("ERROR DURING SORTING " + err);
+				console.log("ERROR DURING SORTING " + err);
+				
 			}
 
 		} else if ( text == 'Release Date') {
@@ -3044,12 +3220,58 @@ function EntityView() { with(this)
 	 * 
 	 * @param flag
 	 */
-	EntityView.prototype.setJmol= function(flag){with(this){
+	EntityView.prototype.registerJmol= function(jmolApplet){with(this){
 		jmolPresent = true;
+		jmol = jmolApplet;
+		if ( typeof data.tracks != 'undefined' ){
+			if ( data.tracks.length < 1)
+				return;
+			
+			var pdbID   = data.tracks[0].pdbID;
+			var chainID = data.tracks[0].chainID;
+			
+			load3DChain(pdbID, chainID);
+			
+		}
 
 	}};
 
-	EntityView.prototype.getJmol= function(){with(this){
+	EntityView.prototype.load3D= function(pdbID){with(this){
+		
+		if ( ! jmolPresent)
+			return;
+		
+		
+		updatePDBSiteTracks(pdbID);
+		
+		if (  currentJmolPDB != pdbID) {
+			console.log('loading PDB in Jmol: ' + pdbID);
+			Jmol.loadFile(jmol,'='+pdbID);
+		}
+		currentJmolPDB = pdbID;
+		Jmol.script(jmol,"select *; spacefill off; backbone off; wireframe off; cartoon on; color cartoon structure; ");
+		Jmol.script(jmol,"select ligand; wireframe 0.2; spacefill 0.5; color cpk; ");
+		Jmol.script(jmol," select *.FE; spacefill 0.7; color cpk ; ");
+		Jmol.script(jmol," select *.CU; spacefill 0.7; color cpk ; ");
+		Jmol.script(jmol," select *.ZN; spacefill 0.7; color cpk ; ");
+		Jmol.script(jmol,"set echo top right; echo " + pdbID);
+		
+
+	}};
+	
+	EntityView.prototype.load3DChain= function(pdbID, chainID){with(this){
+		
+		if ( ! jmolPresent)
+			return;
+		console.log('loading PDB in Jmol: ' + pdbID + " chainID: " +chainID);
+		load3D(pdbID);
+		Jmol.script(jmol,"select *; color grey; color cartoon grey; select *:" + chainID +";  color cartoon structure; ");
+		
+		
+
+	}};
+	
+	EntityView.prototype.isJmolPresent= function(){with(this){
 		return jmolPresent;
 
 	}};
@@ -3284,6 +3506,8 @@ function EntityView() { with(this)
 			} 
 
 	}};		
+		
+
 				
 		// end of file!
 		
