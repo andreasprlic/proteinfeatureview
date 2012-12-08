@@ -13,3 +13,18 @@ svg\:svg {
 	color: red;
 	font-weight: bold;
 }
+/*******************************************************************************
+
+SVG graphics (entityView.jsp)
+
+*******************************************************************************/
+.svgtooltip {
+	    font-size: 12px;
+}
+
+.svgtooltip_bg {
+	       fill: white;
+	       stroke: black;
+	       stroke-width: 1;
+	       opacity: 0.70;
+}

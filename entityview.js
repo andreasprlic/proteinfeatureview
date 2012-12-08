@@ -3399,7 +3399,7 @@ function EntityView() { with(this)
 
 
 		var tooltipBG = getTooltipBG();
-
+		console.log(tooltipBG + " = tooltipBg" );
 		if ( typeof tooltipBG == 'undefined' )
 			return;
 
