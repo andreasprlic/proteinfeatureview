@@ -30,53 +30,31 @@
 
 </head>
 
+
 <body>
- <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/andreasprlic/proteinfeatureview">View on GitHub</a>
 
-          <h1 id="project_title">Proteinfeatureview</h1>
-          <h2 id="project_tagline">The Protein Feature View - a SVG library for visualising protein annotations</h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/andreasprlic/proteinfeatureview/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/andreasprlic/proteinfeatureview/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h1>The Protein Feature View</h1>
 
 
   <div id="entityContainer" style="margin:0 auto;padding:30px 0;width:800px;">
-    
+
+      <h2>Insulin receptor - P06213 (INSR_HUMAN)</h2>
+      Protein Feature View - View PDB entries that are mapped to UniProtKB
+
      <div id="dialog" title="Leave Page">&nbsp;</div>
      <div id="entity"></div>
 
    </div>
-  
-    </section>
-    </div>
-  
-  <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Proteinfeatureview maintained by <a href="https://github.com/andreasprlic">andreasprlic</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
-    
-    
-      <script>
+
+
+
+  <script>
 
     var uniprotID="P06213";
 
     <!-- still need to set Access Control policy on www.rcsb.org, until then we talk to one of the developmental servers, called ccquickly !-->
-   
+    var entityview_hostname="http://ccquickly.rcsb.org";
+    var entityView = new Object();
+
     var masterURL = "http://ccnightly.rcsb.org/pdb/protein/";
 
     var tracks= [ {'name':'pfam',
@@ -90,10 +68,9 @@
                    'name':'SCOP',
                    'url':'http://ccnightly.rcsb.org//pdb/protein/'+uniprotID+'?type=json&track=scop' }
                 ];
+
    
    
-   var entityView = new Object();
-    
    
     $(function() {
 
