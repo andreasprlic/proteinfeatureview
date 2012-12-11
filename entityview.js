@@ -122,7 +122,7 @@ function EntityView() { with(this)
 		this.loadedCallback = function(){};
 		this.updatingPDBSites = false;
 		this.masterURL = "/pdb/protein/";
-		this.rcsbServer = "http://www.rcsb.org";
+		this.rcsbServer = "";
 		console.log("*** Protein Feature View V." + this.version + " ***");
 	}};
 
@@ -507,7 +507,7 @@ function EntityView() { with(this)
 		$(dialogDiv).html(html);
 			
 		$(dialogDiv).dialog({
-			title: 'Load in Jsmol ' + pdbID + ' - ' + desc,
+			title: 'View ' + pdbID + ' - ' + desc,
 			height:420, 
 			width: 280,
 			modal: true,
@@ -1418,7 +1418,7 @@ function EntityView() { with(this)
 	EntityView.prototype.loadPDBSiteTracks = function(pdbID){
 		console.log("loading PDB site track for  " + pdbID +  " " + this.updatingPDBSites );
 		this.updatingPDBSites  = true;
-		var url = masterURL + this.data.uniprotID+'?type=json&track=pdbsites&display=' + pdbID;		
+		var url = this.masterURL + this.data.uniprotID+'?type=json&track=pdbsites&display=' + pdbID;		
 		this.loadURLAsync(url);
 	};
 	
@@ -3235,10 +3235,13 @@ function EntityView() { with(this)
 	}};
 
 	EntityView.prototype.load3D= function(pdbID){with(this){
+				
+		console.log('loading PDB ' + pdbID );
 		
-		if ( ! jmolPresent)
+		if ( ! jmolPresent) {
+			window.location = rcsbServer+"/pdb/explore/explore.do?structureId="+pdbID;
 			return;
-		
+		}
 		
 		updatePDBSiteTracks(pdbID);
 		
@@ -3259,8 +3262,10 @@ function EntityView() { with(this)
 	
 	EntityView.prototype.load3DChain= function(pdbID, chainID){with(this){
 		
-		if ( ! jmolPresent)
+		if ( ! jmolPresent) {
+			window.location = rcsbServer+"/pdb/explore/explore.do?structureId="+pdbID;
 			return;
+		}
 		console.log('loading PDB in Jmol: ' + pdbID + " chainID: " +chainID);
 		load3D(pdbID);
 		Jmol.script(jmol,"select *; color grey; color cartoon grey; select *:" + chainID +";  color cartoon structure; ");
