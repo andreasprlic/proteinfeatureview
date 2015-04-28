@@ -1,0 +1,70 @@
+
+*.pfv span {
+  text-align: left;
+  width: auto;
+}
+
+*.pfv * {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.pfv-root {
+  flex: 100% 1 1;
+  -webkit-flex: 100% 1 1;
+  display: inline-flex;
+  display: -webkit-inline-flex;
+  flex-direction: column;
+  -webkit-flex-direction: column;
+  max-height: 500px;
+  width: 100%;
+  outline: none;
+}
+
+*.pfv span {
+  text-align: left;
+  width: auto;
+}
+
+*.pfv form {
+  padding: 0px;
+}
+
+*.pfv .slider hr.slider-track {
+    width: 200px;
+    height: 4px;
+    background-color: gray;
+    position: absolute;
+    top: 0px;
+    margin-left: 4px;
+    margin-right: 4px;
+    margin-top: 3px;
+}
+
+*.pfv .slider hr.slider-thumb {
+    border: 1.5px solid #888888;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    margin-top: 0px;
+    left: 50px;
+    background-color: #dddddd;
+    margin-left: 1px;
+}
+
+*.pfv .slider hr.slider-thumb.active {
+  background-color: #bbbbee;
+  z-index: 20;
+  width: 12px; height: 12px;
+  margin-left: 0px;
+  margin-top: -1px;
+}
+
+*.pfv .slider div.slider-label {
+  top: 9px;
+  font-size: 7pt;
+  display: block;
+  position: absolute;
+  width: 50px;
+  text-align: center;
+  margin-left: -21px;
+}
