@@ -5,8 +5,7 @@
 
 		 	this.textLeft = 20;
             this.leftBorder = 130;
-            this.bottomBorder = 15;
-            this.height = 15;
+            this.bottomBorder = 15;            
             this.trackHeight = 10;
             this.trackHeightCharts = 20;
             this.rightBorder = 10;
@@ -41,6 +40,10 @@
                     this.homColors.push(this.paired_colors[5]);
                     this.homColors.push(this.paired_colors[4]);
             
+
+            this.up_colors = [];
+            this.up_colors.push(this.paired_colors[2]);
+            this.up_colors.push(this.paired_colors[3]);
 
 
     	}

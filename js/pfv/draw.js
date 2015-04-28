@@ -25,7 +25,7 @@ define(['params'],
 
     		this.maxY = 0;
 
-    		
+
     		var svg = viewer.getSVGWrapper();
 
     		this.defaultGroup = svg.group({
@@ -442,7 +442,7 @@ define(['params'],
                                                       mycolors, url, callbackFunction, info) {
 
 
-			console.log("Draw generic track " + y + " " + this.seq2Screen(100));
+			
             if (rows.length === 0) {
                 return y;
             }
@@ -1079,7 +1079,7 @@ define(['params'],
 
 
             y = this.drawGenericTrack(svg, this.viewer.getData().signalp, y, 'SignalP',
-                'signalP', this.up_colors, undefined, this.callback, this.viewer.getData().signalp.label);
+                'signalP', this.param.up_colors, undefined, this.callback, this.viewer.getData().signalp.label);
 
         };
 
@@ -1658,12 +1658,10 @@ define(['params'],
                 return y;
             }
 
-            var up_colors = [];
-            up_colors.push(this.param.paired_colors[2]);
-            up_colors.push(this.param.paired_colors[3]);
+          
 
             y = this.drawGenericTrack(svg, rows, y, 'Molec. Processing', 'chainTrack',
-                up_colors, undefined, callback, this.viewer.getData().chains.label);
+                this.param.up_colors, undefined, callback, this.viewer.getData().chains.label);
 
             return y;
 
@@ -1732,9 +1730,7 @@ define(['params'],
 
             }
 
-            var up_colors = [];
-            up_colors.push(this.param.paired_colors[2]);
-            up_colors.push(this.param.paired_colors[3]);
+           
 
             if (
                 (typeof this.viewer.getData().motifs !== 'undefined' ) &&
@@ -1749,7 +1745,7 @@ define(['params'],
                 //alert(" motif has " + motifrows.length + " rows" + JSON.stringify(motifrows));
 
                 y = this.drawGenericTrack(svg, motifrows, y, 'Motif', 'motifTrack',
-                    up_colors, undefined, callback, this.viewer.getData().motifs.label);
+                    this.param.up_colors, undefined, callback, this.viewer.getData().motifs.label);
 
             }
             if (typeof this.viewer.getData().enzymeClassification !== 'undefined') {
@@ -1791,7 +1787,7 @@ define(['params'],
                 };
 
                 y = this.drawRangedTrack(svg, ecrows, y, 'E.C.', 'enzymeClassificationTrack',
-                    up_colors, undefined, callbackec, this.viewer.getData().enzymeClassification.label);
+                    this.param.up_colors, undefined, callbackec, this.viewer.getData().enzymeClassification.label);
 
             }
 
@@ -2481,9 +2477,11 @@ define(['params'],
 
         Draw.prototype.getTrackColor = function (colors, colorPos, track) {
 
+
+        
             //var colorMap =this.viewer.getData().colors[colorPos];
             var colorMap = colors[colorPos];
-            if (this.colorBy === "Resolution") {
+            if (this.viewer.colorBy === "Resolution") {
 
                 //alert(colorBy + " " + track.resolution);      
                 if (typeof track.resolution === 'undefined') {
@@ -2503,7 +2501,7 @@ define(['params'],
                 // last one is the max resolution...
                 return this.redblue_colors[this.redblue_colors.length - 1];
 
-            } else if (this.colorBy === "Alignment Length") {
+            } else if (this.viewer.colorBy === "Alignment Length") {
                 // default is all in one color
                 return colors[1];
             }

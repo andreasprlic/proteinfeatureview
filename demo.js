@@ -32,7 +32,7 @@ require(['viewer','jquerysvg'], function(PFV){
 
     $( document ).ready(function() {
 
-        var uniprotID="P50225";
+        var uniprotID="P06213";
 
     
         $(function() {
@@ -52,7 +52,7 @@ require(['viewer','jquerysvg'], function(PFV){
             entityView.setShowSeqres(true);
             
             
-            entityView.setTracks([]);
+            //entityView.setTracks([]);
 
 
             entityView.loadUniprot(uniprotID);
