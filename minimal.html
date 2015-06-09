@@ -44,32 +44,46 @@
         <h3>Protein Feature View - View PDB entries that are mapped to UniProtKB</h3>
     </div>
 
-    <div class="btn-toolbar toolbar" role="toolbar">
 
-        <div class="btn-group">
-            <input type="text" name="up-field" id="up-field">
+    <div class="btn-toolbar " role="toolbar" style="padding-bottom: 3px;">
 
 
-        </div>
+                    <div class="col-md-3 input-group pull-left">
 
-        <div class="btn-group">
 
-          <a class="btn btn-sm" href="#" role="button" id="fullScreen"><i class="fa fa-arrows-alt"></i> </a>
+                            <input type="text" class="input-medium form-control" placeholder="UniProt ID" name="up-field" id="up-field">
+                            <div class="input-group-btn">
+                                <button class="btn btn-group" style="height:34px;" type="submit"><i class="fa fa-search"></i></button>
+                            </div>
 
-            
-            <a class="btn" id="zoomOut"><i class="fa fa-search-minus"></i></a>
+                    </div>
 
-                    <span class="btn">
 
-                      <div id="svgScrollBar" style="width:100px; float:left"></div>
 
-                    </span>
+             
+                    <div class="btn-group">
+                  
+                      <button class="btn btn-default" href="#" role="button" id="fullScreen"><i class="fa fa-arrows-alt"></i> Full screen</button>
 
-            <a class="btn" id="zoomIn"><i class="fa fa-search-plus"></i></a>
-            
+                        <button class="btn btn-default" style="height:34px" id="zoomOut" role="button"><i class="fa fa-search-minus"></i></button>
 
-        </div>
+                                <span class="btn btn-default" style="height:34px">
+
+                                  <div id="svgScrollBar" style="width:100px; float:left; top:4px; "></div>
+
+                                </span>
+
+                        <button class="btn btn-default" id="zoomIn" style="height:34px"><i class="fa fa-search-plus"></i></button>
+                        
+                        <button class="btn btn-default" id="export"><i class="fa fa-download"></i> Export</button>
+
+                   </div>
+
+                
     </div>
+
+
+    
 
 
     <div class="panel panel-default" >
@@ -88,6 +102,8 @@
 
     </div>
 </div>
+
+
 </body>
 </html>
 

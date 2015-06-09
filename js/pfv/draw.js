@@ -2591,7 +2591,7 @@ define(['params'],
          */
         Draw.prototype.setScale = function (aaWidth) {
 
-        	console.log("draw: set scale  " + aaWidth)
+        	//console.log("draw: set scale  " + aaWidth);
 
             if (aaWidth > this.param.maxTextSize) {
                 aaWidth = this.param.maxTextSize;

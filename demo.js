@@ -47,7 +47,7 @@ require(['viewer','jquerysvg'], function(PFV){
             entityView.setDialogDiv('#dialog');
             entityView.setScrollBarDiv('#svgScrollBar');
 
-            entityView.setRcsbServer("http://beta.rcsb.org");
+            entityView.setRcsbServer("http://www.rcsb.org");
 
             entityView.setShowSeqres(true);
             
@@ -86,6 +86,15 @@ require(['viewer','jquerysvg'], function(PFV){
                 entityView.requestFullscreen(); 
                 return false;
             });
+
+             $('#export').click(
+            function() {
+                var svg = entityView.getSVGWrapper();
+                var xml = svg.toSVG();
+                open("data:image/svg+xml," + encodeURIComponent(xml));
+               
+            });
+
         });
 
 

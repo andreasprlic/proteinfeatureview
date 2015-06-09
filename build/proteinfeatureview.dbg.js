@@ -287,8 +287,7 @@ define('colors',[],function()
 
 		 	this.textLeft = 20;
             this.leftBorder = 130;
-            this.bottomBorder = 15;
-            this.height = 15;
+            this.bottomBorder = 15;            
             this.trackHeight = 10;
             this.trackHeightCharts = 20;
             this.rightBorder = 10;
@@ -324,6 +323,10 @@ define('colors',[],function()
                     this.homColors.push(this.paired_colors[4]);
             
 
+            this.up_colors = [];
+            this.up_colors.push(this.paired_colors[2]);
+            this.up_colors.push(this.paired_colors[3]);
+
 
     	}
 
@@ -357,7 +360,11 @@ define('draw',['params'],
 
     		this.param = new params.Params();
 
-    		this.scale = 0 ;
+    		this.scale = 1 ;
+
+    		this.height = 15;
+
+    		this.maxY = 0;
 
 
     		var svg = viewer.getSVGWrapper();
@@ -583,22 +590,22 @@ define('draw',['params'],
             });
 
 
-            var arrowBody = svg.rect(g, (this.textLeft - 5), y + 1, 2, this.param.trackHeight - 2, 
+            var arrowBody = svg.rect(g, (this.param.textLeft - 5), y + 1, 2, this.param.trackHeight - 2, 
                 {fill: 'black'});
             y += this.param.trackHeight;
 
             var arrow = svg.createPath();
-            svg.path(g, arrow.move(this.textLeft - 4, y).line([[this.textLeft - 6, y - 4],
-                    [this.textLeft - 2, y - 4]]).close(),
+            svg.path(g, arrow.move(this.param.textLeft - 4, y).line([[this.param.textLeft - 6, y - 4],
+                    [this.param.textLeft - 2, y - 4]]).close(),
                 {fill: 'black', stroke: 'black'});
 
             y += 1;
 
-            var circle = svg.circle(g, this.textLeft - 4, y + this.param.trackHeight, 8, {
+            var circle = svg.circle(g, this.param.textLeft - 4, y + this.param.trackHeight, 8, {
                 fill: 'black', opacity: '0.2'
             });
 
-            var text = svg.text(g, this.textLeft - 8, y + this.param.trackHeight * 1.5 - 1, "+", {
+            var text = svg.text(g, this.param.textLeft - 8, y + this.param.trackHeight * 1.5 - 1, "+", {
                 fontSize: '14',
                 fill: 'black', fontWeight: 'bold' 
             });
@@ -644,22 +651,22 @@ define('draw',['params'],
 
             y += 1;
 
-            var circle = svg.circle(g, this.textLeft - 4, y + this.param.trackHeight, 8, {
+            var circle = svg.circle(g, this.param.textLeft - 4, y + this.param.trackHeight, 8, {
                 fill: 'black', opacity: '0.2'
             });
 
-            var text = svg.text(g, this.textLeft - 7, y + this.param.trackHeight * 1.5 - 1, "-", {
+            var text = svg.text(g, this.param.textLeft - 7, y + this.param.trackHeight * 1.5 - 1, "-", {
                 fontSize: '14', fill: 'black', fontWeight: 'bold'
             });
 
             y += this.param.trackHeight * 2.5;
 
             var arrow = svg.createPath();
-            svg.path(g, arrow.move(this.textLeft - 4, y - 4).line([[this.textLeft - 6, y],
-                    [this.textLeft - 2, y]]).close(),
+            svg.path(g, arrow.move(this.param.textLeft - 4, y - 4).line([[this.param.textLeft - 6, y],
+                    [this.param.textLeft - 2, y]]).close(),
                 {fill: 'black', stroke: 'black'});
 
-            var arrowBody = svg.rect(g, (this.textLeft - 5), y, 2, this.param.trackHeight / 2, {fill: 'black'});
+            var arrowBody = svg.rect(g, (this.param.textLeft - 5), y, 2, this.param.trackHeight / 2, {fill: 'black'});
 
 
             var title = "Currently showing all PDB matches. Click here to show only representatives.";
@@ -673,7 +680,7 @@ define('draw',['params'],
 
             var that = this;
             var showCondensed = function () {
-                that.setShowCondensed(true);
+                that.viewer.setShowCondensed(true);
                 $('#showCondensed').text("Show All");
             };
 
@@ -697,9 +704,6 @@ define('draw',['params'],
             if (bottomY - topY < 2) {                
                 return;
             }
-
-
-      
 
             var paired_colors = this.param.paired_colors;
 
@@ -758,7 +762,7 @@ define('draw',['params'],
 
 
             var g = svg.group({id: 'separator', fontWeight: 'bold', fontSize: '10', fill: 'black'});
-            svg.rect(g, this.textLeft, y + (this.param.trackHeight / 4),
+            svg.rect(g, this.param.textLeft, y + (this.param.trackHeight / 4),
                 Math.round(this.viewer.getSequence().length * this.scale) + this.leftBorder + this.rightBorder,
                 1,
                 {
@@ -779,7 +783,7 @@ define('draw',['params'],
                                                       mycolors, url, callbackFunction, info) {
 
 
-			console.log("Draw generic track " + y);
+			
             if (rows.length === 0) {
                 return y;
             }
@@ -1416,7 +1420,7 @@ define('draw',['params'],
 
 
             y = this.drawGenericTrack(svg, this.viewer.getData().signalp, y, 'SignalP',
-                'signalP', this.up_colors, undefined, this.callback, this.viewer.getData().signalp.label);
+                'signalP', this.param.up_colors, undefined, this.callback, this.viewer.getData().signalp.label);
 
         };
 
@@ -1475,7 +1479,7 @@ define('draw',['params'],
 
         };
 
-Draw.prototype.drawPfam = function (svg, y) {
+		Draw.prototype.drawPfam = function (svg, y) {
 
 
             if (typeof this.viewer.getData().pfam === 'undefined') {
@@ -1995,12 +1999,10 @@ Draw.prototype.drawPfam = function (svg, y) {
                 return y;
             }
 
-            var up_colors = [];
-            up_colors.push(this.param.paired_colors[2]);
-            up_colors.push(this.param.paired_colors[3]);
+          
 
             y = this.drawGenericTrack(svg, rows, y, 'Molec. Processing', 'chainTrack',
-                up_colors, undefined, callback, this.viewer.getData().chains.label);
+                this.param.up_colors, undefined, callback, this.viewer.getData().chains.label);
 
             return y;
 
@@ -2069,9 +2071,7 @@ Draw.prototype.drawPfam = function (svg, y) {
 
             }
 
-            var up_colors = [];
-            up_colors.push(this.param.paired_colors[2]);
-            up_colors.push(this.param.paired_colors[3]);
+           
 
             if (
                 (typeof this.viewer.getData().motifs !== 'undefined' ) &&
@@ -2086,7 +2086,7 @@ Draw.prototype.drawPfam = function (svg, y) {
                 //alert(" motif has " + motifrows.length + " rows" + JSON.stringify(motifrows));
 
                 y = this.drawGenericTrack(svg, motifrows, y, 'Motif', 'motifTrack',
-                    up_colors, undefined, callback, this.viewer.getData().motifs.label);
+                    this.param.up_colors, undefined, callback, this.viewer.getData().motifs.label);
 
             }
             if (typeof this.viewer.getData().enzymeClassification !== 'undefined') {
@@ -2128,7 +2128,7 @@ Draw.prototype.drawPfam = function (svg, y) {
                 };
 
                 y = this.drawRangedTrack(svg, ecrows, y, 'E.C.', 'enzymeClassificationTrack',
-                    up_colors, undefined, callbackec, this.viewer.getData().enzymeClassification.label);
+                    this.param.up_colors, undefined, callbackec, this.viewer.getData().enzymeClassification.label);
 
             }
 
@@ -2818,9 +2818,11 @@ Draw.prototype.drawPfam = function (svg, y) {
 
         Draw.prototype.getTrackColor = function (colors, colorPos, track) {
 
+
+        
             //var colorMap =this.viewer.getData().colors[colorPos];
             var colorMap = colors[colorPos];
-            if (this.colorBy === "Resolution") {
+            if (this.viewer.colorBy === "Resolution") {
 
                 //alert(colorBy + " " + track.resolution);      
                 if (typeof track.resolution === 'undefined') {
@@ -2840,7 +2842,7 @@ Draw.prototype.drawPfam = function (svg, y) {
                 // last one is the max resolution...
                 return this.redblue_colors[this.redblue_colors.length - 1];
 
-            } else if (this.colorBy === "Alignment Length") {
+            } else if (this.viewer.colorBy === "Alignment Length") {
                 // default is all in one color
                 return colors[1];
             }
@@ -2929,6 +2931,8 @@ Draw.prototype.drawPfam = function (svg, y) {
          * @param aaWidth - width of one amino acid
          */
         Draw.prototype.setScale = function (aaWidth) {
+
+        	//console.log("draw: set scale  " + aaWidth);
 
             if (aaWidth > this.param.maxTextSize) {
                 aaWidth = this.param.maxTextSize;
@@ -3045,7 +3049,7 @@ define('viewer',['colors','draw','jquery'],
         // }
 
 
-        
+
 
 
         /** Initialize the internals
@@ -3061,7 +3065,7 @@ define('viewer',['colors','draw','jquery'],
 
             this.version = "2014-12-17";
 
-         
+
 
             this.showCondensed = true;
 
@@ -3080,7 +3084,7 @@ define('viewer',['colors','draw','jquery'],
             this.selectionStart = -1;
             this.selectionEnd = -1;
 
-    
+
             this.masterURL = "/pdb/protein/";
             this.rcsbServer = "";
 
@@ -3096,6 +3100,8 @@ define('viewer',['colors','draw','jquery'],
             });
 
             this._initialized = false;
+
+            this.startedAt = new Date().getTime();
 
             //$(this.scrollBarDiv).bind('slidechange', jQuery.proxy( this, 'scollValueChanged' ));
 
@@ -3118,7 +3124,7 @@ define('viewer',['colors','draw','jquery'],
             if (this.singlePDBmode) {
                 url += "&display=" + this.displayPDB;
             }
-            
+
             var that = this;
 
             $.getJSON(url, function (json) {
@@ -3128,7 +3134,7 @@ define('viewer',['colors','draw','jquery'],
 
                 $(that.parent).svg();
                 var svg = $(that.parent).svg('get');
-                
+
                 that.drawInitial(svg);
                 that.updateScale();
                 that.repaint();
@@ -3199,7 +3205,7 @@ define('viewer',['colors','draw','jquery'],
             var viewPercent = ui.value;
             percentShow = viewPercent;
 
-           
+
             this._dispatchEvent({'name':'sliderMovedEvent'},
                 'sliderMoved', {'percent':viewPercent});
         };
@@ -3208,7 +3214,7 @@ define('viewer',['colors','draw','jquery'],
 
             var viewPercent = percentShow;
 
-             this.setScrollValue(viewPercent);
+            this.setScrollValue(viewPercent);
 
 
             this._dispatchEvent({'name':'sliderReleased'},
@@ -3227,7 +3233,7 @@ define('viewer',['colors','draw','jquery'],
 
             var minScale = this.getMinScale();
             //
-            var maxScale = this.param.maxTextSize;
+            var maxScale = this.params.maxTextSize;
             //
             var tmpMax = maxScale - minScale;
 
@@ -3356,7 +3362,7 @@ define('viewer',['colors','draw','jquery'],
         Viewer.prototype.setData = function (json) {
 
             this.data = json;
-            
+
 
             // trigger async loads...
             if (typeof this.asyncTracks === 'undefined') {
@@ -3370,33 +3376,33 @@ define('viewer',['colors','draw','jquery'],
             }
 
             var successMethod = function (json) {
-                        that.parseJsonResponse(json);
-                    };
+                that.parseJsonResponse(json);
+            };
             var errorMethod = function (jqXHR, textStatus, exception) {
 
-                        console.log("ajax error: status code: " + jqXHR.status);
+                console.log("ajax error: status code: " + jqXHR.status);
 
-                        if (jqXHR.status === 0) {
-                            console.log('Not connected. \n Verify Network.');
-                        } else if (jqXHR.status === 404) {
-                            console.log('Requested page not found. [404]');
-                        } else if (jqXHR.status === 500) {
-                            console.log('Internal Server Error [500].');
-                        } else if (exception === 'parsererror') {
-                            console.log('Requested JSON parse failed.');
-                        } else if (exception === 'timeout') {
-                            console.log('Time out error.');
-                        } else if (exception === 'abort') {
-                            console.log('Ajax request aborted.');
-                        } else {
-                            console.log('Uncaught Error.\n' + jqXHR.responseText);
-                        }
+                if (jqXHR.status === 0) {
+                    console.log('Not connected. \n Verify Network.');
+                } else if (jqXHR.status === 404) {
+                    console.log('Requested page not found. [404]');
+                } else if (jqXHR.status === 500) {
+                    console.log('Internal Server Error [500].');
+                } else if (exception === 'parsererror') {
+                    console.log('Requested JSON parse failed.');
+                } else if (exception === 'timeout') {
+                    console.log('Time out error.');
+                } else if (exception === 'abort') {
+                    console.log('Ajax request aborted.');
+                } else {
+                    console.log('Uncaught Error.\n' + jqXHR.responseText);
+                }
 
 
-                        console.log('error during ajax request: ' + exception);
-                        console.log('textstatus: ' + textStatus);
-                        console.log(jqXHR.responseText);
-                    };
+                console.log('error during ajax request: ' + exception);
+                console.log('textstatus: ' + textStatus);
+                console.log(jqXHR.responseText);
+            };
 
             for (var i = 0; i < this.asyncTracks.length; i++) {
                 var track = this.asyncTracks[i];
@@ -3427,7 +3433,7 @@ define('viewer',['colors','draw','jquery'],
 
 
             if (window.Worker) {
-           
+
                 var myWorker = new Worker('js/pfv/JsonWorker.js');
 
                 myWorker.onerror = function (e) {
@@ -3593,7 +3599,7 @@ define('viewer',['colors','draw','jquery'],
         };
 
         Viewer.prototype.getScrollBarValue = function () {
-            
+
             return $(this.scrollBarDiv).slider('value');
 
         };
@@ -3664,6 +3670,11 @@ define('viewer',['colors','draw','jquery'],
 
             //alert($(parent).width());
 
+            var now = new Date().getTime();
+
+            console.log("repainting. time since start: " + (now - this.startedAt ));
+
+
             if (typeof this.parent === 'undefined') {
                 return;
             }
@@ -3680,10 +3691,10 @@ define('viewer',['colors','draw','jquery'],
 
             this.drawInitial(svg);
 
-            this.resetSize(svg, (this.data.length) * this.drawer.scale + this.leftBorder +
-            this.rightBorder, this.y + this.bottomBorder);
+            //this.resetSize(svg, (this.data.length) * this.drawer.scale + this.params.leftBorder +
+            //    this.params.rightBorder, this.y + this.params.bottomBorder);
 
-            this.maxY = this.y + this.bottomBorder;
+            this.drawer.maxY = this.y + this.params.bottomBorder;
             //hideColorLegend();
 
 
@@ -3729,13 +3740,13 @@ define('viewer',['colors','draw','jquery'],
         };
 
         Viewer.prototype.load3DChain = function (pdbID, chainID) {
-           
+
             console.log("loading " + pdbID + " chain ID: " + chainID);
             window.location = this.rcsbServer + "/pdb/explore/explore.do?structureId=" + pdbID;
             return;
-       
 
-    
+
+
         };
 
 
@@ -3876,7 +3887,7 @@ define('viewer',['colors','draw','jquery'],
             } else {
                 $(this.scrollBarDiv).slider("value", 100);
 
-                this.setScale(this.param.maxTextSize);
+                this.setScale(this.params.maxTextSize);
             }
 
             this.repaint();
@@ -3886,20 +3897,20 @@ define('viewer',['colors','draw','jquery'],
 
         Viewer.prototype.getPreferredWidth = function () {
 
-            var availWidth = $(this.contentDiv).width() - this.leftBorder - this.rightBorder;
+            var availWidth = $(this.contentDiv).width() - this.params.leftBorder - this.params.rightBorder;
 
             var visibleWidth = $(window).width() - $('#leftMenu').width() -
-                this.leftBorder - this.rightBorder;
+                this.params.leftBorder - this.params.rightBorder;
 
             if (availWidth > visibleWidth) {
                 availWidth = visibleWidth;
             }
 
-            
+
 
             if (availWidth < 1) {
                 console.log('something is wrong with the page setup. the contentDiv ' +
-                this.contentDiv + ' has size ' + $(this.contentDiv).width());
+                    this.contentDiv + ' has size ' + $(this.contentDiv).width());
 
             }
 
@@ -3927,22 +3938,22 @@ define('viewer',['colors','draw','jquery'],
             if (typeof this.sequence !== "undefined") {
                 var availWidth = this.getPreferredWidth();
 
-                 newScale = (availWidth ) / (this.sequence.length );
+                newScale = (availWidth ) / (this.sequence.length );
 
                 $(this.scrollBarDiv).slider("value", 0);
                 $(this.parent).css('overflow', 'auto');
                 $(this.parent).css('width', $(this.outerParent).width());
 
-                
+
             } else {
                 console.error("sequence is not defined!");
-                
+
                 this.sequence = {};
                 this.sequence.length = this.data.length;
                 this.sequence.name = this.data.uniprotID;
 
             }
-
+            console.log("update scale  " + newScale);
 
             this.drawer.setScale(newScale);
 
@@ -3955,11 +3966,11 @@ define('viewer',['colors','draw','jquery'],
          */
         Viewer.prototype.setScale = function (aaWidth) {
 
-            if (aaWidth > this.param.maxTextSize) {
-                aaWidth = this.param.maxTextSize;
+            if (aaWidth > this.params.maxTextSize) {
+                aaWidth = this.params.maxTextSize;
             }
 
-            
+
             this.drawer.setScale(aaWidth);
 
         };
@@ -3991,6 +4002,8 @@ define('viewer',['colors','draw','jquery'],
                 alert('Did not find a UniProt ID! ' + JSON.stringify(this.data));
                 return;
             }
+
+            var now = new Date().getTime();
 
             var data = this.data;
 
@@ -4040,23 +4053,26 @@ define('viewer',['colors','draw','jquery'],
             $('#chainSummaryImage').hide();
             $('#uniprotSpecies > span').html(data.species);
 
-            this.drawer = new draw.Draw(this);
 
-            var drawer = this.drawer;
+            var drawer = new draw.Draw(this);
 
-             this.params = drawer.getParams();           
-
-
-            if (this.drawer.scale < 0) {
-                drawer.updateScale();
+            if ( typeof this.drawer !== 'undefined') {
+                drawer.scale = this.drawer.scale;
             }
 
-             drawer.drawSelection(svg);
+            this.params = drawer.getParams();
 
-    
-            y = this.params.height;
 
-        
+            if ( drawer.scale < 0) {
+                this.updateScale();
+            }
+
+            drawer.drawSelection(svg);
+
+
+            y = drawer.height;
+
+
             if (!this.singlePDBmode) {
                 y = drawer.drawRuler(svg, this.sequence, y);
             }
@@ -4075,13 +4091,12 @@ define('viewer',['colors','draw','jquery'],
 
                 // 70 is the minimum space to render "uniprotkb"
 
-                if (this.uniprotBottomY - this.uniprotTopY < 70) {
+                if (uniprotBottomY - uniprotTopY < 70) {
                     y = ( y - uniprotTopY) + 70;
-                    this.uniprotBottomY = y;
+                    uniprotBottomY = y;
 
                 }
             }
-
 
             drawer.drawSourceIndication(svg, 'UniProtKB', uniprotTopY, uniprotBottomY);
 
@@ -4139,7 +4154,7 @@ define('viewer',['colors','draw','jquery'],
 
             if ((!this.showCondensed) && ( !this.singlePDBmode )) {
                 // add a spacer ;
-                y += this.trackHeight;
+                y += this.params.trackHeight;
                 drawer.drawSourceIndication(svg, 'PDB', pdbTopY, y);
                 y = drawer.drawCollapseCondensedSymbol(svg, y);
                 pdbTopY = y;
@@ -4170,7 +4185,7 @@ define('viewer',['colors','draw','jquery'],
                     if (track.pdbID !== this.displayPDB) {
                         continue;
                     }
-                    if (counter > this.maxTracksSingleMode) {
+                    if (counter > this.params.maxTracksSingleMode) {
                         continue;
                     }
                 } else if (this.showCondensed) {
@@ -4183,10 +4198,10 @@ define('viewer',['colors','draw','jquery'],
 
                 colorPos++;
 
+
                 if (colorPos >= this.params.customColors.length) {
                     colorPos = 0;
                 }
-
 
                 var colorData = drawer.getTrackColor(this.params.customColors, colorPos, track);
 
@@ -4230,7 +4245,7 @@ define('viewer',['colors','draw','jquery'],
                 if (typeof data.pmp !== 'undefined') {
 
                     // add a spacer..
-                    y += this.trackHeight;
+                    y += this.params.trackHeight;
 
                     var trackName = data.pmp.label;
 
@@ -4302,7 +4317,7 @@ define('viewer',['colors','draw','jquery'],
 
 
                 // spacer
-                y += this.trackHeight;
+                y += this.params.trackHeight;
 
                 var pmpBottomY = y;
                 if (pmpBottomY - pmpTopY < 40) {
@@ -4319,8 +4334,8 @@ define('viewer',['colors','draw','jquery'],
                 y = drawer.drawExpandCondensedSymbol(svg, pdbBottomY, title1, callback1);
             }
 
-            this.resetSize(svg, (data.length) * this.drawer.scale + this.leftBorder + 
-                this.rightBorder, y + this.bottomBorder);
+            this.resetSize(svg, (data.length) * drawer.scale + this.params.leftBorder +
+                this.params.rightBorder, y + this.params.bottomBorder);
 
             var fullTrackCount = this.getTotalNrPDBTracks();
 
@@ -4328,7 +4343,7 @@ define('viewer',['colors','draw','jquery'],
                 if (counter < fullTrackCount) {
 
                     $("#clusterStats").html("Showing " + counter + " representative out of " +
-                    fullTrackCount + " PDB chains");
+                        fullTrackCount + " PDB chains");
                 } else {
                     $("#clusterStats").html("Showing all " + counter + " PDB chains");
                 }
@@ -4338,7 +4353,11 @@ define('viewer',['colors','draw','jquery'],
             }
 
             this.y = y;
+            this.drawer = drawer;
 
+            var end = new Date().getTime();
+
+            console.log("time to repaint SVG graphics: " + (end-now));
 
         };
 
@@ -4358,7 +4377,7 @@ define('viewer',['colors','draw','jquery'],
 
         };
 
-        
+
 
 
         Viewer.prototype.hideColorLegend = function () {
@@ -4372,7 +4391,7 @@ define('viewer',['colors','draw','jquery'],
             if (str === "Resolution") {
                 this.hideColorLegend();
                 //this.paired_colors = data.colors;
-                
+
                 this.updateTrackColors(this.params.redblue_colors);
                 this.repaint();
                 this.showColorLegend();
@@ -4380,7 +4399,7 @@ define('viewer',['colors','draw','jquery'],
             } else {
 
                 this.hideColorLegend();
-                
+
                 this.updateTrackColors(this.params.paired_colors);
                 this.repaint();
 
@@ -4507,16 +4526,16 @@ define('viewer',['colors','draw','jquery'],
 
         };
 
-        
 
 
-       
-       
 
-      
 
-       
-       
+
+
+
+
+
+
 
         Viewer.prototype.getSequence = function () {
             return this.data.sequence;
@@ -4577,7 +4596,7 @@ define('viewer',['colors','draw','jquery'],
         };
 
 
-       
+
 
 
         Viewer.prototype.sortTracks = function (text) {
@@ -4612,14 +4631,14 @@ define('viewer',['colors','draw','jquery'],
 
         };
 
-        
-        
+
+
         jQuery.fn.extend({
             sort : function () {
                 return this.pushStack([].sort.apply(this, arguments), []);
             }
         });
-        
+
 
         function sortAlphabet(a, b) {
             if (a.pdbID === b.pdbID) {
@@ -4778,7 +4797,7 @@ define('viewer',['colors','draw','jquery'],
         };
 
 
-       
+
 
         Viewer.prototype._dispatchEvent = function(event, newEventName, arg) {
 
@@ -4809,7 +4828,7 @@ define('viewer',['colors','draw','jquery'],
 
 
 
-       
+
 
 
 
@@ -4823,42 +4842,42 @@ define('viewer',['colors','draw','jquery'],
             this.rcsbServer = server;
         };
 
-        
+
 
         Viewer.prototype.requestFullscreen = function() {
 
-                    var cont = $(this.contentDiv).attr('id');
-                    console.log(cont);
+            var cont = $(this.contentDiv).attr('id');
+            console.log(cont);
 
-                    var elem = document.getElementById(cont);
+            var elem = document.getElementById(cont);
 
-                    console.log("element:" + elem);
-                    
-                    $(elem).css({'width':'100%','height':'100%','padding':'5%','background':'white'});
+            console.log("element:" + elem);
 
-                    if (elem.requestFullscreen) {
-                        elem.requestFullscreen();
-                    } else if (elem.msRequestFullscreen) {
-                        elem.msRequestFullscreen();
-                    } else if (elem.mozRequestFullScreen) {
-                        elem.mozRequestFullScreen();
-                    } else if (elem.webkitRequestFullscreen) {
-                        elem.webkitRequestFullscreen();
-                    } else {
-                        console.error("full screen does not seem to be supported on this system.");
-                    }
+            $(elem).css({'width':'100%','height':'100%','padding':'5%','background':'white'});
 
-                    this.updateScale();
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else {
+                console.error("full screen does not seem to be supported on this system.");
+            }
 
-                    this.repaint();
-                };
+            this.updateScale();
+
+            this.repaint();
+        };
 
 
         return {
             PFV: function (elem, options) {
                 return new Viewer(elem, options);
             }
-            
+
 
 
         };

@@ -58,7 +58,7 @@ define(['colors','draw','jquery'],
         // }
 
 
-        
+
 
 
         /** Initialize the internals
@@ -74,7 +74,7 @@ define(['colors','draw','jquery'],
 
             this.version = "2014-12-17";
 
-         
+
 
             this.showCondensed = true;
 
@@ -93,7 +93,7 @@ define(['colors','draw','jquery'],
             this.selectionStart = -1;
             this.selectionEnd = -1;
 
-    
+
             this.masterURL = "/pdb/protein/";
             this.rcsbServer = "";
 
@@ -109,6 +109,8 @@ define(['colors','draw','jquery'],
             });
 
             this._initialized = false;
+
+            this.startedAt = new Date().getTime();
 
             //$(this.scrollBarDiv).bind('slidechange', jQuery.proxy( this, 'scollValueChanged' ));
 
@@ -131,7 +133,7 @@ define(['colors','draw','jquery'],
             if (this.singlePDBmode) {
                 url += "&display=" + this.displayPDB;
             }
-            
+
             var that = this;
 
             $.getJSON(url, function (json) {
@@ -141,7 +143,7 @@ define(['colors','draw','jquery'],
 
                 $(that.parent).svg();
                 var svg = $(that.parent).svg('get');
-                
+
                 that.drawInitial(svg);
                 that.updateScale();
                 that.repaint();
@@ -212,7 +214,7 @@ define(['colors','draw','jquery'],
             var viewPercent = ui.value;
             percentShow = viewPercent;
 
-           
+
             this._dispatchEvent({'name':'sliderMovedEvent'},
                 'sliderMoved', {'percent':viewPercent});
         };
@@ -221,7 +223,7 @@ define(['colors','draw','jquery'],
 
             var viewPercent = percentShow;
 
-             this.setScrollValue(viewPercent);
+            this.setScrollValue(viewPercent);
 
 
             this._dispatchEvent({'name':'sliderReleased'},
@@ -369,7 +371,7 @@ define(['colors','draw','jquery'],
         Viewer.prototype.setData = function (json) {
 
             this.data = json;
-            
+
 
             // trigger async loads...
             if (typeof this.asyncTracks === 'undefined') {
@@ -383,33 +385,33 @@ define(['colors','draw','jquery'],
             }
 
             var successMethod = function (json) {
-                        that.parseJsonResponse(json);
-                    };
+                that.parseJsonResponse(json);
+            };
             var errorMethod = function (jqXHR, textStatus, exception) {
 
-                        console.log("ajax error: status code: " + jqXHR.status);
+                console.log("ajax error: status code: " + jqXHR.status);
 
-                        if (jqXHR.status === 0) {
-                            console.log('Not connected. \n Verify Network.');
-                        } else if (jqXHR.status === 404) {
-                            console.log('Requested page not found. [404]');
-                        } else if (jqXHR.status === 500) {
-                            console.log('Internal Server Error [500].');
-                        } else if (exception === 'parsererror') {
-                            console.log('Requested JSON parse failed.');
-                        } else if (exception === 'timeout') {
-                            console.log('Time out error.');
-                        } else if (exception === 'abort') {
-                            console.log('Ajax request aborted.');
-                        } else {
-                            console.log('Uncaught Error.\n' + jqXHR.responseText);
-                        }
+                if (jqXHR.status === 0) {
+                    console.log('Not connected. \n Verify Network.');
+                } else if (jqXHR.status === 404) {
+                    console.log('Requested page not found. [404]');
+                } else if (jqXHR.status === 500) {
+                    console.log('Internal Server Error [500].');
+                } else if (exception === 'parsererror') {
+                    console.log('Requested JSON parse failed.');
+                } else if (exception === 'timeout') {
+                    console.log('Time out error.');
+                } else if (exception === 'abort') {
+                    console.log('Ajax request aborted.');
+                } else {
+                    console.log('Uncaught Error.\n' + jqXHR.responseText);
+                }
 
 
-                        console.log('error during ajax request: ' + exception);
-                        console.log('textstatus: ' + textStatus);
-                        console.log(jqXHR.responseText);
-                    };
+                console.log('error during ajax request: ' + exception);
+                console.log('textstatus: ' + textStatus);
+                console.log(jqXHR.responseText);
+            };
 
             for (var i = 0; i < this.asyncTracks.length; i++) {
                 var track = this.asyncTracks[i];
@@ -440,7 +442,7 @@ define(['colors','draw','jquery'],
 
 
             if (window.Worker) {
-           
+
                 var myWorker = new Worker('js/pfv/JsonWorker.js');
 
                 myWorker.onerror = function (e) {
@@ -606,7 +608,7 @@ define(['colors','draw','jquery'],
         };
 
         Viewer.prototype.getScrollBarValue = function () {
-            
+
             return $(this.scrollBarDiv).slider('value');
 
         };
@@ -677,6 +679,11 @@ define(['colors','draw','jquery'],
 
             //alert($(parent).width());
 
+            var now = new Date().getTime();
+
+            console.log("repainting. time since start: " + (now - this.startedAt ));
+
+
             if (typeof this.parent === 'undefined') {
                 return;
             }
@@ -693,8 +700,8 @@ define(['colors','draw','jquery'],
 
             this.drawInitial(svg);
 
-            this.resetSize(svg, (this.data.length) * this.drawer.scale + this.params.leftBorder +
-                    this.params.rightBorder, this.y + this.params.bottomBorder);
+            //this.resetSize(svg, (this.data.length) * this.drawer.scale + this.params.leftBorder +
+            //    this.params.rightBorder, this.y + this.params.bottomBorder);
 
             this.drawer.maxY = this.y + this.params.bottomBorder;
             //hideColorLegend();
@@ -742,13 +749,13 @@ define(['colors','draw','jquery'],
         };
 
         Viewer.prototype.load3DChain = function (pdbID, chainID) {
-           
+
             console.log("loading " + pdbID + " chain ID: " + chainID);
             window.location = this.rcsbServer + "/pdb/explore/explore.do?structureId=" + pdbID;
             return;
-       
 
-    
+
+
         };
 
 
@@ -908,11 +915,11 @@ define(['colors','draw','jquery'],
                 availWidth = visibleWidth;
             }
 
-            
+
 
             if (availWidth < 1) {
                 console.log('something is wrong with the page setup. the contentDiv ' +
-                this.contentDiv + ' has size ' + $(this.contentDiv).width());
+                    this.contentDiv + ' has size ' + $(this.contentDiv).width());
 
             }
 
@@ -940,16 +947,16 @@ define(['colors','draw','jquery'],
             if (typeof this.sequence !== "undefined") {
                 var availWidth = this.getPreferredWidth();
 
-                 newScale = (availWidth ) / (this.sequence.length );
+                newScale = (availWidth ) / (this.sequence.length );
 
                 $(this.scrollBarDiv).slider("value", 0);
                 $(this.parent).css('overflow', 'auto');
                 $(this.parent).css('width', $(this.outerParent).width());
 
-                
+
             } else {
                 console.error("sequence is not defined!");
-                
+
                 this.sequence = {};
                 this.sequence.length = this.data.length;
                 this.sequence.name = this.data.uniprotID;
@@ -972,7 +979,7 @@ define(['colors','draw','jquery'],
                 aaWidth = this.params.maxTextSize;
             }
 
-            
+
             this.drawer.setScale(aaWidth);
 
         };
@@ -1004,6 +1011,8 @@ define(['colors','draw','jquery'],
                 alert('Did not find a UniProt ID! ' + JSON.stringify(this.data));
                 return;
             }
+
+            var now = new Date().getTime();
 
             var data = this.data;
 
@@ -1054,27 +1063,25 @@ define(['colors','draw','jquery'],
             $('#uniprotSpecies > span').html(data.species);
 
 
-
-
             var drawer = new draw.Draw(this);
 
-            if ( typeof this.drawer != 'undefined') {
+            if ( typeof this.drawer !== 'undefined') {
                 drawer.scale = this.drawer.scale;
             }
 
-             this.params = drawer.getParams();           
+            this.params = drawer.getParams();
 
 
             if ( drawer.scale < 0) {
                 this.updateScale();
             }
 
-             drawer.drawSelection(svg);
+            drawer.drawSelection(svg);
 
-    
+
             y = drawer.height;
 
-        
+
             if (!this.singlePDBmode) {
                 y = drawer.drawRuler(svg, this.sequence, y);
             }
@@ -1336,7 +1343,7 @@ define(['colors','draw','jquery'],
                 y = drawer.drawExpandCondensedSymbol(svg, pdbBottomY, title1, callback1);
             }
 
-            this.resetSize(svg, (data.length) * drawer.scale + this.params.leftBorder + 
+            this.resetSize(svg, (data.length) * drawer.scale + this.params.leftBorder +
                 this.params.rightBorder, y + this.params.bottomBorder);
 
             var fullTrackCount = this.getTotalNrPDBTracks();
@@ -1345,7 +1352,7 @@ define(['colors','draw','jquery'],
                 if (counter < fullTrackCount) {
 
                     $("#clusterStats").html("Showing " + counter + " representative out of " +
-                    fullTrackCount + " PDB chains");
+                        fullTrackCount + " PDB chains");
                 } else {
                     $("#clusterStats").html("Showing all " + counter + " PDB chains");
                 }
@@ -1356,6 +1363,10 @@ define(['colors','draw','jquery'],
 
             this.y = y;
             this.drawer = drawer;
+
+            var end = new Date().getTime();
+
+            console.log("time to repaint SVG graphics: " + (end-now));
 
         };
 
@@ -1375,7 +1386,7 @@ define(['colors','draw','jquery'],
 
         };
 
-        
+
 
 
         Viewer.prototype.hideColorLegend = function () {
@@ -1389,7 +1400,7 @@ define(['colors','draw','jquery'],
             if (str === "Resolution") {
                 this.hideColorLegend();
                 //this.paired_colors = data.colors;
-                
+
                 this.updateTrackColors(this.params.redblue_colors);
                 this.repaint();
                 this.showColorLegend();
@@ -1397,7 +1408,7 @@ define(['colors','draw','jquery'],
             } else {
 
                 this.hideColorLegend();
-                
+
                 this.updateTrackColors(this.params.paired_colors);
                 this.repaint();
 
@@ -1524,16 +1535,16 @@ define(['colors','draw','jquery'],
 
         };
 
-        
 
 
-       
-       
 
-      
 
-       
-       
+
+
+
+
+
+
 
         Viewer.prototype.getSequence = function () {
             return this.data.sequence;
@@ -1594,7 +1605,7 @@ define(['colors','draw','jquery'],
         };
 
 
-       
+
 
 
         Viewer.prototype.sortTracks = function (text) {
@@ -1629,14 +1640,14 @@ define(['colors','draw','jquery'],
 
         };
 
-        
-        
+
+
         jQuery.fn.extend({
             sort : function () {
                 return this.pushStack([].sort.apply(this, arguments), []);
             }
         });
-        
+
 
         function sortAlphabet(a, b) {
             if (a.pdbID === b.pdbID) {
@@ -1795,7 +1806,7 @@ define(['colors','draw','jquery'],
         };
 
 
-       
+
 
         Viewer.prototype._dispatchEvent = function(event, newEventName, arg) {
 
@@ -1826,7 +1837,7 @@ define(['colors','draw','jquery'],
 
 
 
-       
+
 
 
 
@@ -1840,42 +1851,42 @@ define(['colors','draw','jquery'],
             this.rcsbServer = server;
         };
 
-        
+
 
         Viewer.prototype.requestFullscreen = function() {
 
-                    var cont = $(this.contentDiv).attr('id');
-                    console.log(cont);
+            var cont = $(this.contentDiv).attr('id');
+            console.log(cont);
 
-                    var elem = document.getElementById(cont);
+            var elem = document.getElementById(cont);
 
-                    console.log("element:" + elem);
-                    
-                    $(elem).css({'width':'100%','height':'100%','padding':'5%','background':'white'});
+            console.log("element:" + elem);
 
-                    if (elem.requestFullscreen) {
-                        elem.requestFullscreen();
-                    } else if (elem.msRequestFullscreen) {
-                        elem.msRequestFullscreen();
-                    } else if (elem.mozRequestFullScreen) {
-                        elem.mozRequestFullScreen();
-                    } else if (elem.webkitRequestFullscreen) {
-                        elem.webkitRequestFullscreen();
-                    } else {
-                        console.error("full screen does not seem to be supported on this system.");
-                    }
+            $(elem).css({'width':'100%','height':'100%','padding':'5%','background':'white'});
 
-                    this.updateScale();
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else {
+                console.error("full screen does not seem to be supported on this system.");
+            }
 
-                    this.repaint();
-                };
+            this.updateScale();
+
+            this.repaint();
+        };
 
 
         return {
             PFV: function (elem, options) {
                 return new Viewer(elem, options);
             }
-            
+
 
 
         };
