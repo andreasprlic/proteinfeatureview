@@ -74,8 +74,6 @@ define(['colors','draw','jquery'],
 
             this.version = "2014-12-17";
 
-
-
             this.showCondensed = true;
 
             this.colorBy = "Alignment Length";
@@ -143,7 +141,7 @@ define(['colors','draw','jquery'],
 
                 $(that.parent).svg();
                 var svg = $(that.parent).svg('get');
-
+                
                 that.drawInitial(svg);
                 that.updateScale();
                 that.repaint();
@@ -679,9 +677,9 @@ define(['colors','draw','jquery'],
 
             //alert($(parent).width());
 
-            var now = new Date().getTime();
+            //var now = new Date().getTime();
 
-            console.log("repainting. time since start: " + (now - this.startedAt ));
+            //console.log("repainting. time since start: " + (now - this.startedAt ));
 
 
             if (typeof this.parent === 'undefined') {
@@ -908,7 +906,7 @@ define(['colors','draw','jquery'],
 
             var availWidth = $(this.contentDiv).width() - this.params.leftBorder - this.params.rightBorder;
 
-            var visibleWidth = $(window).width() - $('#leftMenu').width() -
+            var visibleWidth = $(window).width()  -
                 this.params.leftBorder - this.params.rightBorder;
 
             if (availWidth > visibleWidth) {
@@ -916,12 +914,13 @@ define(['colors','draw','jquery'],
             }
 
 
-
             if (availWidth < 1) {
                 console.log('something is wrong with the page setup. the contentDiv ' +
                     this.contentDiv + ' has size ' + $(this.contentDiv).width());
 
             }
+
+            console.log("AVAIL WIDTH: " + availWidth);
 
             return availWidth;
 
@@ -1012,7 +1011,7 @@ define(['colors','draw','jquery'],
                 return;
             }
 
-            var now = new Date().getTime();
+           // var now = new Date().getTime();
 
             var data = this.data;
 
@@ -1159,7 +1158,7 @@ define(['colors','draw','jquery'],
 
             y = drawer.drawPDBSecstruc(svg, y);
 
-            y = drawer.drawPDBValidation(svg, y);
+            y = drawer.drawPDBValidation(svg, this.sequence, y);
 
             if ((!this.showCondensed) && ( !this.singlePDBmode )) {
                 // add a spacer ;
@@ -1364,9 +1363,9 @@ define(['colors','draw','jquery'],
             this.y = y;
             this.drawer = drawer;
 
-            var end = new Date().getTime();
+            //var end = new Date().getTime();
 
-            console.log("time to repaint SVG graphics: " + (end-now));
+//            console.log("time to repaint SVG graphics: " + (end-now));
 
         };
 

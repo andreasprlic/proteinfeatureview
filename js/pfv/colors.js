@@ -200,6 +200,22 @@ define(function()
         return "#000000";
     };
 
+    /* color is an array of colors, not a string */
+    exports.shadeRGBColor = function(color, percent) {
+      var f=color,t=percent<0?0:255,p=percent<0?percent*-1:
+        percent,R=parseInt(f[0]),G=parseInt(f[1]),B=parseInt(f[2]);
+      return "rgb("+(Math.round((t-R)*p)+R)+","+(Math.round((t-G)*p)+G)+","+
+        (Math.round((t-B)*p)+B)+")";
+    };
+
+    exports.blendRGBColors = function (c0, c1, p) {
+     var f=c0.split(","),t=c1.split(","),R=parseInt(f[0].slice(4)),
+        G=parseInt(f[1]),B=parseInt(f[2]);
+      return "rgb("+(Math.round((parseInt(t[0].slice(4))-R)*p)+R)+","+
+            (Math.round((parseInt(t[1])-G)*p)+G)+","+
+            (Math.round((parseInt(t[2])-B)*p)+B)+")";
+    };
+
 
 
 // provide an override of the default color setting.

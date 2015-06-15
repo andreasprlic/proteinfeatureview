@@ -7,8 +7,8 @@
  * Provides the "view" of the data
 */
 
-define(['params'],
-    function(params) {
+define(['params','colors'],
+    function(params,colors) {
 
 
     	var colorDict = {};
@@ -442,7 +442,11 @@ define(['params'],
                                                       mycolors, url, callbackFunction, info) {
 
 
-			
+			if ( typeof rows === 'undefined') {
+                return y;
+            }
+
+
             if (rows.length === 0) {
                 return y;
             }
@@ -462,6 +466,10 @@ define(['params'],
 
                 var row = rows[j];
 
+                if ( typeof row === 'undefined') {
+                    continue;
+                }
+
                 nextInLine:
                 for (var i = 0; i < row.length; i++) {
 
@@ -475,6 +483,8 @@ define(['params'],
                         if (typeof range.desc === 'undefined') {
                             continue nextInLine;
                         }
+
+                       // console.log(range);
 
                         if (range.desc.indexOf('Cytoplasmic') > -1) {
                             this.drawCytoplasmic(y, svg, range, trackName);
@@ -677,16 +687,21 @@ define(['params'],
         };
 
 
-        Draw.prototype.drawPDBValidation = function (svg, y) {
+        Draw.prototype.drawPDBValidation = function (svg, sequence, y) {
 
 
             if (typeof this.viewer.getData().validation === 'undefined') {
+
+                console.log("no validation data");
                 return y;
             }
 
             if (this.viewer.getData().validation.tracks.length < 1) {
                 return y;
             }
+
+
+            var trackName = "validationReport";
 
             var g = svg.group({
                     id: 'validationTrackG' + this.viewer.getData().uniprotID,
@@ -695,13 +710,101 @@ define(['params'],
                 }
             );
 
+            var defs2 = svg.defs();
+
+            // init the gradients for the validation colors.
+
+            var ctmp = this.param.paired_colors[5].color;                  
+            var  validationRed = colors.rgb.hex2rgb(ctmp);
+
+
+            var validationColors = [
+                colors.forceRGB('darkgreen'), 
+                colors.forceRGB('yellow'),
+                colors.forceRGB('orange'),
+                validationRed];
+
+           
+            for ( var i = 0 ; i< validationColors.length ; i++){
+
+                var validationColor = validationColors[i];
+
+                var finalValCol = colors.rgb.rgb2hex(validationColor);
+
+                var validationColorLight = colors.shadeRGBColor(validationColor,90);    
+            
+               
+                var gradientName = trackName + 'GR' + i + this.viewer.getData().uniprotID;
+
+                svg.linearGradient(defs2, gradientName, [
+                        ['0%', finalValCol],
+                        ['50%', finalValCol],
+                        ['100%', validationColorLight]
+                    ],
+                    0, y, 0, y + this.param.trackHeight,
+                    {
+                        gradientUnits: 'userSpaceOnUse'
+
+                    }
+                );
+            }
+
+            // end of init default gradients.
+
+
 
             this.drawName(svg, g, y, 'PDB Validation', undefined, this.viewer.getData().validation.label);
 
             var validationTrackHeight = this.param.trackHeight + 5;
 
-            this.drawSiteResidues(svg, this.viewer.getData().validation, y, 'validationTrack' +
-            this.viewer.getData().uniprotID, this.param.paired_colors, 'up', validationTrackHeight);
+            var tracks = this.viewer.getData().validation.tracks;
+
+            
+            for (var s = 0; s < tracks.length; s++) {
+        
+                var valid = tracks[s];
+    
+                valid.desc = parseInt(valid.desc);
+
+                if ( valid.desc > 3) { 
+                    valid.desc = 3;
+                }
+
+
+                var myGradientName =  trackName + 'GR' + valid.desc +this.viewer.getData().uniprotID;              
+               
+                var seqPos = valid.start;
+
+                    
+                 // var vc = validationColors[valid.desc];
+
+                 // var fvc = colors.rgb.rgb2hex(vc);
+
+                var rect = svg.rect(this.seq2Screen(seqPos), y  , 
+                        1 * this.scale + 1, this.param.trackHeight ,
+                        {
+                            fill: 'url(#'+myGradientName+')'
+                            
+                        });
+
+                // draw line at bottom to wrap up
+                svg.rect(this.seq2Screen(seqPos), y + this.param.trackHeight  , 
+                        1 * this.scale + 1, 1 ,
+                        {
+                            fill: 'black'
+                    
+                        });
+
+                var title = "Validation data for chain " + valid.chainID + " PDB resnum: " + valid.pdbStart + 
+                        " # of geometric criteria with outliers: " + valid.desc;
+
+                $(rect).attr("title", title);
+                this.registerTooltip(rect);
+                
+
+            }
+
+
 
             return y + validationTrackHeight + 2;
 
@@ -755,8 +858,11 @@ define(['params'],
             };
 
             var trackrows = this.breakTrackInRows(this.viewer.getData().scop.tracks);
+
+            //console.log("SCOP trackrows: " + trackrows);
+
             y = this.drawGenericTrack(svg, trackrows, y, 'SCOP domains',
-                'scopDomains', this.domain_colors, undefined, scopcallback, this.viewer.getData().scop.label);
+                'scopDomains', colors.rgb.getDomainColors(), undefined, scopcallback, this.viewer.getData().scop.label);
 
             if (typeof this.viewer.getData().scope === 'undefined') {
                 return y;
@@ -805,7 +911,8 @@ define(['params'],
             var trackrowsE = this.breakTrackInRows(this.viewer.getData().scope.tracks);
             //console.log("Draw scope: " + JSON.stringify(trackrowsE));
             y = this.drawGenericTrack(svg, trackrowsE, y, 'SCOPe domains',
-                'scopeDomains', this.domain_colors, undefined, scopecallback, this.viewer.getData().scope.label);
+                'scopeDomains', colors.rgb.getDomainColors(), undefined, scopecallback, 
+                    this.viewer.getData().scope.label);
 
 
             return y;
