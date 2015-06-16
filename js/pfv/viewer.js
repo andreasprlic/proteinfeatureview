@@ -28,8 +28,10 @@ define(['colors','draw','jquery'],
                 $(that.parent).css('overflow', 'hidden');
                 $(that.parent).css('width', 'auto');
                 //$(parent).removeAttr('css');
-                that.updateScale();
-                that.repaint();
+                var shouldRepaint = that.updateScale();
+                if ( shouldRepaint ) {
+                    that.repaint();
+                }
             });
 
         }
@@ -96,6 +98,8 @@ define(['colors','draw','jquery'],
             this.rcsbServer = "";
 
             this.listenerMap = {};
+
+            this.oldScale = -1;
 
             $(this.scrollBarDiv).slider({
                 orientation: "horizontal",
@@ -588,12 +592,7 @@ define(['colors','draw','jquery'],
 
         };
 
-        //Viewer.prototype.setSizeDiv = function (sizeDivName) {
-        //
-        //    this.contentDiv = sizeDivName;
-        //
-        //};
-
+     
         Viewer.prototype.setDialogDiv = function (dialogD) {
 
             this.dialogDiv = dialogD;
@@ -937,6 +936,8 @@ define(['colors','draw','jquery'],
 
         /** Update the scale to the default scale - currently to
          * show the whole sequence in the available space
+
+         * returns true if the display should be updated.
          *
          */
         Viewer.prototype.updateScale = function () {
@@ -963,7 +964,22 @@ define(['colors','draw','jquery'],
             }
             console.log("update scale  " + newScale);
 
+            if ( this.oldScale < 0 ) {
+                this.drawer.setScale(newScale);
+
+                return true;
+            }
+
+            if ( this.oldScale === newScale ) {
+                return false;
+            }
+
             this.drawer.setScale(newScale);
+
+            return true;
+
+
+
 
         };
 
@@ -980,6 +996,8 @@ define(['colors','draw','jquery'],
 
 
             this.drawer.setScale(aaWidth);
+
+            this.oldScale = aaWidth;
 
         };
 
@@ -1011,7 +1029,7 @@ define(['colors','draw','jquery'],
                 return;
             }
 
-           // var now = new Date().getTime();
+            var now = new Date().getTime();
 
             var data = this.data;
 
@@ -1363,9 +1381,9 @@ define(['colors','draw','jquery'],
             this.y = y;
             this.drawer = drawer;
 
-            //var end = new Date().getTime();
+            var end = new Date().getTime();
 
-//            console.log("time to repaint SVG graphics: " + (end-now));
+           console.log("time to repaint SVG graphics: " + (end-now));
 
         };
 

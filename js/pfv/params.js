@@ -19,6 +19,8 @@
             this.y = 0;
             this.maxY = 0;
 
+            this.baseLineHeight = 3;
+
             this.bw_colors = colors.rgb.getBWPalette();
 
             this.paired_colors = colors.rgb.getPairedColorPalette();

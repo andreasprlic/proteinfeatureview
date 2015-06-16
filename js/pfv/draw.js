@@ -451,7 +451,7 @@ define(['params','colors'],
                 return y;
             }
 
-            var colorPos = -1;
+            var colorPos = 0;
             var g0 = svg.group({
                     id: label + this.viewer.getData().uniprotID,
                     fontWeight: 'bold',
@@ -469,6 +469,38 @@ define(['params','colors'],
                 if ( typeof row === 'undefined') {
                     continue;
                 }
+
+                 // prepare the gradients for the colors:
+                 // gradients are always per-row of annotations.
+
+                var groups = [];
+                for ( var c= 0 ; c < mycolors.length ; c++){
+
+                    var mcolor = mycolors[c];
+
+                    var defs = svg.defs();
+                    svg.linearGradient(defs, trackName + 'GR' + c + this.viewer.getData().uniprotID, [
+                            ['0%', 'white'],
+                            ['100%', mcolor.darkercolor]
+                        ],
+                        0, y, 0, y + this.param.trackHeight,
+                        {
+                            gradientUnits: 'userSpaceOnUse'
+
+                        }
+                    );
+
+                     var mgroup = svg.group({
+                            id: trackName + this.viewer.getData().uniprotID,
+                            fontWeight: 'bold',
+                            fontSize: '10',
+                            fill: mcolor.textcolor
+                        }
+                     );
+                     groups[c] = mgroup;
+                }
+
+           
 
                 nextInLine:
                 for (var i = 0; i < row.length; i++) {
@@ -510,35 +542,21 @@ define(['params','colors'],
                         }
 
                         var color = mycolors[colorPos];
+                        var g = groups[colorPos];
 
                         var width = (range.end - range.start) + 1;
 
                         var x1 = this.seq2Screen(range.start - 1);
 
-                        var defs = svg.defs();
-                        svg.linearGradient(defs, trackName + 'GR' + j + i + this.viewer.getData().uniprotID, [
-                                ['0%', 'white'],
-                                ['100%', color.darkercolor]
-                            ],
-                            0, y, 0, y + this.param.trackHeight,
-                            {
-                                gradientUnits: 'userSpaceOnUse'
+                        // get gradient name and group name
+                        var gradientName = trackName + 'GR' + colorPos + this.viewer.getData().uniprotID;
 
-                            }
-                        );
-
-                        var g = svg.group({
-                                id: trackName + this.viewer.getData().uniprotID,
-                                fontWeight: 'bold',
-                                fontSize: '10',
-                                fill: color.textcolor
-                            }
-                        );
+                       
 
                         var rect = svg.rect(g, x1, y, width * this.scale, this.param.trackHeight,
                             4, 4,
                             {
-                                fill: 'url(#' + trackName + 'GR' + j + i + this.viewer.getData().uniprotID + ')',
+                                fill: 'url(#' + gradientName + ')',
                                 stroke: color.darkercolor,
                                 strokeWidth: 1
                             });
@@ -687,7 +705,38 @@ define(['params','colors'],
         };
 
 
-        Draw.prototype.drawPDBValidation = function (svg, sequence, y) {
+        Draw.prototype.drawRSRZOutlier = function(svg, g, site, sequence, y) {
+
+
+            var baseLineHeight  = this.param.baseLineHeight;
+            var siteTrackHeight = this.param.trackHeight + 5;
+
+            var validationRed = this.param.paired_colors[5]; 
+
+            var rect = svg.rect(g, this.seq2Screen(site.start) - this.scale / 2, y + baseLineHeight,
+                2, siteTrackHeight - baseLineHeight,
+                {
+                    fill: 'black'
+                });
+
+            var circle = svg.circle(g, this.seq2Screen(site.start) - this.scale / 2, y, 4,
+                {
+                    fill: validationRed.color,
+                    stroke: validationRed.darkerColor,
+                    strokeWidth: 1
+                });
+
+            var title = "Poor fit to the electron density (RSRZ > 2) chain " + 
+                        site.chainID + " PDB resnum: " + site.pdbStart;
+
+            $(rect).attr(  "title",title);
+            $(circle).attr("title",title);
+            this.registerTooltip(rect);
+            this.registerTooltip(circle);
+
+        };
+
+        Draw.prototype.drawPDBValidation = function (svg,sequence, y) {
 
 
             if (typeof this.viewer.getData().validation === 'undefined') {
@@ -710,6 +759,7 @@ define(['params','colors'],
                 }
             );
 
+
             var defs2 = svg.defs();
 
             // init the gradients for the validation colors.
@@ -731,7 +781,7 @@ define(['params','colors'],
 
                 var finalValCol = colors.rgb.rgb2hex(validationColor);
 
-                var validationColorLight = colors.shadeRGBColor(validationColor,90);    
+               // var validationColorLight = colors.shadeRGBColor(validationColor,90);    
             
                
                 var gradientName = trackName + 'GR' + i + this.viewer.getData().uniprotID;
@@ -739,7 +789,7 @@ define(['params','colors'],
                 svg.linearGradient(defs2, gradientName, [
                         ['0%', finalValCol],
                         ['50%', finalValCol],
-                        ['100%', validationColorLight]
+                        ['100%', finalValCol]
                     ],
                     0, y, 0, y + this.param.trackHeight,
                     {
@@ -763,6 +813,11 @@ define(['params','colors'],
             for (var s = 0; s < tracks.length; s++) {
         
                 var valid = tracks[s];
+
+                if ( valid.name==='poorFit') {
+                 
+                    continue;
+                }
     
                 valid.desc = parseInt(valid.desc);
 
@@ -773,23 +828,23 @@ define(['params','colors'],
 
                 var myGradientName =  trackName + 'GR' + valid.desc +this.viewer.getData().uniprotID;              
                
-                var seqPos = valid.start;
+                var seqPos = valid.start - 1;
 
                     
                  // var vc = validationColors[valid.desc];
 
                  // var fvc = colors.rgb.rgb2hex(vc);
 
-                var rect = svg.rect(this.seq2Screen(seqPos), y  , 
-                        1 * this.scale + 1, this.param.trackHeight ,
+                var rect = svg.rect(this.seq2Screen(seqPos) , y +5 , 
+                        1 * this.scale +1 , this.param.trackHeight ,
                         {
                             fill: 'url(#'+myGradientName+')'
                             
                         });
 
                 // draw line at bottom to wrap up
-                svg.rect(this.seq2Screen(seqPos), y + this.param.trackHeight  , 
-                        1 * this.scale + 1, 1 ,
+                svg.rect(this.seq2Screen(seqPos), y + validationTrackHeight  , 
+                        1 * this.scale +1 , 1 ,
                         {
                             fill: 'black'
                     
@@ -806,6 +861,26 @@ define(['params','colors'],
 
 
 
+            var outlierG = svg.group({
+                    id: 'validationTrackOutlierG' + this.viewer.getData().uniprotID,
+                    fontWeight: 'bold',
+                    fontSize: '10', fill: 'black'
+                }
+            );
+
+
+            // in a second loop, draw the outliers, so they are always "on top"
+             for (var s2 = 0; s2 < tracks.length; s2++) {
+        
+                var validt = tracks[s2];
+
+                if ( validt.name==='poorFit') {
+                    this.drawRSRZOutlier(svg,outlierG,validt,sequence,y);
+                    
+                }
+            }
+
+            console.log("returning " + (y  + validationTrackHeight + 2));
             return y + validationTrackHeight + 2;
 
         };
@@ -1349,6 +1424,8 @@ define(['params','colors'],
             }
 
             
+           /// console.log("drawing track " + JSON.stringify(track) + " " + y);
+
             var g = svg.group({id: trackID, fontWeight: 'bold', fontSize: '10', fill: 'black'});
             this.drawName(svg, g, y, track.pdbID + "." + track.chainID,
                 undefined, "Track for PDB ID " + track.pdbID +
@@ -1419,17 +1496,26 @@ define(['params','colors'],
 
                         //$(rect).css('class','.tooltip');
 
-                        var txt = " (" + rangeOrig.start;
+                        var txt = " (seq pos: " + rangeOrig.start;
                         if (rangeOrig.start !== rangeOrig.end) {
                             txt += " - " + rangeOrig.end;
                         }
-                        txt += ")";
+                        txt += ") ";
+
+                        if ( typeof rangeOrig.pdbStart !== 'undefined') {
+                            txt += '(PDB resnum:' + rangeOrig.pdbStart ;
+                            if ( rangeOrig.pdbStart !== rangeOrig.pdbEnd) {
+                                txt += '-' + rangeOrig.pdbEnd;
+                            }
+                            txt +=") ";
+                        }
 
                         $(rect1).attr("title", "Mismatch between PDB and UniProt residue" + txt);
 
                         this.registerTooltip(rect1);
 
                     } else {
+
 
 
                         var rect = svg.rect(g, this.seq2Screen(range.start), y,
@@ -1448,11 +1534,23 @@ define(['params','colors'],
                             resolution = " - " + (track.resolution / 1000) + " " + '\u00C5';
                         }
                         var d = new Date(track.releaseDate);
-                        $(rect).attr("title", "PDB ID " + track.pdbID + " chain " +
+
+                        var title = "PDB ID " + track.pdbID + " chain " +
                         track.chainID + " - " +
-                        track.desc + " (" + rangeOrig.start + "-" + rangeOrig.end + ") " +
-                        resolution + " - " + d.toDateString());
+                        track.desc + " (seq pos: " + rangeOrig.start + "-" + rangeOrig.end + ") " ;
+                        if ( typeof rangeOrig.pdbStart !== 'undefined') {
+                            title += '(PDB resnum: ' + rangeOrig.pdbStart ;
+
+                            if ( rangeOrig.pdbEnd !== rangeOrig.pdbStart) {
+                                title +=  '-' + rangeOrig.pdbEnd;
+                            }
+                            title += ") ";
+                        }
+                        title += resolution + " - " + d.toDateString();
                         //" - " + track.clusterNr + " - " + track.clusterRank);
+
+
+                        $(rect).attr("title", title);
 
                         this.registerTooltip(rect);
 
@@ -1462,7 +1560,7 @@ define(['params','colors'],
                     // shows SEQRES that are not in ATOM records. Since 
                     // this is confusing, we don;t show that..
 
-                    if (this.showSeqres) {
+                    if (this.viewer.getShowSeqres()) {
 
                         var line = svg.rect(g, this.seq2Screen(range.start), y + (this.param.trackHeight / 4),
                             Math.round(width * this.scale), (this.param.trackHeight / 4) * 2,
@@ -1509,7 +1607,8 @@ define(['params','colors'],
             if (feature.tracks.length < 1) {
                 return;
             }
-            var baseLineHeight = 3;
+           
+            var baseLineHeight = this.param.baseLineHeight;
 
             var colorPos = 0;
             var g = svg.group({id: trackID, fontWeight: 'bold', fontSize: '10', fill: 'black'});
