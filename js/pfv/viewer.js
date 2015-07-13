@@ -624,6 +624,8 @@ define(['colors','draw','jquery'],
             this.parent = myInnerDiv;
 
 
+
+
         };
 
 
@@ -1354,14 +1356,25 @@ define(['colors','draw','jquery'],
 
             } else {
                 var title1 = "Click here to view more details about " + data.uniprotID;
+                
                 var callback1 = function () {
-                    window.location = this.rcsbServer  + "/pdb/protein/" + data.uniprotID;
+                    window.location = that.rcsbServer  + "/pdb/protein/" + data.uniprotID;
                 };
                 y = drawer.drawExpandCondensedSymbol(svg, pdbBottomY, title1, callback1);
             }
 
-            this.resetSize(svg, (data.length) * drawer.scale + this.params.leftBorder +
-                this.params.rightBorder, y + this.params.bottomBorder);
+
+            var w = (data.length) * drawer.scale + this.params.leftBorder + this.params.rightBorder ;
+
+            if ( w > $(svg._container).width() ) {
+                w = $(svg._container).width();
+            }
+
+            this.resetSize(svg,w, y + this.params.bottomBorder);
+
+
+            // this.resetSize(svg, (data.length) * drawer.scale + this.params.leftBorder +
+            //     this.params.rightBorder, y + this.params.bottomBorder);
 
             var fullTrackCount = this.getTotalNrPDBTracks();
 

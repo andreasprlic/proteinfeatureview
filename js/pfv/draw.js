@@ -850,8 +850,8 @@ define(['params','colors'],
                     
                         });
 
-                var title = "Validation data for chain " + valid.chainID + " PDB resnum: " + valid.pdbStart + 
-                        " # of geometric criteria with outliers: " + valid.desc;
+                var title = valid.desc +" geometric outliers for residue " + valid.pdbStart + 
+                    "  in chain " + valid.chainID ;
 
                 $(rect).attr("title", title);
                 this.registerTooltip(rect);
@@ -1744,7 +1744,7 @@ define(['params','colors'],
                     }
                     color = mycolors[colorPos];
                     colorDict[site.name] = color;
-                    console.log("setting new color for " + site.name + " " + color.color);
+                    //console.log("setting new color for " + site.name + " " + color.color);
                 }
 
 
@@ -1903,20 +1903,22 @@ define(['params','colors'],
 
                 var html = "";
                 if (this.name === "short sequence motif") {
-                    console.log(this.name);
+                   
                     var spl = this.desc.split(" ");
                     if (spl.length === 2) {
-                        html = that.sequenceMotifPopup(spl[0], txt);
+                        html = that.viewer.sequenceMotifPopup(spl[0], txt);
                     }
                 }
 
                 if (html === "") {
-                    var seq = this.viewer.getData().sequence.substr(this.start, (this.end - this.start + 1));
-                    html = that.blastPopup(seq, this.url, this.hits, this.desc, txt);
+                    var seq = that.viewer.getData().sequence.substr(this.start, (this.end - this.start + 1));
+                    html = that.viewer.blastPopup(seq, this.url, this.hits, this.desc, txt);
                 }
 
-                $(this.dialogDiv).html(html);
-                $(this.dialogDiv).dialog({
+               
+
+                $(that.viewer.dialogDiv).html(html);
+                $(that.viewer.dialogDiv).dialog({
                     title: txt,
                     height: 300,
                     width: 300,
