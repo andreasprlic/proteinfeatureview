@@ -47,7 +47,7 @@ require(['viewer','jquerysvg'], function(PFV){
             entityView.setDialogDiv('#dialog');
             entityView.setScrollBarDiv('#svgScrollBar');
 
-            entityView.setRcsbServer("http://www.rcsb.org");
+            entityView.setRcsbServer("http://pepper.rcsb.org:8080");
 
             entityView.setShowSeqres(true);
             

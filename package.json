@@ -6,5 +6,15 @@
     "grunt-contrib-jshint": "^0.11.1",
     "grunt-contrib-nodeunit": "~0.4.1",
     "grunt-contrib-uglify": "~0.5.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rcsb/proteinfeatureview"
+  },
+  "licenses": [
+    {
+      "type": "GPL",
+      "url": "https://github.com/rcsb/proteinfeatureview/blob/master/LICENSE.txt"
+    }
+  ]
 }

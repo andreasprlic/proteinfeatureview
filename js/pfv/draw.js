@@ -154,8 +154,17 @@ define(['params','colors'],
             }
 
             var g = this.getGroup('sequenceTrack' + this.viewer.getData().uniprotID);
+            var blg = svg.group({fill: 'lightgrey'});
+            var bg = svg.group({fill: '#dcdcdc'});
 
             this.drawName(svg, g, y, sequence.name, undefined, "UniProtKB sequence " + sequence.name);
+
+            var gs = svg.group({
+                        id: 'seqpos' + this.viewer.getData().uniprotID,
+                        fontWeight: 'bold',
+                        fontSize: '10', fill: 'black'
+                    }
+                );
 
             var defs = svg.defs();
 
@@ -192,16 +201,9 @@ define(['params','colors'],
             if (this.scale >= 8) {
                 // draw Sequence text
 
-                var blg = svg.group({fill: 'lightgrey'});
-                var bg = svg.group({fill: '#dcdcdc'});
+                
 
-                var gs = svg.group({
-                        id: 'seqpos' + this.viewer.getData().uniprotID,
-                        fontWeight: 'bold',
-                        fontSize: '10', fill: 'black'
-                    }
-                );
-
+                
                 for (var s = 0; s < sequence.length; s++) {
 
                     if ((s + 1) % 10 === 0) {
@@ -1426,29 +1428,25 @@ define(['params','colors'],
             
            /// console.log("drawing track " + JSON.stringify(track) + " " + y);
 
-            var g = svg.group({id: trackID, fontWeight: 'bold', fontSize: '10', fill: 'black'});
-            this.drawName(svg, g, y, track.pdbID + "." + track.chainID,
-                undefined, "Track for PDB ID " + track.pdbID +
-                " chain ID " + track.chainID);
+           // first some parameters for this view
 
+            var g = svg.group({id: trackID, fontWeight: 'bold', fontSize: '10', fill: 'black'});
+            
+             var mismatchGroup = svg.group({
+                        id: 'sMM' + trackID +this.viewer.getData().uniprotID,
+                        fontWeight: 'bold',
+                        fontSize: '10',
+                        fill: this.param.paired_colors[5].color
+                    }
+                );
+
+            var seqresGroup = svg.group({id: 'seqres'+trackID, fontWeight: 'bold', fontSize: '10', fill: 'black'});
+            
             var color = track.color;
             var bw_color = this.param.bw_colors[6];
             var mismatch_color = this.param.paired_colors[4];
 
-
-            for (var i = 0; i < track.ranges.length; i++) {
-                var rangeOrig = track.ranges[i];
-
-                var range = {};
-                range.start = rangeOrig.start - 1;
-                range.end = rangeOrig.end - 1;
-                range.observed = rangeOrig.observed;
-                range.mismatch = rangeOrig.mismatch;
-
-
-                var width = (range.end - range.start) + 1;
-
-                var defs = svg.defs();
+            var defs = svg.defs();
 
                 svg.linearGradient(defs, 'MyGradient' + trackID +this.viewer.getData().uniprotID, [
                         ['0%', 'white'],
@@ -1468,6 +1466,18 @@ define(['params','colors'],
 
                     }
                 );
+
+                svg.linearGradient(defs, 'BWLightGradient' + trackID +this.viewer.getData().uniprotID, [
+                        ['0%', 'white'],
+                        ['100%', 'grey']
+                    ],
+                    0, y, 0, y + this.param.trackHeight,
+                    {
+                        gradientUnits: 'userSpaceOnUse'
+
+                    }
+                );
+
                 svg.linearGradient(defs, 'MISMGradient' + trackID +this.viewer.getData().uniprotID, [
                         ['0%', 'white'],
                         ['100%', mismatch_color.color]
@@ -1479,6 +1489,24 @@ define(['params','colors'],
                     }
                 );
 
+
+            // now drawing the track
+           
+            this.drawName(svg, g, y, track.pdbID + "." + track.chainID,
+                undefined, "Track for PDB ID " + track.pdbID +
+                " chain ID " + track.chainID);
+
+            for (var i = 0; i < track.ranges.length; i++) {
+                var rangeOrig = track.ranges[i];
+
+                var range = {};
+                range.start = rangeOrig.start - 1;
+                range.end = rangeOrig.end - 1;
+                range.observed = rangeOrig.observed;
+                range.mismatch = rangeOrig.mismatch;
+
+                var width = (range.end - range.start) + 1;
+
                 var r1 = this.param.trackHeight / 2 - 1;
                 var r2 = this.param.trackHeight / 2 - 1;
 
@@ -1486,15 +1514,14 @@ define(['params','colors'],
 
                     if (range.mismatch) {
 
-                        var rect1 = svg.rect(g, this.seq2Screen(range.start), y + 1,
-                            Math.round(width * this.scale), this.param.trackHeight - 1,
+                        var rect1 = svg.rect(g, this.seq2Screen(range.start), y ,
+                            Math.round(width * this.scale), this.param.trackHeight ,
                             {
                                 fill: 'url(#MISMGradient' + trackID +this.viewer.getData().uniprotID + ')',
                                 stroke: mismatch_color.darkercolor,
                                 strokeWidth: 1
                             });
 
-                        //$(rect).css('class','.tooltip');
 
                         var txt = " (seq pos: " + rangeOrig.start;
                         if (rangeOrig.start !== rangeOrig.end) {
@@ -1510,9 +1537,37 @@ define(['params','colors'],
                             txt +=") ";
                         }
 
-                        $(rect1).attr("title", "Mismatch between PDB and UniProt residue" + txt);
+                        var aa = "";
+
+                        if ( typeof rangeOrig.pdbResidue != 'undefined') {
+                            aa = rangeOrig.pdbResidue;
+                        }
+
+
+                        var mmtitle = "Mismatch " + 
+                            this.viewer.getData().sequence.charAt(s) +
+                            "->" +  aa + 
+                            " between PDB and UniProt residue " + txt;
+
+                        $(rect1).attr("title", mmtitle);
 
                         this.registerTooltip(rect1);
+
+                        if ( this.scale > 8 ) {
+
+                            
+                                // this gives the UP sequence, but here is a mismatch
+                                // this.viewer.getData().sequence.charAt(s)
+                                // need to show the PDB sequence...
+                                
+                                
+
+                                var txtm = svg.text(mismatchGroup, this.seq2Screen(range.start) + 1, y +
+                                this.param.trackHeight - 1, aa);
+                                $(txtm).attr("title", mmtitle);
+                                this.registerTooltip(txtm);
+                            
+                        }
 
                     } else {
 
@@ -1554,29 +1609,80 @@ define(['params','colors'],
 
                         this.registerTooltip(rect);
 
+                        if ( this.scale > 8 ) {
+
+                            if ( typeof rangeOrig.pdbStart !== 'undefined') {
+                                for ( var s = range.start ; s <= range.end ; s++) {
+
+                                    // this gives the UP sequence, but here is a mismatch
+                                    // this.viewer.getData().sequence.charAt(s)
+                                    // need to show the PDB sequence...
+                                    var aam = this.viewer.getData().sequence.charAt(s);
+
+                                    svg.text(g, this.seq2Screen(s) + 1, y +
+                                    this.param.trackHeight - 1, aam);
+
+                                    //todo: add tooltip for text here?
+                                }
+                            }
+
+                        }
+
                     }
                 } else {
 
-                    // shows SEQRES that are not in ATOM records. Since 
-                    // this is confusing, we don;t show that..
+                    // shows SEQRES that are not in ATOM records. 
 
                     if (this.viewer.getShowSeqres()) {
 
-                        var line = svg.rect(g, this.seq2Screen(range.start), y + (this.param.trackHeight / 4),
-                            Math.round(width * this.scale), (this.param.trackHeight / 4) * 2,
+                        var mg = g ;
+
+                        var seqresY = (this.param.trackHeight / 4);
+                        var seqresHeight = (this.param.trackHeight / 4) * 2;
+                        var gradient = 'url(#BWGradient';
+                        if ( this.scale > 8 ) {
+                            mv = seqresGroup;
+                            seqresY = 0;
+                            seqresHeight = this.param.trackHeight;
+                            gradient = 'url(#BWLightGradient'
+
+                        }
+
+
+                        var line = svg.rect(mg, this.seq2Screen(range.start), y + seqresY,
+                            Math.round(width * this.scale),seqresHeight ,
 
                             {
-                                fill: 'url(#BWGradient' + trackID +this.viewer.getData().uniprotID + ')',
+                                fill: gradient + trackID +this.viewer.getData().uniprotID + ')',
                                 stroke: bw_color.color,
                                 strokeWidth: 1
                             });
-                        //$(line).css('class','.tooltip');
+                        
 
                         $(line).attr("title", "No coordinates have been " +
                         "determined for this region, " +
                         "but the sequence is recorded in the SEQRES records. ");
 
                         this.registerTooltip(line);
+
+                         if ( this.scale > 8 ) {
+
+                            
+                                for ( var s = range.start ; s <= range.end ; s++) {
+
+                                    // this gives the UP sequence, but here is a mismatch
+                                    // this.viewer.getData().sequence.charAt(s)
+                                    // need to show the PDB sequence...
+                                    var aas = this.viewer.getData().sequence.charAt(s).toLowerCase();
+
+                                    svg.text(g, this.seq2Screen(s) + 2, y +
+                                    this.param.trackHeight - 1, aas);
+
+                                    //todo: add tooltip for text here?
+                                }
+                            
+
+                        }
                     }
                 }
             }
@@ -2077,13 +2183,15 @@ define(['params','colors'],
 
                     var width = (range.end - range.start) + 1;
 
-                    var line = svg.rect(g0, this.seq2Screen(range.start), y +
-                        (this.param.trackHeight / 4), Math.round(width * this.scale), (this.param.trackHeight / 4) * 2,
+                    var line = svg.rect(g0, 
+                        this.seq2Screen(range.start), 
+                        y + (this.param.trackHeight / 4), 
+                        Math.round(width * this.scale),
+                        (this.param.trackHeight / 4) * 2,
 
                         {
                             fill: 'url(#secstrucBWGradient' +this.viewer.getData().uniprotID + ')',
-                            stroke: bw_color.color,
-                            strokeWidth: 1
+                           
                         });
 
                     $(line).attr("title", 'coil');

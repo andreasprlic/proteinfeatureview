@@ -1366,9 +1366,9 @@ define(['colors','draw','jquery'],
 
             var w = (data.length) * drawer.scale + this.params.leftBorder + this.params.rightBorder ;
 
-            if ( w > $(svg._container).width() ) {
-                w = $(svg._container).width();
-            }
+            // if ( w > $(svg._container).width() ) {
+            //     w = $(svg._container).width();
+            // }
 
             this.resetSize(svg,w, y + this.params.bottomBorder);
 
