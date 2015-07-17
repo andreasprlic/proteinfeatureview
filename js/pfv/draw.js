@@ -1539,13 +1539,13 @@ define(['params','colors'],
 
                         var aa = "";
 
-                        if ( typeof rangeOrig.pdbResidue != 'undefined') {
+                        if ( typeof rangeOrig.pdbResidue !== 'undefined') {
                             aa = rangeOrig.pdbResidue;
                         }
 
 
                         var mmtitle = "Mismatch " + 
-                            this.viewer.getData().sequence.charAt(s) +
+                            this.viewer.getData().sequence.charAt(range.start) +
                             "->" +  aa + 
                             " between PDB and UniProt residue " + txt;
 
@@ -1571,8 +1571,6 @@ define(['params','colors'],
 
                     } else {
 
-
-
                         var rect = svg.rect(g, this.seq2Screen(range.start), y,
                             Math.round(width * this.scale), this.param.trackHeight,
                             r1, r2,
@@ -1581,8 +1579,6 @@ define(['params','colors'],
                                 stroke: color,
                                 strokeWidth: 1
                             });
-
-                        //$(rect).css('class','.tooltip');
 
                         var resolution = "";
                         if (typeof track.resolution !== 'undefined') {
@@ -1602,8 +1598,7 @@ define(['params','colors'],
                             title += ") ";
                         }
                         title += resolution + " - " + d.toDateString();
-                        //" - " + track.clusterNr + " - " + track.clusterRank);
-
+                        
 
                         $(rect).attr("title", title);
 
@@ -1612,14 +1607,15 @@ define(['params','colors'],
                         if ( this.scale > 8 ) {
 
                             if ( typeof rangeOrig.pdbStart !== 'undefined') {
-                                for ( var s = range.start ; s <= range.end ; s++) {
+                                
+                                for ( var s1 = range.start ; s1 <= range.end ; s1++) {
 
                                     // this gives the UP sequence, but here is a mismatch
                                     // this.viewer.getData().sequence.charAt(s)
                                     // need to show the PDB sequence...
-                                    var aam = this.viewer.getData().sequence.charAt(s);
+                                    var aam = this.viewer.getData().sequence.charAt(s1);
 
-                                    svg.text(g, this.seq2Screen(s) + 1, y +
+                                    svg.text(g, this.seq2Screen(s1) + 1, y +
                                     this.param.trackHeight - 1, aam);
 
                                     //todo: add tooltip for text here?
@@ -1639,12 +1635,12 @@ define(['params','colors'],
 
                         var seqresY = (this.param.trackHeight / 4);
                         var seqresHeight = (this.param.trackHeight / 4) * 2;
-                        var gradient = 'url(#BWGradient';
+                        var gradient = 'url(#BWGradient' ;
                         if ( this.scale > 8 ) {
-                            mv = seqresGroup;
+                            mg = seqresGroup;
                             seqresY = 0;
                             seqresHeight = this.param.trackHeight;
-                            gradient = 'url(#BWLightGradient'
+                            gradient = 'url(#BWLightGradient';
 
                         }
 
@@ -1666,16 +1662,15 @@ define(['params','colors'],
                         this.registerTooltip(line);
 
                          if ( this.scale > 8 ) {
-
                             
-                                for ( var s = range.start ; s <= range.end ; s++) {
+                                for ( var s3 = range.start ; s3 <= range.end ; s3++) {
 
                                     // this gives the UP sequence, but here is a mismatch
                                     // this.viewer.getData().sequence.charAt(s)
                                     // need to show the PDB sequence...
-                                    var aas = this.viewer.getData().sequence.charAt(s).toLowerCase();
+                                    var aas = this.viewer.getData().sequence.charAt(s3).toLowerCase();
 
-                                    svg.text(g, this.seq2Screen(s) + 2, y +
+                                    svg.text(mg, this.seq2Screen(s3) + 2, y +
                                     this.param.trackHeight - 1, aas);
 
                                     //todo: add tooltip for text here?
