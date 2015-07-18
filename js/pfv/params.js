@@ -1,3 +1,11 @@
+/**
+ *  Protein Feature View v. {{ VERSION }} build {{ BUILD }} 
+ *  
+ *  Draws a graphical summary of PDB and UniProtKB relationships for a single UniProtKB sequence.
+ *
+ *  @author Andreas Prlic
+ */
+
  define(['colors'],
     function(colors) {
 

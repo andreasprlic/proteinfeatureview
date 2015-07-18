@@ -3,6 +3,17 @@
 /*global $:false */
 /*global pageTracker:false*/
 
+
+/**
+ *  Protein Feature View v. {{ VERSION }} build {{ BUILD }} 
+ *  
+ *  Draws a graphical summary of PDB and UniProtKB relationships for a single UniProtKB sequence.
+ *
+ *  @author Andreas Prlic
+ */
+
+
+
 /**
  * Provides the "view" of the data
 */
@@ -26,14 +37,14 @@ define(['params','colors'],
     		this.maxY = 0;
 
 
-    		var svg = viewer.getSVGWrapper();
+    		// var svg = viewer.getSVGWrapper();
 
-    		this.defaultGroup = svg.group({
-                    id: 'defaultGroup',
-                    fontWeight: 'bold',
-                    fontSize: '10', fill: 'black'
-                }
-            );
+    		// this.defaultGroup = svg.group({
+      //               id: 'defaultGroup',
+      //               fontWeight: 'bold',
+      //               fontSize: '10', fill: 'black'
+      //           }
+      //       );
 
     	}
 
@@ -742,8 +753,7 @@ define(['params','colors'],
 
 
             if (typeof this.viewer.getData().validation === 'undefined') {
-
-                console.log("no validation data");
+                
                 return y;
             }
 

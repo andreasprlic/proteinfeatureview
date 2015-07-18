@@ -15,7 +15,17 @@ module.exports = function(grunt){
 
 
   grunt.initConfig({
+    
     pkg: pkg,
+
+    config : {
+      src: 'js/pfv/**.js',
+      dist: 'build/'
+    },
+
+	  buildnumber:{
+      package:{}
+    },
 
     jshint : {
 
@@ -66,6 +76,26 @@ module.exports = function(grunt){
         src:  'build/<%= pkg.name %>.rel.js',
         dest: 'build/<%= pkg.name %>.min.js'
       }
+    },
+    
+    'string-replace': {
+      version: {
+        files: { 
+           
+           '<%= config.src %>' : '<%= config.dist %>/src/'
+          }
+        ,
+        options: {
+          replacements: [{
+            pattern: '/{{ VERSION }}/g',
+            replacement: '<%=pkg.version %>'
+          },
+          {
+            pattern: '/{{ BUILD }}/g',
+            replacement: '<%=pkg.build %>'
+          }]
+        }
+      }
     }
   });
 
@@ -75,10 +105,13 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-remove-logging');
   grunt.loadNpmTasks('grunt-contrib-requirejs');
+  grunt.loadNpmTasks('grunt-build-number');
+  grunt.loadNpmTasks('grunt-string-replace');
 
 // Default task(s).
   grunt.registerTask('default', [
-    'jshint', 'requirejs', 'removelogging', 'uglify'
+				 'jshint', 'requirejs',  'removelogging', 'uglify','buildnumber' ,'string-replace' ,
   ]);
+
 
 };

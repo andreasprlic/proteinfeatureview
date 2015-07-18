@@ -1,6 +1,13 @@
+/**
+ *  Protein Feature View v. {{ VERSION }} build {{ BUILD }} - draws a graphical summary of PDB and UniProtKB
+ *   relationships for a single UniProtKB sequence.
+ *
+ *  @author Andreas Prlic
+ */
+
 /** A Worker that performs JSON calls in a background thread.
  *
- * Created by ap3 on 24/11/2014.
+
  */
 
 var idSeed = 0;

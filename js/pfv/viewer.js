@@ -3,16 +3,16 @@
 /*global pageTracker:false*/
 /*jslint maxlen: 120 */
 /**
- *  Protein Feature View - draws a graphical summary of PDB and UniProtKB
- *   relationships for a single UniProtKB sequence.
+ *  Protein Feature View v. {{ VERSION }} build {{ BUILD }} 
+ *  
+ *  Draws a graphical summary of PDB and UniProtKB relationships for a single UniProtKB sequence.
  *
  *  @author Andreas Prlic
- *  @date 2014 November
  */
 
 
-define(['colors','draw','jquery'],
-    function(colors, draw, jQuery) {
+define(['colors','draw','jquery','params'],
+    function(colors, draw, jQuery, params) {
 
         /** A No args constructor. Needs to call setParent and loadUniprot from the user side
          *
@@ -33,36 +33,14 @@ define(['colors','draw','jquery'],
                     that.repaint();
                 }
             });
+                  
+            var drawer = new draw.Draw(this);
+            this.drawer = drawer;
 
         }
 
 
-        /** construct new EntityView which is hooked up with a div for display
-         *
-         */
-        // function Viewer(parentDiv, uniprotId) {
-
-        //         this.initClass();
-        //         this.setParentDiv(parentDiv);
-        //         this.setSizeDiv(parentDiv);
-
-        //         this.loadUniprot(uniprotId);
-
-        //         $(window).resize(function () {
-
-        //             $(parent).css('overflow', 'hidden');
-        //             $(parent).css('width', 'auto');
-        //             this.updateScale();
-        //             this.repaint();
-        //         });
-
-
-        // }
-
-
-
-
-
+    
         /** Initialize the internals
          *
          */
@@ -71,10 +49,12 @@ define(['colors','draw','jquery'],
 
             $.ajaxSetup({timeout: 20000});
 
-
+            
             this.data = {};
 
-            this.version = "2014-12-17";
+            this.version = "2015 07 17";
+
+            this.params = new params.Params();
 
             this.showCondensed = true;
 
@@ -419,7 +399,7 @@ define(['colors','draw','jquery'],
                 var track = this.asyncTracks[i];
 
                 var url = track.url;
-                //alert(url);
+           
                 //this.loadURLAsync(url);
                 var that = this;
 
@@ -530,7 +510,7 @@ define(['colors','draw','jquery'],
                 this.data.phospho = json.phosphorylation;
                 console.log("got phosphosite response");
             } else if (typeof json.hydropathy !== 'undefined') {
-                //alert(JSON.stringify(json));
+                
                 console.log("got hydropathy response");
 
                 this.data.hydropathy_max = json.hydropathy.hydropathy_max;
@@ -538,7 +518,7 @@ define(['colors','draw','jquery'],
                 this.data.hydropathy = json.hydropathy;
 
             } else if (typeof json.jronn !== 'undefined') {
-                //alert(JSON.stringify(json));
+                
                 this.data.jronn_max = json.jronn.jronn_max;
                 this.data.jronn_min = json.jronn.jronn_min;
                 this.data.jronn = json.jronn;
@@ -675,8 +655,6 @@ define(['colors','draw','jquery'],
 
         Viewer.prototype.repaint = function () {
 
-
-            //alert($(parent).width());
 
             //var now = new Date().getTime();
 
@@ -921,8 +899,7 @@ define(['colors','draw','jquery'],
 
             }
 
-            console.log("AVAIL WIDTH: " + availWidth);
-
+            
             return availWidth;
 
         };
@@ -995,7 +972,6 @@ define(['colors','draw','jquery'],
             if (aaWidth > this.params.maxTextSize) {
                 aaWidth = this.params.maxTextSize;
             }
-
 
             this.drawer.setScale(aaWidth);
 
@@ -1082,7 +1058,10 @@ define(['colors','draw','jquery'],
             $('#uniprotSpecies > span').html(data.species);
 
 
-            var drawer = new draw.Draw(this);
+            // now done in constructor
+            //var drawer = new draw.Draw(this);
+            //this.drawer = drawer;
+            var drawer = this.drawer;
 
             if ( typeof this.drawer !== 'undefined') {
                 drawer.scale = this.drawer.scale;
@@ -1209,7 +1188,7 @@ define(['colors','draw','jquery'],
                 var track = data.tracks[i];
 
                 if (this.singlePDBmode) {
-                    //alert(track.pdbID + " " + displayPDB);
+                    
                     if (track.pdbID !== this.displayPDB) {
                         continue;
                     }
@@ -1261,7 +1240,7 @@ define(['colors','draw','jquery'],
             }
 
 
-            //alert(JSON.stringify(data.externalTracks.names));
+            
             if (!this.singlePDBmode) {
 
                 //if ( data.externalTracks.names.length > 0) 
@@ -1328,7 +1307,7 @@ define(['colors','draw','jquery'],
                         };
                     }
 
-                    //alert(trackdata.label);
+                    
                     if (trackrows.length > 0) {
 
                         if (trackdata.label === "Homology Models from Protein Model Portal") {
@@ -1392,7 +1371,7 @@ define(['colors','draw','jquery'],
             }
 
             this.y = y;
-            this.drawer = drawer;
+            
 
             var end = new Date().getTime();
 
@@ -1409,7 +1388,7 @@ define(['colors','draw','jquery'],
 
             var fullTrackCount = this.data.tracks.length;
             if (typeof this.data.backupTracks !== 'undefined') {
-                //alert(data.tracks.length +" " + data.backupTracks.length);
+                
                 fullTrackCount = this.data.backupTracks.length;
             }
             return fullTrackCount;
@@ -1587,7 +1566,7 @@ define(['colors','draw','jquery'],
                 pageTracker._trackEvent('ProteinFeatureView', 'showSeqMotifDialog', txt);
             }
 
-            //alert(seq.length + " " + this.start+ " " + this.end+ " | " + seq);
+        
             var url = this.rcsbServer + "/pdb/search/smart.do?&smartSearchSubtype_0=" +
                 "MotifQuery&target=Current&motif_0=";
 
@@ -1606,7 +1585,7 @@ define(['colors','draw','jquery'],
                 pageTracker._trackEvent('ProteinFeatureView', 'showUniProtDialog', txt);
             }
 
-            //alert(seq.length + " " + this.start+ " " + this.end+ " | " + seq);
+            
             var murl = this.rcsbServer + "/pdb/search/smart.do?" +
                 "chainId_0=&eCutOff_0=0.001&" +
                 "maskLowComplexity_0=yes&searchTool_0=blast&smartComparator=" +
