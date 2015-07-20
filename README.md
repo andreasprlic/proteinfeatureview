@@ -98,6 +98,20 @@ The vertical color bar on the left side indicates data provenance.
 
 </div>
 
+## Event model
+
+An event model allows to register "listeners" that get triggered when certain events occur. A listener can get registered with: 
+
+```javascript
+ pfv.addListener(eventName,function);
+``` 
+
+currently supported events:
+
+ * viewerReady
+ * sliderMoved
+ * sliderReleased
+
 ## Dependencies
 
 * jquery (V. 1.7.2)
