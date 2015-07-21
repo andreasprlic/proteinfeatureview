@@ -3,16 +3,16 @@
 /*global pageTracker:false*/
 /*jslint maxlen: 120 */
 /**
- *  Protein Feature View v. {{ VERSION }} build {{ BUILD }} 
- *  
+ *  Protein Feature View v. {{ VERSION }} build {{ BUILD }}
+ *
  *  Draws a graphical summary of PDB and UniProtKB relationships for a single UniProtKB sequence.
  *
  *  @author Andreas Prlic
  */
 
 
-define(['colors','draw','jquery','params'],
-    function(colors, draw, jQuery, params) {
+define(['colors','draw','params','jquery','jquerysvg','jqueryui'],
+    function(colors, draw, params , jQuery) {
 
         /** A No args constructor. Needs to call setParent and loadUniprot from the user side
          *
@@ -33,14 +33,15 @@ define(['colors','draw','jquery','params'],
                     that.repaint();
                 }
             });
-                  
+
             var drawer = new draw.Draw(this);
             this.drawer = drawer;
+
 
         }
 
 
-    
+
         /** Initialize the internals
          *
          */
@@ -49,12 +50,16 @@ define(['colors','draw','jquery','params'],
 
             $.ajaxSetup({timeout: 20000});
 
-            
+
+
             this.data = {};
 
-            this.version = "2015 07 17";
+            this.version = "2015 07 19";
 
-            this.params = new params.Params();
+            this._initialized = false;
+
+            console.log(typeof params.Params);
+
 
             this.showCondensed = true;
 
@@ -81,16 +86,19 @@ define(['colors','draw','jquery','params'],
 
             this.oldScale = -1;
 
-            $(this.scrollBarDiv).slider({
-                orientation: "horizontal",
-                range: "min",
-                min: 0,
-                max: 100,
-                value: 0,
-                animate: true
-            });
 
-            this._initialized = false;
+            try {
+                $(this.scrollBarDiv).slider({
+                    orientation: "horizontal",
+                    range: "min",
+                    min: 0,
+                    max: 100,
+                    value: 0,
+                    animate: true
+                });
+            } catch (err) {
+                console.error(err);
+            }
 
             this.startedAt = new Date().getTime();
 
@@ -125,7 +133,7 @@ define(['colors','draw','jquery','params'],
 
                 $(that.parent).svg();
                 var svg = $(that.parent).svg('get');
-                
+
                 that.drawInitial(svg);
                 that.updateScale();
                 that.repaint();
@@ -399,7 +407,7 @@ define(['colors','draw','jquery','params'],
                 var track = this.asyncTracks[i];
 
                 var url = track.url;
-           
+
                 //this.loadURLAsync(url);
                 var that = this;
 
@@ -510,7 +518,7 @@ define(['colors','draw','jquery','params'],
                 this.data.phospho = json.phosphorylation;
                 console.log("got phosphosite response");
             } else if (typeof json.hydropathy !== 'undefined') {
-                
+
                 console.log("got hydropathy response");
 
                 this.data.hydropathy_max = json.hydropathy.hydropathy_max;
@@ -518,7 +526,7 @@ define(['colors','draw','jquery','params'],
                 this.data.hydropathy = json.hydropathy;
 
             } else if (typeof json.jronn !== 'undefined') {
-                
+
                 this.data.jronn_max = json.jronn.jronn_max;
                 this.data.jronn_min = json.jronn.jronn_min;
                 this.data.jronn = json.jronn;
@@ -572,7 +580,7 @@ define(['colors','draw','jquery','params'],
 
         };
 
-     
+
         Viewer.prototype.setDialogDiv = function (dialogD) {
 
             this.dialogDiv = dialogD;
@@ -656,34 +664,36 @@ define(['colors','draw','jquery','params'],
         Viewer.prototype.repaint = function () {
 
 
-            //var now = new Date().getTime();
+            // var now = new Date().getTime();
 
-            //console.log("repainting. time since start: " + (now - this.startedAt ));
-
+            //    console.log("repainting. time since start: " + (now - this.startedAt ));
 
             if (typeof this.parent === 'undefined') {
+                console.error("can't repaint, no parent");
                 return;
             }
+
 
             $("#uniprotsubheader").html("");
 
             var svg = $(this.parent).svg('get');
 
             if (typeof svg === 'undefined') {
+                console.error("can't repaint, no svg");
                 return;
             }
 
-            svg.clear();
+            try {
 
-            this.drawInitial(svg);
+                svg.clear();
 
-            //this.resetSize(svg, (this.data.length) * this.drawer.scale + this.params.leftBorder +
-            //    this.params.rightBorder, this.y + this.params.bottomBorder);
+                this.drawInitial(svg);
 
-            this.drawer.maxY = this.y + this.params.bottomBorder;
-            //hideColorLegend();
+                this.drawer.maxY = this.y + this.params.bottomBorder;
 
-
+            } catch (err){
+                console.error(err);
+            }
         };
 
         Viewer.prototype.showDialog = function (track) {
@@ -899,7 +909,7 @@ define(['colors','draw','jquery','params'],
 
             }
 
-            
+
             return availWidth;
 
         };
@@ -1188,7 +1198,7 @@ define(['colors','draw','jquery','params'],
                 var track = data.tracks[i];
 
                 if (this.singlePDBmode) {
-                    
+
                     if (track.pdbID !== this.displayPDB) {
                         continue;
                     }
@@ -1240,7 +1250,7 @@ define(['colors','draw','jquery','params'],
             }
 
 
-            
+
             if (!this.singlePDBmode) {
 
                 //if ( data.externalTracks.names.length > 0) 
@@ -1307,7 +1317,7 @@ define(['colors','draw','jquery','params'],
                         };
                     }
 
-                    
+
                     if (trackrows.length > 0) {
 
                         if (trackdata.label === "Homology Models from Protein Model Portal") {
@@ -1335,7 +1345,7 @@ define(['colors','draw','jquery','params'],
 
             } else {
                 var title1 = "Click here to view more details about " + data.uniprotID;
-                
+
                 var callback1 = function () {
                     window.location = that.rcsbServer  + "/pdb/protein/" + data.uniprotID;
                 };
@@ -1371,11 +1381,11 @@ define(['colors','draw','jquery','params'],
             }
 
             this.y = y;
-            
+
 
             var end = new Date().getTime();
 
-           console.log("time to repaint SVG graphics: " + (end-now));
+            console.log("time to repaint SVG graphics: " + (end-now));
 
         };
 
@@ -1388,7 +1398,7 @@ define(['colors','draw','jquery','params'],
 
             var fullTrackCount = this.data.tracks.length;
             if (typeof this.data.backupTracks !== 'undefined') {
-                
+
                 fullTrackCount = this.data.backupTracks.length;
             }
             return fullTrackCount;
@@ -1566,7 +1576,7 @@ define(['colors','draw','jquery','params'],
                 pageTracker._trackEvent('ProteinFeatureView', 'showSeqMotifDialog', txt);
             }
 
-        
+
             var url = this.rcsbServer + "/pdb/search/smart.do?&smartSearchSubtype_0=" +
                 "MotifQuery&target=Current&motif_0=";
 
@@ -1585,7 +1595,7 @@ define(['colors','draw','jquery','params'],
                 pageTracker._trackEvent('ProteinFeatureView', 'showUniProtDialog', txt);
             }
 
-            
+
             var murl = this.rcsbServer + "/pdb/search/smart.do?" +
                 "chainId_0=&eCutOff_0=0.001&" +
                 "maskLowComplexity_0=yes&searchTool_0=blast&smartComparator=" +
@@ -1766,7 +1776,9 @@ define(['colors','draw','jquery','params'],
 
             this.showSeqres = showS;
 
-            this.repaint();
+            if (this._initialized ) {
+                this.repaint();
+            }
 
         };
         Viewer.prototype.getShowSeqres = function () {
@@ -1893,6 +1905,7 @@ define(['colors','draw','jquery','params'],
 
         return {
             PFV: function (elem, options) {
+                console.log("Viewer.PFV");
                 return new Viewer(elem, options);
             }
 
