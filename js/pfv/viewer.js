@@ -36,7 +36,7 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui'],
 
             var drawer = new draw.Draw(this);
             this.drawer = drawer;
-
+            this.params = params;
 
         }
 
@@ -50,16 +50,11 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui'],
 
             $.ajaxSetup({timeout: 20000});
 
-
-
             this.data = {};
 
             this.version = "2015 07 19";
 
             this._initialized = false;
-
-            console.log(typeof params.Params);
-
 
             this.showCondensed = true;
 
