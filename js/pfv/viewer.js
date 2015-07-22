@@ -11,7 +11,8 @@
  */
 
 
-define(['colors','draw','params','jquery','jquerysvg','jqueryui'],
+define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest','jquerycookie',
+        'jquerycarousel','jquerycolorbox','bootstrap'],
     function(colors, draw, params , jQuery) {
 
         /** A No args constructor. Needs to call setParent and loadUniprot from the user side
@@ -52,7 +53,7 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui'],
 
             this.data = {};
 
-            this.version = "2015 07 19";
+            this.version = "{{ VERSION }} build {{ BUILD }}";
 
             this._initialized = false;
 

@@ -57,8 +57,11 @@ module.exports = function(grunt){
           mainConfigFile: "config.js",
           out: "build/<%= pkg.name %>.dbg.js",
           include:['vendor/require.js']
-        }
-      }
+
+        },
+        
+      },
+
     },
 
     removelogging : {
