@@ -84,7 +84,7 @@ module.exports = function(grunt){
     'string-replace': {
       version: {
         files: { 
-          'build/<%= pkg.name %>.ver.js' : 'build/<%= pkg.name %>.rel.js',
+          'build/<%= pkg.name %>.ver.js' : 'build/<%= pkg.name %>.dbg.js',
           
           }
         ,
@@ -113,7 +113,7 @@ module.exports = function(grunt){
 
 // Default task(s).
   grunt.registerTask('default', [
-				 'jshint', 'requirejs',  'removelogging','buildnumber' ,'string-replace' , 'uglify'
+				 'jshint', 'requirejs',  'buildnumber' ,'string-replace' , 'uglify'
   ]);
 
 

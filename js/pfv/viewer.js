@@ -1796,7 +1796,7 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
                 seqposEnd = seqposStart;
             }
 
-            //console.log('highlighting seq pos' + seqposStart + "-" +seqposEnd)
+            console.log('highlighting seq pos' + seqposStart + "-" +seqposEnd);
 
             this.selectionStart = seqposStart;
             this.selectionEnd = seqposEnd;

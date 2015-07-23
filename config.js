@@ -7,7 +7,7 @@ requirejs.config({
         draw:'pfv/draw',
         params:'pfv/params',
         querysuggest:'vendor/querysuggest-1.0.0',
-        jquery:'vendor/jquery-2.0.2.min',
+        jquery:'vendor/jquery-2.1.3.min',
         jqueryui:'vendor/jquery-ui-1.11.1.min',
         jquerysvg:'vendor/svg/jquery.svg.min',
         jquerycookie:'vendor/jquery-cookie.min',

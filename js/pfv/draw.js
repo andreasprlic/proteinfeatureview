@@ -1280,7 +1280,9 @@ define(['params','colors'],
          Draw.prototype.drawSelection = function (svg) {
 
 
-            if (this.viewer.selectionStart < 0) {
+            
+
+            if (this.viewer.selectionStart < 0) {                
                 return;
             }
 
@@ -1294,9 +1296,10 @@ define(['params','colors'],
             );
 
 
-            var length = (this.selectionEnd - this.viewer.selectionStart + 1);
+            var length = (this.viewer.selectionEnd - this.viewer.selectionStart + 1);
 
-            console.log("selection:" + this.viewer.selectionStart + " - " + this.selectionEnd);
+            //console.log("selection:" + this.viewer.selectionStart + " - " + this.selectionEnd);
+
             var rect = svg.rect(g, this.seq2Screen(this.viewer.selectionStart), topY, length * this.scale, this.maxY,
                 0, 0,
                 {
@@ -1329,6 +1332,7 @@ define(['params','colors'],
             // });
 
             // $(rect).tooltip('show');
+      
 
         };
 

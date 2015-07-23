@@ -69,9 +69,60 @@
                         <button class="btn btn-default" id="export"><i class="fa fa-download"></i> Export</button>
 
                    </div>
+       
 
+       <div class="btn-group" >
+               
+
+                    <div class="dropdown ">
+
+                        <button class="btn dropdown-toggle" type="button" id="actionMenu" data-toggle="dropdown" >
+                            Action <span class="caret"></span>
+                        </button>
+
+
+                        <ul class="dropdown-menu " role="menu" aria-labelledby="actionMenu">
+
+                            <li role="presentation">
+                                    <a href="#" onclick="$('#mySequenceMotifDialog').modal('show'); return false;" 
+                                    role="menuitem" tabindex="-1" >
+                                Find Sequence Motif</a></li>
+                            
+                        </ul>
+
+                    </div>
+                </div>
+        </div>
                 
     </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="mySequenceMotifDialog" aria-labelledby="mySequenceMotifDialog" aria-hidden="true">
+                <div class="modal-dialog">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times</span><span class="sr-only">Close</span> </button>
+                            <h4 class="modal-title">Find Sequence Motif
+                                <a href="/pdb/staticHelp.do?p=help/advancedsearch/sequenceMotif.html"><span class="iconSet-main icon-help" title="Help | Motif Search">&nbsp;</span></a></h4>
+                        </div>
+                        <div class="modal-body">
+
+                            <form id="findSequenceMotif" class="form-horizontal">
+                                <!-- <label class="input-label" for="enterMotif">Motif:</label> -->
+                                <div class="input-group">
+
+                                    <input class="form-control" id="enterMotif" type="text" placeholder="Enter sequence motif (example: GX[DN]FXKXDE )"/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="findMotifDialogSubmit" >Find</button>
+                        </span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
 
 
     
@@ -181,8 +232,72 @@ require(['viewer','params'], function(PFV,params){
 
     });
 
-});
 
+
+  $('#findMotifDialogSubmit').click(function(){
+
+                    // $('mySequenceMotifDialog').modal({'show':false});
+
+                    $("#findSequenceMotif").submit()
+                });
+
+
+                var previousMotif = "";
+                var myRegExp = new RegExp("$");
+
+                $("#findSequenceMotif").submit(function(event){
+
+                    var motif = $('#enterMotif').val();
+
+                    // to upper case
+                    motif = motif.toUpperCase();
+
+                    //replaceAll("X", "[A-Z]"
+                    motif = motif.replace(/X/g,'[A-Z]');
+
+                    console.log('looking for motif ' + motif);
+
+                    var seq = featureView.getSequence();
+
+
+                    if ( previousMotif != motif){
+                        previousMotif = motif;
+                        myRegExp = new RegExp(motif,"g");
+                    }
+
+                    var match = myRegExp.exec(seq);
+
+                    var pos = -1;
+
+                    
+
+                    //if ( match[0].length > 0)
+                    try {
+                        if ( match != null)
+                            pos = match.index;
+                            console.log("found at at position " + pos);
+
+                        if (pos < 0) {
+                            alert('Motif not found!');
+                            event.preventDefault();
+                        } else {
+                            //console.log(pos + " " + match[0] + " lastIndex:" + myRegExp.lastIndex);
+                            var seqLength = match[0].length;
+
+                            featureView.highlight(pos, pos + seqLength - 1);
+
+                            if ( myRegExp.lastIndex == 0)
+                                $('#mySequenceMotifDialog').modal('hide');
+
+                        }
+                    } catch (e){
+                        console.log(e);
+                    }
+                    event.preventDefault();
+                });
+
+    $(function() { $("[data-toggle='tooltip']").tooltip();});
+});
 </script>
 </body>
 </html>
