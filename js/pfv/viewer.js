@@ -104,6 +104,10 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
 
         };
 
+        Viewer.prototype.getVersion = function(){
+            return this.version;
+        };
+
 
         Viewer.prototype.loadUniprot = function (uniprotId) {
 
