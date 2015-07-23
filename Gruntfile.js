@@ -76,7 +76,7 @@ module.exports = function(grunt){
         banner: BANNER
       },
       build : {
-        src:  'build/<%= pkg.name %>.rel.js',
+        src:  'build/<%= pkg.name %>.ver.js',
         dest: 'build/<%= pkg.name %>.min.js'
       }
     },
@@ -84,17 +84,17 @@ module.exports = function(grunt){
     'string-replace': {
       version: {
         files: { 
-           src :'build/**',
-           dest:['build/<%= pkg.name %>.*.js' ],
+          'build/<%= pkg.name %>.ver.js' : 'build/<%= pkg.name %>.rel.js',
+          
           }
         ,
         options: {
           replacements: [{
-            pattern: '/{{ VERSION }}/g',
+            pattern: /{{ VERSION }}/g,
             replacement: '<%=pkg.version %>'
           },
           {
-            pattern: '/{{ BUILD }}/g',
+            pattern: /{{ BUILD }}/g,
             replacement: '<%=pkg.build %>'
           }]
         }

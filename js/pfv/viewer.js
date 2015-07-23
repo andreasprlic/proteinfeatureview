@@ -53,7 +53,7 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
 
             this.data = {};
 
-            this.version = "{{ VERSION }} build {{ BUILD }}";
+            this.version = "v. {{ VERSION }} build {{ BUILD }}";
 
             this._initialized = false;
 

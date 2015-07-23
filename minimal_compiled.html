@@ -5,27 +5,15 @@
     <meta charset="utf-8">
     <title>A minimal Protein Feature View Page</title>
 
-    <script src="js/vendor/require.js"></script>
-
-    <!-- jquery library -->
-    <script src="js/vendor/jquery-2.0.2.min.js"></script>
-    <script src="js/vendor/jquery-ui-1.11.1.js"></script>
-
-
+   
     <!-- bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <script src='js/vendor/bootstrap-3.3.4.min.js'></script>
+   
 
     <!-- jquery SVG includes -->
     <link rel="stylesheet" type="text/css" href="js/vendor/svg/jquery.svg.css"/>
     <link rel="stylesheet" type="text/css" href="css/jquery-ui.css"/>
-
-    <!-- jquery svg -->
-    <script src="js/vendor/svg/jquery.svg.min.js"></script>
-    <script src="js/vendor/svg/jquery.svgplot.min.js"></script>
-    <script src="js/vendor/svg/jquery.svggraph.min.js"></script>
-    
-    
+ 
     <!-- font awesome icons -->
     <link rel="stylesheet" href="css/font-awesome.min.css">
 
@@ -33,7 +21,7 @@
     <!-- and finally our own code ... !-->
     <link href="css/pfv.css" rel="stylesheet">
 
-    <script src="build/proteinfeatureview.dbg.js"></script>
+    <script src="build/proteinfeatureview.min.js"></script>
 
 
 </head>
@@ -116,7 +104,7 @@ require(['viewer','params'], function(PFV,params){
 
     viewer = PFV;
 
-    var entityView = new Object();
+    var featureView = new Object();
 
     $( document ).ready(function() {
 
@@ -129,53 +117,55 @@ require(['viewer','params'], function(PFV,params){
             // if has not been initialized, initialize...
             
             try {
-            entityView = new viewer.PFV();
+            featureView = new viewer.PFV();
            
-            entityView.setParentDiv('#pfv-parent');
+            console.log("init of Protein Feature View " + featureView.getVersion());
 
-            entityView.setDialogDiv('#dialog');
-            
-            entityView.setScrollBarDiv('#svgScrollBar');
+            featureView.setParentDiv('#pfv-parent');
 
-            entityView.setRcsbServer("http://pepper.rcsb.org:8080");
+            featureView.setDialogDiv('#dialog');
             
-            entityView.setShowSeqres(true);
+            featureView.setScrollBarDiv('#svgScrollBar');
+
+            featureView.setRcsbServer("http://pepper.rcsb.org:8080");
             
-            entityView.loadUniprot(uniprotID);
+            featureView.setShowSeqres(true);
+            
+            featureView.loadUniprot(uniprotID);
 
             $('#up-field').val(uniprotID);
             $('#up-field').change(function(){
 
                 var val =   $('#up-field').val();
                 console.log("loading new uniprot " + val );
-                entityView.loadUniprot(val);
+                featureView.loadUniprot(val);
 
             });
 
             $("#zoomOut").click(function(){
 
-                var val = entityView.getScrollBarValue();
+                var val = featureView.getScrollBarValue();
                 val -= 25;
-                entityView.setScrollValue(val);
+                featureView.setScrollValue(val);
 
             });
             $("#zoomIn").click(function(){
-                var val = entityView.getScrollBarValue();
+                var val = featureView.getScrollBarValue();
 
                 val += 25;
 
-                entityView.setScrollValue(val);
+                featureView.setScrollValue(val);
             });
            
 
             $('#fullScreen').click(function(){
-                entityView.requestFullscreen(); 
+                featureView.requestFullscreen(); 
                 return false;
             });
 
              $('#export').click(
             function() {
-                var svg = entityView.getSVGWrapper();
+                var svg = featureView.getSVGWrapper();
                 var xml = svg.toSVG();
                 open("data:image/svg+xml," + encodeURIComponent(xml));
                
