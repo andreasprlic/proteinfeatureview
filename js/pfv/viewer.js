@@ -11,7 +11,7 @@
  */
 
 
-define(['colors','draw','params','jquery','jquerysvg','bootstrapslider'],
+define(['colors','draw','params','jquery','jquerysvg','bootstrap','bootstrapslider'],
     function(colors, draw, params , jQuery) {
 
         /** A No args constructor. Needs to call setParent and loadUniprot from the user side
@@ -1372,9 +1372,16 @@ define(['colors','draw','params','jquery','jquerysvg','bootstrapslider'],
             }
 
             this.y = y;
-
+            
+            //var timet = new Date().getTime();
+            
+            $('[data-toggle="tooltip"]').tooltip();
+            
+            
+            //console.log('init - tooltip ' + (timet-now));
 
             var end = new Date().getTime();
+
 
             console.log("time to repaint SVG graphics: " + (end-now));
 

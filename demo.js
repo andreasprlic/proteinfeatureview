@@ -12,161 +12,160 @@ requirejs.config({
         bootstrapslider:'vendor/bootstrap-slider.min'
     },
     shim:{
-       
         'jquerysvg': {
             exports:"$",
             deps:['jquery']
+        },
+        'bootstrap': {
+            deps:['jquery']
+        },        
+        'bootstrapslider': {
+            deps:['bootstrap']
         }
+        
     }
 });
 
 var proteinFeatureView ;
 
-require(['viewer','jquerysvg','bootstrapslider'], function(PFV){
+require(['viewer','jquerysvg','bootstrap','bootstrapslider'], function(PFV){
 
     proteinFeatureView = PFV;
 
     var featureView = new Object();
 
     $( document ).ready(function() {
+        console.log('document ready - pfv');
 
         var uniprotID="P06213";
 
-    
-        $(function() {
+        // if has not been initialized, initialize...
 
-            // if has not been initialized, initialize...
+        featureView = new proteinFeatureView.PFV();
 
+        featureView.setParentDiv('#pfv-parent');
+        featureView.setDialogDiv('#dialog');
+        featureView.setScrollBarDiv('#svgScrollBar');
 
-            featureView = new proteinFeatureView.PFV();
+        featureView.setRcsbServer("http://pepper.rcsb.org:8080");
 
-
-            featureView.setParentDiv('#pfv-parent');
-            featureView.setDialogDiv('#dialog');
-            featureView.setScrollBarDiv('#svgScrollBar');
-
-            featureView.setRcsbServer("http://pepper.rcsb.org:8080");
-
-            featureView.setShowSeqres(true);
-            
-            
-            //featureView.setTracks([]);
+        featureView.setShowSeqres(true);
 
 
-            featureView.loadUniprot(uniprotID);
+        featureView.loadUniprot(uniprotID);
 
-            $('#up-field').val(uniprotID);
-            $('#up-field').change(function(){
+        $('#up-field').val(uniprotID);
+        $('#up-field').change(function(){
 
-                var val =   $('#up-field').val();
-                console.log("loading new uniprot " + val );
-                featureView.loadUniprot(val);
+            var val =   $('#up-field').val();
+            console.log("loading new uniprot " + val );
+            featureView.loadUniprot(val);
 
-            });
+        });
 
-            $("#zoomOut").click(function(){
+        $("#zoomOut").click(function(){
 
-                var val = featureView.getScrollBarValue();
-                val -= 25;
-                featureView.setScrollValue(val);
+            var val = featureView.getScrollBarValue();
+            val -= 25;
+            featureView.setScrollValue(val);
 
-            });
-            $("#zoomIn").click(function(){
-                var val = featureView.getScrollBarValue();
+        });
+        $("#zoomIn").click(function(){
+            var val = featureView.getScrollBarValue();
 
-                val += 25;
+            val += 25;
 
-                featureView.setScrollValue(val);
-            });
-           
+            featureView.setScrollValue(val);
+        });
 
-            $('#fullScreen').click(function(){
-                featureView.requestFullscreen(); 
-                return false;
-            });
 
-             $('#export').click(
+        $('#fullScreen').click(function(){
+            featureView.requestFullscreen(); 
+            return false;
+        });
+
+        $('#export').click(
             function() {
                 var svg = featureView.getSVGWrapper();
                 var xml = svg.toSVG();
                 open("data:image/svg+xml," + encodeURIComponent(xml));
-               
+
             });
 
-        });
+
+        
+
+    }); // document ready
 
 
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
-        });
 
+$('#findMotifDialogSubmit').click(function(){
 
+        // $('mySequenceMotifDialog').modal({'show':false});
+
+        $("#findSequenceMotif").submit();
     });
 
 
+var previousMotif = "";
+var myRegExp = new RegExp("$");
 
-  $('#findMotifDialogSubmit').click(function(){
+$("#findSequenceMotif").submit(function(event){
 
-                    // $('mySequenceMotifDialog').modal({'show':false});
+    var motif = $('#enterMotif').val();
 
-                    $("#findSequenceMotif").submit()
-                });
+        // to upper case
+        motif = motif.toUpperCase();
 
+        //replaceAll("X", "[A-Z]"
+            motif = motif.replace(/X/g,'[A-Z]');
 
-                var previousMotif = "";
-                var myRegExp = new RegExp("$");
+            console.log('looking for motif ' + motif);
 
-                $("#findSequenceMotif").submit(function(event){
-
-                    var motif = $('#enterMotif').val();
-
-                    // to upper case
-                    motif = motif.toUpperCase();
-
-                    //replaceAll("X", "[A-Z]"
-                    motif = motif.replace(/X/g,'[A-Z]');
-
-                    console.log('looking for motif ' + motif);
-
-                    var seq = featureView.getSequence();
+            var seq = featureView.getSequence();
 
 
-                    if ( previousMotif != motif){
-                        previousMotif = motif;
-                        myRegExp = new RegExp(motif,"g");
-                    }
+            if ( previousMotif != motif){
+                previousMotif = motif;
+                myRegExp = new RegExp(motif,"g");
+            }
 
-                    var match = myRegExp.exec(seq);
+            var match = myRegExp.exec(seq);
 
-                    var pos = -1;
+            var pos = -1;
 
-                    
 
-                    //if ( match[0].length > 0)
-                    try {
-                        if ( match != null)
-                            pos = match.index;
-                            console.log("found at at position " + pos);
 
-                        if (pos < 0) {
-                            alert('Motif not found!');
-                            event.preventDefault();
-                        } else {
-                            //console.log(pos + " " + match[0] + " lastIndex:" + myRegExp.lastIndex);
-                            var seqLength = match[0].length;
+        //if ( match[0].length > 0)
+        try {
+            if ( match != null)
+                pos = match.index;
+            console.log("found at at position " + pos);
 
-                            featureView.highlight(pos, pos + seqLength - 1);
+            if (pos < 0) {
+                alert('Motif not found!');
+                event.preventDefault();
+            } else {
+             //console.log(pos + " " + match[0] + " lastIndex:" + myRegExp.lastIndex);
+             var seqLength = match[0].length;
 
-                            if ( myRegExp.lastIndex == 0)
-                                $('#mySequenceMotifDialog').modal('hide');
+            featureView.highlight(pos, pos + seqLength - 1);
 
-                        }
-                    } catch (e){
-                        console.log(e);
-                    }
-                    event.preventDefault();
-                });
+            if ( myRegExp.lastIndex == 0)
+                $('#mySequenceMotifDialog').modal('hide');
 
-});
+             }
+    } catch (e){
+        console.log(e);
+    }
+    event.preventDefault();
+    }); // 
+
+
+
+
+
+
+}); // require
 
 

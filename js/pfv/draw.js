@@ -903,6 +903,7 @@ define(['params','colors','bootstrap'],
                 return y;
             }
 
+            var that = this;
             var scopcallback = function () {
                 // show draw dialog..
 
@@ -916,7 +917,7 @@ define(['params','colors','bootstrap'],
                     }
                 }
 
-                var html = "<h3>" + txt + "</h3>";
+                var html = "<h1>" + txt + "</h1>";
                 html += "<ul>";
                 if (typeof pageTracker !== 'undefined') {
                     pageTracker._trackEvent('ProteinFeatureView', 'showSCOPeDialog', txt);
@@ -928,20 +929,16 @@ define(['params','colors','bootstrap'],
 
 
                 html += "</ul>";
-                $(this.dialogDiv).html(html);
-                $(this.dialogDiv).dialog({
-                    title: txt,
-                    height: 300,
-                    width: 300,
-                    modal: true,
-                    buttons: {
-                        //"OK": function() { $(this).dialog("close"); window.location =
-                        //'/pdb/explore/explore.do?structureId='+pdbID ;},
-                        "Cancel": function () {
-                            $(this).dialog("close");
-                        }
-                    }
-                });
+              
+
+
+                var heading = txt;
+                           
+                var strSubmitFunc = "";
+                var btnText = "";
+                
+                that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
+
             };
 
             var trackrows = this.breakTrackInRows(this.viewer.getData().scop.tracks);
@@ -955,6 +952,7 @@ define(['params','colors','bootstrap'],
                 return y;
             }
 
+
             var scopecallback = function () {
                 // show draw dialog..
 
@@ -967,7 +965,7 @@ define(['params','colors','bootstrap'],
                     }
                 }
 
-                var html = "<h3>" + txt + "</h3>";
+                var html = "<h1>" + txt + "</h1>";
                 html += "<ul>";
                 if (typeof pageTracker !== 'undefined') {
                     pageTracker._trackEvent('ProteinFeatureView', 'showSCOPeDialog', txt);
@@ -979,20 +977,14 @@ define(['params','colors','bootstrap'],
 
 
                 html += "</ul>";
-                $(this.dialogDiv).html(html);
-                $(this.dialogDiv).dialog({
-                    title: txt,
-                    height: 300,
-                    width: 300,
-                    modal: true,
-                    buttons: {
-                        //"OK": function() { $(this).dialog("close");
-                        //window.location = '/pdb/explore/explore.do?structureId='+pdbID ;},
-                        "Cancel": function () {
-                            $(this).dialog("close");
-                        }
-                    }
-                });
+              
+
+                var heading = txt;
+                           
+                var strSubmitFunc = "";
+                var btnText = "";
+                
+                that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
             };
 
             var trackrowsE = this.breakTrackInRows(this.viewer.getData().scope.tracks);
@@ -1091,9 +1083,7 @@ define(['params','colors','bootstrap'],
                     }
                 );
 
-                //$(rect).css('class','tooltip');
-
-
+                
                 var title = "Exon Structure " + domain.name + " - " + domain.desc;
 
                 $(rect).attr("title", title);
@@ -1312,6 +1302,7 @@ define(['params','colors','bootstrap'],
             //TODO: in principle this shows a tooltip, but the positioning if off...
             $(rect).attr("data-toggle", "tooltip");
             $(rect).attr("data-placement", "top");
+            $(rect).attr("data-container", "body");
             $(rect).attr("title", "selection: " + this.viewer.selectionStart + "-" + this.selectionEnd);
             $(rect).text("selection: " + this.viewer.selectionStart + "-" + this.selectionEnd);
             $(rect).tooltip();
@@ -1794,23 +1785,29 @@ define(['params','colors','bootstrap'],
 
             var that = this;
 
-            var clickPhosphoMethod = function (event) {
+
+            var clickPhosphoMethod = function (eve) {
+
+
+                var event = eve.originalEvent;
+                console.log(event);
+
                 var g = event.target;
 
-                console.log(g.id + " " + g.name);
+                console.log(g.id + " " + g.title);
 
                 // show Popup
                 if (typeof pageTracker !== 'undefined') {
                     pageTracker._trackEvent('ProteinFeatureView',
-                        'clickPhosphoSite', that.data.uniprotID);
+                        'clickPhosphoSite', that.viewer.data.uniprotID);
                 }
 
-                var html = "<h3>" + that.title + "</h3>";
+                var html = "<h3>" + g.title + "</h3>";
                 html += "<ul>";
 
                 var url = "http://www.phosphosite.org/" +
                     "proteinSearchSubmitAction.do?accessionIds=" +
-                    that.data.uniprotID;
+                    that.viewer.data.uniprotID;
 
                 html += "<li>Show at <a target='_new'' href='" + url +
                     "'>PhosphoSitePlus website</a></li>";
@@ -1818,19 +1815,14 @@ define(['params','colors','bootstrap'],
 
                 html += "</ul>";
 
-                $(that.dialogDiv).html(html);
-                $(that.dialogDiv).dialog({
-                        title: that.title,
-                        height: 300,
-                        width: 300,
-                        modal: true,
-                        buttons: {
-                            "Cancel": function () {
-                                $(this).dialog("close");
-                            }
-                        }
-                    }
-                );
+               
+
+                var heading = that.title;
+                           
+                var strSubmitFunc = "";
+                var btnText = "";
+                
+                that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
             };
 
             for (var i = 0; i < feature.tracks.length; i++) {
@@ -2030,20 +2022,12 @@ define(['params','colors','bootstrap'],
                     html = that.viewer.blastPopup(seq, this.url, this.hits, this.desc, txt);
                 }
 
-               
 
-                $(that.viewer.dialogDiv).html(html);
-                $(that.viewer.dialogDiv).dialog({
-                    title: txt,
-                    height: 300,
-                    width: 300,
-                    modal: true,
-                    buttons: {
-                        "Cancel": function () {
-                            $(this).dialog("close");
-                        }
-                    }
-                });
+                var heading = "<h1>"+txt+"</h1>";                        
+                var strSubmitFunc = "";
+                var btnText = "";
+                
+                that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
             };
 
 
@@ -2082,6 +2066,7 @@ define(['params','colors','bootstrap'],
                 var pdburl = this.rcsbServer  + "/pdb/search/smartSubquery.do?smartSearchSubtype=" +
                     "EnzymeClassificationQuery&Enzyme_Classification=";
 
+
                 var callbackec = function () {
 
                     var html = "<h3>" + this.name + " - " + this.desc + "</h3>";
@@ -2095,25 +2080,20 @@ define(['params','colors','bootstrap'],
                         pageTracker._trackEvent('ProteinFeatureView', 'showECDialog', this.name);
                     }
 
-                    $(this.dialogDiv).html(html);
-                    $(this.dialogDiv).dialog({
-                        title: this.name + ' - ' + this.desc,
-                        height: 300,
-                        width: 300,
-                        modal: true,
-                        buttons: {
-                            "Cancel": function () {
-                                $(this).dialog("close");
-                            }
-                        }
-                    });
-                };
+                    
+                    var heading = this.name + ' - ' + this.desc;
+                               
+                    var strSubmitFunc = "";
+                    var btnText = "";
+                    
+                    that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
+
+                };            
 
                 y = this.drawRangedTrack(svg, ecrows, y, 'E.C.', 'enzymeClassificationTrack',
                     this.param.up_colors, undefined, callbackec, this.viewer.getData().enzymeClassification.label);
 
             }
-
 
             return y + this.param.trackHeight;
 
@@ -2943,12 +2923,15 @@ define(['params','colors','bootstrap'],
                 }
 
                  $(element).attr({
-                                'data-toggle':'tooltip',                                
+                                'rel':'tooltip',
+                                 'title':title,
+                                'data-toggle':'tooltip', 
+                                'data-container': 'body'                                
                             });
                  
                 $(element).css('cursor', 'pointer');
 
-                $(element).tooltip();
+                //$(element).tooltip();
 
             } catch (err){
                 console.log("could not register tooltip for " + JSON.stringify(element) + " " + JSON.stringify(title));

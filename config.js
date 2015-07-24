@@ -8,9 +8,9 @@ requirejs.config({
         params:'pfv/params',
         querysuggest:'vendor/querysuggest-1.0.0',
         jquery:'vendor/jquery-2.1.3.min',        
-         jquerysvg:'vendor/svg/jquery.svg.min',        
-         bootstrap:'vendor/bootstrap-3.3.4.min',
-         bootstrapslider:'vendor/bootstrap-slider.min'
+        jquerysvg:'vendor/svg/jquery.svg.min',                 
+        bootstrap:'vendor/bootstrap-3.3.4.min',
+        bootstrapslider:'vendor/bootstrap-slider.min'
         
     },
     shim:{
@@ -19,6 +19,11 @@ requirejs.config({
             exports:"$",
             deps:['jquery']
         },
+
+        'bootstrap': {
+            exports: "$.fn.popover",
+            deps:['jquery']
+        },        
         'bootstrapslider': {
             deps:['bootstrap']
         }
@@ -26,7 +31,8 @@ requirejs.config({
     },
     options:{
         include:['vendor/require.js'],
-    }
+    },
+    enforceDefine: true
 
 });
 
