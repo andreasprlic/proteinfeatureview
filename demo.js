@@ -6,29 +6,27 @@ requirejs.config({
         viewer:'pfv/viewer',
         draw:'pfv/draw',
         params:'pfv/params',
-        jquery:'vendor/jquery-2.0.2.min',
-        jqueryui:'vendor/jquery-ui-1.11.1.min',
-        jquerysvg:'vendor/svg/jquery.svg.min'
+        jquery:'vendor/jquery-2.1.3.min',        
+        jquerysvg:'vendor/svg/jquery.svg.min',
+        bootstrap:'vendor/bootstrap-3.3.4.min',
+        bootstrapslider:'vendor/bootstrap-slider.min'
     },
     shim:{
-        'jqueryui': {
-            exports:"$",
-            deps:['jquery']
-        },
+       
         'jquerysvg': {
             exports:"$",
-            deps:['jqueryui']
+            deps:['jquery']
         }
     }
 });
 
 var proteinFeatureView ;
 
-require(['viewer','jquerysvg'], function(PFV){
+require(['viewer','jquerysvg','bootstrapslider'], function(PFV){
 
     proteinFeatureView = PFV;
 
-    var entityView = new Object();
+    var featureView = new Object();
 
     $( document ).ready(function() {
 
@@ -40,56 +38,56 @@ require(['viewer','jquerysvg'], function(PFV){
             // if has not been initialized, initialize...
 
 
-            entityView = new proteinFeatureView.PFV();
+            featureView = new proteinFeatureView.PFV();
 
 
-            entityView.setParentDiv('#pfv-parent');
-            entityView.setDialogDiv('#dialog');
-            entityView.setScrollBarDiv('#svgScrollBar');
+            featureView.setParentDiv('#pfv-parent');
+            featureView.setDialogDiv('#dialog');
+            featureView.setScrollBarDiv('#svgScrollBar');
 
-            entityView.setRcsbServer("http://pepper.rcsb.org:8080");
+            featureView.setRcsbServer("http://pepper.rcsb.org:8080");
 
-            entityView.setShowSeqres(true);
+            featureView.setShowSeqres(true);
             
             
-            //entityView.setTracks([]);
+            //featureView.setTracks([]);
 
 
-            entityView.loadUniprot(uniprotID);
+            featureView.loadUniprot(uniprotID);
 
             $('#up-field').val(uniprotID);
             $('#up-field').change(function(){
 
                 var val =   $('#up-field').val();
                 console.log("loading new uniprot " + val );
-                entityView.loadUniprot(val);
+                featureView.loadUniprot(val);
 
             });
 
             $("#zoomOut").click(function(){
 
-                var val = entityView.getScrollBarValue();
+                var val = featureView.getScrollBarValue();
                 val -= 25;
-                entityView.setScrollValue(val);
+                featureView.setScrollValue(val);
 
             });
             $("#zoomIn").click(function(){
-                var val = entityView.getScrollBarValue();
+                var val = featureView.getScrollBarValue();
 
                 val += 25;
 
-                entityView.setScrollValue(val);
+                featureView.setScrollValue(val);
             });
            
 
             $('#fullScreen').click(function(){
-                entityView.requestFullscreen(); 
+                featureView.requestFullscreen(); 
                 return false;
             });
 
              $('#export').click(
             function() {
-                var svg = entityView.getSVGWrapper();
+                var svg = featureView.getSVGWrapper();
                 var xml = svg.toSVG();
                 open("data:image/svg+xml," + encodeURIComponent(xml));
                
@@ -98,7 +96,76 @@ require(['viewer','jquerysvg'], function(PFV){
         });
 
 
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        });
+
+
     });
+
+
+
+  $('#findMotifDialogSubmit').click(function(){
+
+                    // $('mySequenceMotifDialog').modal({'show':false});
+
+                    $("#findSequenceMotif").submit()
+                });
+
+
+                var previousMotif = "";
+                var myRegExp = new RegExp("$");
+
+                $("#findSequenceMotif").submit(function(event){
+
+                    var motif = $('#enterMotif').val();
+
+                    // to upper case
+                    motif = motif.toUpperCase();
+
+                    //replaceAll("X", "[A-Z]"
+                    motif = motif.replace(/X/g,'[A-Z]');
+
+                    console.log('looking for motif ' + motif);
+
+                    var seq = featureView.getSequence();
+
+
+                    if ( previousMotif != motif){
+                        previousMotif = motif;
+                        myRegExp = new RegExp(motif,"g");
+                    }
+
+                    var match = myRegExp.exec(seq);
+
+                    var pos = -1;
+
+                    
+
+                    //if ( match[0].length > 0)
+                    try {
+                        if ( match != null)
+                            pos = match.index;
+                            console.log("found at at position " + pos);
+
+                        if (pos < 0) {
+                            alert('Motif not found!');
+                            event.preventDefault();
+                        } else {
+                            //console.log(pos + " " + match[0] + " lastIndex:" + myRegExp.lastIndex);
+                            var seqLength = match[0].length;
+
+                            featureView.highlight(pos, pos + seqLength - 1);
+
+                            if ( myRegExp.lastIndex == 0)
+                                $('#mySequenceMotifDialog').modal('hide');
+
+                        }
+                    } catch (e){
+                        console.log(e);
+                    }
+                    event.preventDefault();
+                });
 
 });
 

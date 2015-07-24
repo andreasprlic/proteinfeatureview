@@ -18,7 +18,7 @@
  * Provides the "view" of the data
 */
 
-define(['params','colors'],
+define(['params','colors','bootstrap'],
     function(params,colors) {
 
 
@@ -1314,7 +1314,7 @@ define(['params','colors'],
             $(rect).attr("data-placement", "top");
             $(rect).attr("title", "selection: " + this.viewer.selectionStart + "-" + this.selectionEnd);
             $(rect).text("selection: " + this.viewer.selectionStart + "-" + this.selectionEnd);
-            $(rect).tooltip({'container': 'body'});
+            $(rect).tooltip();
             //$(rect).css({'-webkit-transition': 'opacity 15s linear',
             //'-o-transition':'15s linear','transition':'opacity 15s linear'});
 
@@ -2942,11 +2942,13 @@ define(['params','colors'],
                     console.err("got undefined for element?? " + element + " " + title);
                 }
 
-                 $(element).tooltip({
-                                'title':title,
-                                'container':'body'
+                 $(element).attr({
+                                'data-toggle':'tooltip',                                
                             });
+                 
                 $(element).css('cursor', 'pointer');
+
+                $(element).tooltip();
 
             } catch (err){
                 console.log("could not register tooltip for " + JSON.stringify(element) + " " + JSON.stringify(title));

@@ -5,24 +5,22 @@
     <meta charset="utf-8">
     <title>A minimal Protein Feature View Page</title>
 
-
     <!-- jquery library -->
-    <script src="js/vendor/jquery-2.0.2.min.js"></script>
-    <script src="js/vendor/jquery-ui-1.11.1.min.js"></script>
+    <script src="js/vendor/jquery-2.1.3.min.js"></script>
+    
 
-    <!-- bootstrap -->
+    <!-- bootstrap -->    
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-slider.css" rel="stylesheet">
+    
 
     <!-- jquery SVG includes -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/svg/jquery.svg.css"/>
-    <link rel="stylesheet" type="text/css" href="css/jquery-ui.css"/>
-
-
-
+    
     <!-- jquery svg -->
     <script src="js/vendor/svg/jquery.svg.min.js"></script>
-    <script src="js/vendor/svg/jquery.svgplot.min.js"></script>
-    <script src="js/vendor/svg/jquery.svggraph.min.js"></script>
+    
+    <link rel="stylesheet" type="text/css" href="js/vendor/svg/jquery.svg.css"/>
+    
 
     <!-- font awesome icons -->
     <link rel="stylesheet" href="css/font-awesome.min.css">
@@ -38,6 +36,9 @@
 <body>
 
 <div class="container-fluid" >
+
+
+    <div id="dialog">&nbsp;</div>
 
     <div class="jumbotron">
         <h1>Insulin receptor - P06213 (INSR_HUMAN)</h1>
@@ -67,9 +68,9 @@
 
                         <button class="btn btn-default" style="height:34px" id="zoomOut" role="button"><i class="fa fa-search-minus"></i></button>
 
-                                <span class="btn btn-default" style="height:34px">
+                                <span class="btn btn-default span2" style="height:34px">
 
-                                  <div id="svgScrollBar" style="width:100px; float:left; top:4px; "></div>
+                                  <input id="svgScrollBar" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="10" data-slider-value="0" />
 
                                 </span>
 
@@ -79,8 +80,64 @@
 
                    </div>
 
+
+                    <div class="btn-group" >
+               
+
+                    <div class="dropdown ">
+
+                        <button class="btn dropdown-toggle" type="button" id="actionMenu" data-toggle="dropdown" >
+                            Action <span class="caret"></span>
+                        </button>
+
+
+                        <ul class="dropdown-menu " role="menu" aria-labelledby="actionMenu">
+
+                            <li role="presentation">
+                                    <a href="#" onclick="$('#mySequenceMotifDialog').modal('show'); return false;" 
+                                    role="menuitem" tabindex="-1" >
+                                Find Sequence Motif</a></li>
+                            
+                        </ul>
+
+                    </div>
+                </div>
+        </div>
                 
     </div>
+
+
+                
+    </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="mySequenceMotifDialog" aria-labelledby="mySequenceMotifDialog" aria-hidden="true">
+                <div class="modal-dialog">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times</span><span class="sr-only">Close</span> </button>
+                            <h4 class="modal-title">Find Sequence Motif
+                                <a href="/pdb/staticHelp.do?p=help/advancedsearch/sequenceMotif.html"><span class="iconSet-main icon-help" title="Help | Motif Search">&nbsp;</span></a></h4>
+                        </div>
+                        <div class="modal-body">
+
+                            <form id="findSequenceMotif" class="form-horizontal">
+                                <!-- <label class="input-label" for="enterMotif">Motif:</label> -->
+                                <div class="input-group">
+
+                                    <input class="form-control" id="enterMotif" type="text" placeholder="Enter sequence motif (example: GX[DN]FXKXDE )"/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="findMotifDialogSubmit" >Find</button>
+                        </span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
 
 
     
@@ -93,7 +150,7 @@
 
 
                     <div id="pfv-parent"></div>
-                    <div id="dialog" title="Leave Page">&nbsp;</div>
+                    
 
 
                 </div>

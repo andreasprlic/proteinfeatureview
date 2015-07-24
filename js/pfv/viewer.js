@@ -11,8 +11,7 @@
  */
 
 
-define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest','jquerycookie',
-        'jquerycarousel','jquerycolorbox','bootstrap'],
+define(['colors','draw','params','jquery','jquerysvg','bootstrapslider'],
     function(colors, draw, params , jQuery) {
 
         /** A No args constructor. Needs to call setParent and loadUniprot from the user side
@@ -85,12 +84,13 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
 
             try {
                 $(this.scrollBarDiv).slider({
-                    orientation: "horizontal",
-                    range: "min",
-                    min: 0,
-                    max: 100,
-                    value: 0,
-                    animate: true
+                    handle:'round',
+                    enabled:'true',
+                    natural_arrow_keys:'true',
+                    formatter: function(value) {
+                        return 'zoom: '+ value+'%';
+                    }
+                    
                 });
             } catch (err) {
                 console.error(err);
@@ -98,7 +98,7 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
 
             this.startedAt = new Date().getTime();
 
-            //$(this.scrollBarDiv).bind('slidechange', jQuery.proxy( this, 'scollValueChanged' ));
+            //$(this.scrollBarDiv).bind('slidechange', jQuery.proxy( this, 'srcollValueChanged' ));
 
             console.log("*** Protein Feature View V." + this.version + " ***");
 
@@ -188,36 +188,25 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
                 });
 
 
-            $(this.scrollBarDiv).bind('slide', jQuery.proxy(this, 'scollValueChanged'));
-            $(this.scrollBarDiv).bind('mouseup', jQuery.proxy(this, 'scrollReleased'));
+            $(this.scrollBarDiv).on('slide', jQuery.proxy(this, 'scrollValueChanged'));
+            $(this.scrollBarDiv).on('slideStop', jQuery.proxy(this, 'scrollReleased'));
+           
 
         };
 
 
-        var percentShow = 100;
+        Viewer.prototype.scrollValueChanged = function () {
 
-        Viewer.prototype.scollValueChanged = function (event, ui) {
-
-
-            //console.log(ui.value + " " +event);
-
-            var viewPercent = ui.value;
-            percentShow = viewPercent;
-
-
-            this._dispatchEvent({'name':'sliderMovedEvent'},
-                'sliderMoved', {'percent':viewPercent});
+            // this._dispatchEvent({'name':'sliderMovedEvent'},
+            //     'sliderMoved', {'percent':viewPercent});
         };
 
-        Viewer.prototype.scrollReleased = function () {
+        Viewer.prototype.scrollReleased = function (event) {
 
-            var viewPercent = percentShow;
-
-            this.setScrollValue(viewPercent);
-
+            this.setScrollValue(event.value);
 
             this._dispatchEvent({'name':'sliderReleased'},
-                'sliderReleased', {'percent':viewPercent});
+                'sliderReleased', {'percent':event.value});
         };
 
 
@@ -242,7 +231,7 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
 
             var newScale = minScale + tmpMax * (val / 100.0);
 
-            $(this.scrollBarDiv).slider("value",val);
+            $(this.scrollBarDiv).slider().slider("setValue",val);
 
             this.setScale(newScale);
 
@@ -590,11 +579,16 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
 
             this.scrollBarDiv = scrollBarD;
 
+            $(this.scrollBarDiv).on('slide', jQuery.proxy(this, 'scrollValueChanged'));
+            $(this.scrollBarDiv).on('mouseup', jQuery.proxy(this, 'scrollReleased'));
+
+            
+
         };
 
         Viewer.prototype.getScrollBarValue = function () {
 
-            return $(this.scrollBarDiv).slider('value');
+            return $(this.scrollBarDiv).slider().slider('getValue');
 
         };
 
@@ -704,35 +698,69 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
             }
 
 
-            var pdbID = track.pdbID;
+            var pdbID = track.pdbID.trim();
             var desc = track.desc;
-            var chainID = track.chainID;
+            //var chainID = track.chainID.trim();
 
             if (typeof pageTracker !== 'undefined') {
                 pageTracker._trackEvent('ProteinFeatureView', 'showPDBDialog', desc);
             }
+
+           
             var html = "<span><img width='240' src='" + this.rcsbServer + "/pdb/images/" +
                 pdbID.toLowerCase() + "_bio_r_250.jpg?getBest=true' /></span>";
 
-            $(this.dialogDiv).html(html);
+                html += '<a href="'+this.rcsbServer + '/pdb/explore/explore.do?structureId=' + 
+                        pdbID+'">View PDB ID '+pdbID+'</a>';
 
-            var that = this;
-            $(this.dialogDiv).dialog({
-                title: 'View ' + pdbID + ' - ' + desc,
-                height: 420,
-                width: 280,
-                modal: true,
-                buttons: {
-                    "OK": function () {
-                        $(this).dialog("close");
-                        that.load3DChain(pdbID, chainID);
-                    },
-                    "Cancel": function () {
-                        $(this).dialog("close");
-                    }
-                }
-            });
+            
+            var heading = 'View ' + pdbID + ' - ' + desc;
+            
+            //var strSubmitFunc = that.load3DChain(pdbID, chainID);
+            var strSubmitFunc = "";
+            var btnText = "";
+                
+            this.doModal(this.dialogDiv,heading, html, strSubmitFunc, btnText);
 
+        };
+
+        Viewer.prototype.doModal = function (placementId, heading, formContent, strSubmitFunc, btnText)
+        {
+            var html =  '<div id="modalWindow" class="modal fade " tabindex="-1" role="dialog" ' +
+                        ' aria-hidden="true">';
+            html += '<div class="modal-dialog">';
+            html += '<div class="modal-content">';
+            html += '<div class="modal-header">';
+            html += '<a class="close" data-dismiss="modal">×</a>';
+            html += '<h4>'+heading+'</h4>';
+            html += '</div>';
+            html += '<div class="modal-body">';
+            html += '<p>';
+            html += formContent;
+            html += '</div>';
+            html += '<div class="modal-footer">';
+            if (btnText!=='') {
+                html += '<button class="btn btn-success"  data-dismiss="modal"';
+                html += ' onClick="'+strSubmitFunc+'; event.preventDefault();">'+btnText;
+                html += '</button>';
+            }
+            html += '<button class="btn" data-dismiss="modal" onClick="this.hideModal();">Close';             
+            html += '</button>'; // close button
+            html += '</div>';  // footer
+            html += '</div></div>';  //content, dialog
+            html += '</div>';  // modalWindow
+            $(placementId).html(html);
+            
+            $('#modalWindow').modal();
+            $('#modalWindow').show();
+        };
+
+
+        Viewer.prototype.hideModal = function()
+        {
+            // Using a very general selector - this is because $('#modalDiv').hide
+            // will remove the modal window but not the mask
+            $('.modal.in').modal('hide');
         };
 
         Viewer.prototype.load3DChain = function (pdbID, chainID) {
@@ -778,20 +806,12 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
 
             }
 
-            $(this.dialogDiv).html(html);
+           
+            var heading = data.uniprotID + " - " + data.name;
+            var strSubmitFunc = "";
+            var btnText = "";
 
-            $(this.dialogDiv).dialog({
-                title: data.uniprotID + " - " + data.name,
-                height: 300,
-                width: 300,
-                modal: true,
-                buttons: {
-                    //"OK": function() { $(this).dialog("close"); window.location = url ;},
-                    "Cancel": function () {
-                        $(this).dialog("close");
-                    }
-                }
-            });
+            this.doModal(this.dialogDiv,heading, html, strSubmitFunc, btnText);
 
         };
 
@@ -815,21 +835,13 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
                 pfamId + "'>other PDB entries with the same Pfam domain</a></li>";
             html += "</ul>";
 
-            $(this.dialogDiv).html(html);
-            $(this.dialogDiv).dialog({
-                title: pfamId + " - " + pfam.name,
-                height: 300,
-                width: 300,
-                modal: true,
-                buttons: {
-                    //"OK": function() { $(this).dialog("close"); window.location = 
-                    //'/pdb/search/smartSubquery.do?smartSearchSubtype=
-                    //PfamIdQuery&pfamID='+pfam.acc ;},
-                    "Cancel": function () {
-                        $(this).dialog("close");
-                    }
-                }
-            });
+           
+
+            var heading = pfamId + " - " + pfam.name;
+            var strSubmitFunc = "";
+            var btnText = "";
+
+            this.doModal(this.dialogDiv,heading, html, strSubmitFunc, btnText);
 
         };
 
@@ -848,22 +860,12 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
 
             html += "</ul>";
 
-            $(this.dialogDiv).html(html);
-            $(this.dialogDiv).dialog({
-                title: geneId + " - " + exon.name,
-                height: 200,
-                width: 300,
-                modal: true,
-                buttons: {
-                    "OK": function () {
-                        $(this).dialog("close");
-                        window.location = '/pdb/gene/' + exon.acc;
-                    },
-                    "Cancel": function () {
-                        $(this).dialog("close");
-                    }
-                }
-            });
+        
+             var heading =geneId + " - " + exon.name;
+            var strSubmitFunc = "";
+            var btnText = "";
+
+            this.doModal(this.dialogDiv,heading, html, strSubmitFunc, btnText);
 
         };
 
@@ -881,7 +883,7 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
                 this.updateScale();
 
             } else {
-                $(this.scrollBarDiv).slider("value", 100);
+                $(this.scrollBarDiv).slider().slider('setValue',100);
 
                 this.setScale(this.params.maxTextSize);
             }
@@ -938,7 +940,7 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
 
                 newScale = (availWidth ) / (this.sequence.length );
 
-                $(this.scrollBarDiv).slider("value", 0);
+                $(this.scrollBarDiv).slider().slider('setValue',0);
                 $(this.parent).css('overflow', 'auto');
                 $(this.parent).css('width', $(this.outerParent).width());
 
@@ -1297,23 +1299,12 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
                                 "' target='_new'>Homology Models at the Protein Model Portal</a></li>";
                             html += "</ul>";
 
-
-                            $(this.dialogDiv).html(html);
-                            $(this.dialogDiv).dialog({
-                                title: 'Protein Model Portal',
-                                height: 300,
-                                width: 300,
-                                modal: true,
-                                buttons: {
-                                    "OK": function () {
-                                        $(this).dialog("close");
-                                        window.location = url;
-                                    },
-                                    "Cancel": function () {
-                                        $(this).dialog("close");
-                                    }
-                                }
-                            });
+                            var heading = "Protein Model Portal";
+        
+                            var strSubmitFunc = "";
+                            var btnText = "";
+                                    
+                            that.doModal(that.dialogDiv,heading, html, strSubmitFunc, btnText);
                         };
                     }
 
@@ -1796,7 +1787,7 @@ define(['colors','draw','params','jquery','jquerysvg','jqueryui','querysuggest',
                 seqposEnd = seqposStart;
             }
 
-            console.log('highlighting seq pos' + seqposStart + "-" +seqposEnd);
+            //console.log('highlighting seq pos' + seqposStart + "-" +seqposEnd);
 
             this.selectionStart = seqposStart;
             this.selectionEnd = seqposEnd;

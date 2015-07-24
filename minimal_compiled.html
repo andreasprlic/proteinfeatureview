@@ -5,15 +5,15 @@
     <meta charset="utf-8">
     <title>A minimal Protein Feature View Page</title>
 
-   
+    <script src="js/vendor/jquery-2.1.3.min.js"></script>
+    
     <!-- bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-   
+     <link href="css/bootstrap-slider.css" rel="stylesheet">
 
     <!-- jquery SVG includes -->
     <link rel="stylesheet" type="text/css" href="js/vendor/svg/jquery.svg.css"/>
-    <link rel="stylesheet" type="text/css" href="css/jquery-ui.css"/>
- 
+    
     <!-- font awesome icons -->
     <link rel="stylesheet" href="css/font-awesome.min.css">
 
@@ -21,7 +21,7 @@
     <!-- and finally our own code ... !-->
     <link href="css/pfv.css" rel="stylesheet">
 
-    <script src="build/proteinfeatureview.min.js"></script>
+    <script src="build/proteinfeatureview.ver.js"></script>
 
 
 </head>
@@ -60,7 +60,10 @@
 
                                 <span class="btn btn-default" style="height:34px">
 
-                                  <div id="svgScrollBar" style="width:100px; float:left; top:4px; "></div>
+                                <input id="svgScrollBar" data-slider-id='svgScrollBarSlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+
+
+                                  <!-- <div id="svgScrollBar" style="width:100px; float:left; top:4px; "></div> -->
 
                                 </span>
 
@@ -155,6 +158,7 @@ require(['viewer','params'], function(PFV,params){
 
     viewer = PFV;
 
+    
     var featureView = new Object();
 
     $( document ).ready(function() {
@@ -296,7 +300,7 @@ require(['viewer','params'], function(PFV,params){
                     event.preventDefault();
                 });
 
-    $(function() { $("[data-toggle='tooltip']").tooltip();});
+
 });
 </script>
 </body>
