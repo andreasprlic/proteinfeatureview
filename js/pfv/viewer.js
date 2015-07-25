@@ -409,7 +409,8 @@ define(['jquery','colors','draw','params',
                     cache: true,
                     context: that,
                     success: successMethod,
-                    error: errorMethod
+                    error: errorMethod,
+                    async: true
                 });
 
             }
@@ -457,6 +458,7 @@ define(['jquery','colors','draw','params',
                     type: "GET",
                     cache: true,
                     context: that,
+                    async: true,
                     success: function (json) {
                         that.parseJsonResponse(json);
                     },
@@ -750,8 +752,7 @@ define(['jquery','colors','draw','params',
                 html += ' onClick="'+strSubmitFunc+'; event.preventDefault();">'+btnText;
                 html += '</button>';
             }
-            html += '<button class="btn" data-dismiss="modal" ' +
-                    'onClick="$(\'.modal.in\').modal(\'hide\');">Close';             
+            html += '<button class="btn" data-dismiss="modal">Close';             
             html += '</button>'; // close button
             html += '</div>';  // footer
             html += '</div></div>';  //content, dialog
