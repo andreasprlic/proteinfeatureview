@@ -2105,7 +2105,12 @@ define(['jquery','params','colors','bootstrap/tooltip'],
                     this.param.up_colors, undefined, callback, this.viewer.getData().motifs.label);
 
             }
-            if (typeof this.viewer.getData().enzymeClassification !== 'undefined') {
+
+            
+
+            if ((typeof this.viewer.getData().enzymeClassification !== 'undefined') &&
+                (this.viewer.getData().enzymeClassification.tracks.length > 0) )
+            {
 
                 var ecs = this.viewer.getData().enzymeClassification.tracks;
 
@@ -2113,16 +2118,18 @@ define(['jquery','params','colors','bootstrap/tooltip'],
 
                 var brendaurl = "http://www.brenda-enzymes.org/php/result_flat.php4?ecno=";
 
-                var pdburl = this.rcsbServer  + "/pdb/search/smartSubquery.do?smartSearchSubtype=" +
-                    "EnzymeClassificationQuery&Enzyme_Classification=";
-
+                console.log("EC STUFF:" + this.viewer.getData().enzymeClassification.tracks.length);
 
                 var callbackec = function () {
+
+                    var pdbecurl = that.rcsbServer  + "/pdb/search/smartSubquery.do?smartSearchSubtype=" +
+                    "EnzymeClassificationQuery&Enzyme_Classification=";
+
 
                     var html = "<h3>" + this.name + " - " + this.desc + "</h3>";
                     html += "<ul><li>View in <a href='" + brendaurl + this.name +
                         "' target='_new'>BRENDA</a></li>";
-                    html += "<li>View <a href='" + pdburl + this.name +
+                    html += "<li>View <a href='" + pdbecurl + this.name +
                         "'>other PDB entries with the same E.C. number</a></li>";
                     html += "</ul>";
 
@@ -2141,7 +2148,7 @@ define(['jquery','params','colors','bootstrap/tooltip'],
                 };            
 
                 y = this.drawRangedTrack(svg, ecrows, y, 'E.C.', 'enzymeClassificationTrack',
-                    this.param.up_colors, undefined, callbackec, this.viewer.getData().enzymeClassification.label);
+                        this.param.up_colors, undefined, callbackec, this.viewer.getData().enzymeClassification.label);
 
             }
 
