@@ -18,8 +18,8 @@
  * Provides the "view" of the data
 */
 
-define(['params','colors','bootstrap'],
-    function(params,colors) {
+define(['jquery','params','colors','bootstrap/tooltip'],
+    function(jQuery,params,colors) {
 
 
     	var colorDict = {};
@@ -57,7 +57,8 @@ define(['params','colors','bootstrap'],
     		var svg = this.viewer.getSVGWrapper();
 
     		 var g = svg.group({
-                    id: id,
+                    id: id,                    
+                    'font-size': '12px',
                     fontWeight: 'bold',
                     fontSize: '10', fill: 'black'
                  }
@@ -134,7 +135,10 @@ define(['params','colors','bootstrap'],
         Draw.prototype.drawName = function (svg, g, ty, text, callbackFunction, label) {
 
 
-            var txt = svg.text(g, this.param.textLeft + 2, ty + this.param.trackHeight - 1, text);
+            var txt = svg.text(g, this.param.textLeft + 2, ty + this.param.trackHeight - 1, text,{
+                style:{'font-family': 'Jura,"Helvetica Neue", Helvetica, Arial, sans-serif;'}
+            });
+            
 
             if (typeof callbackFunction !== 'undefined') {
 
@@ -576,6 +580,8 @@ define(['params','colors','bootstrap'],
 
 
                         var txt = svg.text(g, x1 + this.scale, y + this.param.trackHeight - 1, range.desc);
+                        
+
 
                         this.checkTxtLength(txt, range.start, range.end, range.desc);
 
@@ -650,8 +656,39 @@ define(['params','colors','bootstrap'],
 
             var siteTrackHeight = this.param.trackHeight + 5;
 
+            var that = this;
+            var clickUpSiteMethod = function (event) {
+
+                var parent = event.toElement;
+
+                var title = parent.title;
+
+                if ( typeof title === 'undefined') {
+                    // probably the tooltip is open
+                    title = $(parent).attr('data-original-title');
+                }
+                
+                // show Popup
+                if (typeof pageTracker !== 'undefined') {
+                    pageTracker._trackEvent('ProteinFeatureView',
+                        'clickUPSite', that.viewer.data.uniprotID);
+                }
+
+                var html = "<h3>" + title + "</h3>";
+               
+                var heading = title;
+                           
+                var strSubmitFunc = "";
+                var btnText = "";
+                
+                that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
+            };
+
+
+
             this.drawSiteResidues(svg, this.viewer.getData().upsites, y, 'upsitesTrack' +
-            this.viewer.getData().uniprotID, this.param.paired_colors, 'up', siteTrackHeight);
+                this.viewer.getData().uniprotID, this.param.paired_colors, 'up', siteTrackHeight,
+                clickUpSiteMethod);
 
             return y + siteTrackHeight;
 
@@ -679,8 +716,55 @@ define(['params','colors','bootstrap'],
 
             var siteTrackHeight = this.param.trackHeight + 5;
 
+            var that = this;
+            var clickPhosphoMethod = function (event) {
+
+                var parent = event.toElement;
+
+                var title = parent.title;
+
+                if ( typeof title === 'undefined') {
+                    // probably the tooltip is open
+                    title = $(parent).attr('data-original-title');
+                }
+                
+                console.log( title);
+
+                // show Popup
+                if (typeof pageTracker !== 'undefined') {
+                    pageTracker._trackEvent('ProteinFeatureView',
+                        'clickPhosphoSite', that.viewer.data.uniprotID);
+                }
+
+                var html = "<h3>" + title + "</h3>";
+                html += "<ul>";
+
+                var url = "http://www.phosphosite.org/" +
+                    "proteinSearchSubmitAction.do?accessionIds=" +
+                    that.viewer.data.uniprotID;
+
+                html += "<li>Show at <a target='_new'' href='" + url +
+                    "'>PhosphoSitePlus website</a></li>";
+
+
+                html += "</ul>";
+
+               
+
+                var heading = title;
+                           
+                var strSubmitFunc = "";
+                var btnText = "";
+                
+                that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
+            };
+
+
+
+
             this.drawSiteResidues(svg, this.viewer.getData().phospho, y, 'phosphositesTrack' +
-            this.viewer.getData().uniprotID, this.param.paired_colors, 'up', siteTrackHeight);
+                                    this.viewer.getData().uniprotID, this.param.paired_colors, 
+                                    'up', siteTrackHeight, clickPhosphoMethod);
 
             return y + siteTrackHeight + 22;
 
@@ -1093,6 +1177,7 @@ define(['params','colors','bootstrap'],
                 var txt = svg.text(g2, x1 + this.scale, y + this.param.trackHeight - 1,
                     domain.name + " - " + domain.desc);
 
+                
                 this.checkTxtLength(txt, domain.start, domain.end, domain.name);
 
                 this.registerTooltip(rect);
@@ -1409,6 +1494,7 @@ define(['params','colors','bootstrap'],
 
                 var txt = svg.text(g2, x1 + this.scale, y + this.param.trackHeight - 1,
                     domain.name + " - " + domain.desc);
+                
 
                 this.checkTxtLength(txt, domain.start, domain.end, domain.name);
 
@@ -1701,9 +1787,12 @@ define(['params','colors','bootstrap'],
          * @param trackID
          * @param mycolors
          * @param orientation - should the site-arrows point upwards or downwards? either 'up' or 'down'
+         * @param siteTrackHeight
+         * @param modalFunction (optional) used to show a modal window if user clicks on track
          */
         Draw.prototype.drawSiteResidues = function (svg, feature, y, trackID,
-                                                      mycolors, orientation, siteTrackHeight) {
+                                                      mycolors, orientation, siteTrackHeight, 
+                                                      modalFunction) {
 
 
             if (typeof feature.tracks === 'undefined') {
@@ -1783,48 +1872,7 @@ define(['params','colors','bootstrap'],
             feature.tracks[0].pdbID + "." + feature.tracks[0].chainID);
             this.registerTooltip(rect1);
 
-            var that = this;
-
-
-            var clickPhosphoMethod = function (eve) {
-
-
-                var event = eve.originalEvent;
-                console.log(event);
-
-                var g = event.target;
-
-                console.log(g.id + " " + g.title);
-
-                // show Popup
-                if (typeof pageTracker !== 'undefined') {
-                    pageTracker._trackEvent('ProteinFeatureView',
-                        'clickPhosphoSite', that.viewer.data.uniprotID);
-                }
-
-                var html = "<h3>" + g.title + "</h3>";
-                html += "<ul>";
-
-                var url = "http://www.phosphosite.org/" +
-                    "proteinSearchSubmitAction.do?accessionIds=" +
-                    that.viewer.data.uniprotID;
-
-                html += "<li>Show at <a target='_new'' href='" + url +
-                    "'>PhosphoSitePlus website</a></li>";
-
-
-                html += "</ul>";
-
-               
-
-                var heading = that.title;
-                           
-                var strSubmitFunc = "";
-                var btnText = "";
-                
-                that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
-            };
-
+         
             for (var i = 0; i < feature.tracks.length; i++) {
                 var site = feature.tracks[i];
                 if (typeof site === 'undefined') {
@@ -1948,13 +1996,15 @@ define(['params','colors','bootstrap'],
                 this.registerTooltip(circle);
 
                 if (isPhospho) {
+                    
                     $(circle).attr("id", site.acc);
                     $(circle).attr("name", this.title);
-                    $(circle).css('cursor', 'pointer');
+                    
+                }
 
-                    $(circle).bind('click', clickPhosphoMethod);
-
-
+                if ( typeof modalFunction !== 'undefined') {
+                        $(circle).css('cursor', 'pointer');
+                        $(circle).bind('click', modalFunction);
                 }
 
 

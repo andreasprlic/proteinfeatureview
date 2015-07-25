@@ -11,8 +11,10 @@
  */
 
 
-define(['colors','draw','params','jquery','jquerysvg','bootstrap','bootstrapslider'],
-    function(colors, draw, params , jQuery) {
+define(['jquery','colors','draw','params',
+    'jquerysvg','bootstrapslider',
+    'bootstrap/tooltip','bootstrap/modal','bootstrap/button'],
+    function(jQuery,colors, draw, params ) {
 
         /** A No args constructor. Needs to call setParent and loadUniprot from the user side
          *
@@ -724,8 +726,12 @@ define(['colors','draw','params','jquery','jquerysvg','bootstrap','bootstrapslid
 
         };
 
+        
+
         Viewer.prototype.doModal = function (placementId, heading, formContent, strSubmitFunc, btnText)
         {
+
+         
             var html =  '<div id="modalWindow" class="modal fade " tabindex="-1" role="dialog" ' +
                         ' aria-hidden="true">';
             html += '<div class="modal-dialog">';
@@ -744,17 +750,18 @@ define(['colors','draw','params','jquery','jquerysvg','bootstrap','bootstrapslid
                 html += ' onClick="'+strSubmitFunc+'; event.preventDefault();">'+btnText;
                 html += '</button>';
             }
-            html += '<button class="btn" data-dismiss="modal" onClick="this.hideModal();">Close';             
+            html += '<button class="btn" data-dismiss="modal" ' +
+                    'onClick="$(\'.modal.in\').modal(\'hide\');">Close';             
             html += '</button>'; // close button
             html += '</div>';  // footer
             html += '</div></div>';  //content, dialog
             html += '</div>';  // modalWindow
+            
             $(placementId).html(html);
             
             $('#modalWindow').modal();
             $('#modalWindow').show();
         };
-
 
         Viewer.prototype.hideModal = function()
         {
@@ -762,6 +769,7 @@ define(['colors','draw','params','jquery','jquerysvg','bootstrap','bootstrapslid
             // will remove the modal window but not the mask
             $('.modal.in').modal('hide');
         };
+       
 
         Viewer.prototype.load3DChain = function (pdbID, chainID) {
 
@@ -940,7 +948,10 @@ define(['colors','draw','params','jquery','jquerysvg','bootstrap','bootstrapslid
 
                 newScale = (availWidth ) / (this.sequence.length );
 
-                $(this.scrollBarDiv).slider().slider('setValue',0);
+                if ( typeof $(this.scrollBarDiv).slider() !== 'undefined') {
+
+                    $(this.scrollBarDiv).slider().slider('setValue',0);
+                }
                 $(this.parent).css('overflow', 'auto');
                 $(this.parent).css('width', $(this.outerParent).width());
 
@@ -1903,7 +1914,7 @@ define(['colors','draw','params','jquery','jquerysvg','bootstrap','bootstrapslid
 
         return {
             PFV: function (elem, options) {
-                console.log("Viewer.PFV");
+               
                 return new Viewer(elem, options);
             }
 
