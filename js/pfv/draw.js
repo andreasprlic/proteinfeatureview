@@ -136,7 +136,7 @@ define(['jquery','params','colors','bootstrap/tooltip'],
 
 
             var txt = svg.text(g, this.param.textLeft + 2, ty + this.param.trackHeight - 1, text,{
-                style:{'font-family': 'Jura,"Helvetica Neue", Helvetica, Arial, sans-serif;'}
+                'font-family': 'Roboto','font-weight':'900',
             });
             
 
@@ -427,7 +427,8 @@ define(['jquery','params','colors','bootstrap/tooltip'],
 
             var rotStr = "rotate(-90," + 10 + "," + (bottomY - this.param.trackHeight) + ")";
             var txt = svg.text(g, 0, bottomY - this.param.trackHeight, shortname, {
-                transform: rotStr, fill: color
+                transform: rotStr, fill: color,
+                'font-family': 'Roboto', 'font-weight':'normal'
             });
             $(txt).attr('title', title);
             this.registerTooltip(txt);
@@ -579,7 +580,9 @@ define(['jquery','params','colors','bootstrap/tooltip'],
                             });
 
 
-                        var txt = svg.text(g, x1 + this.scale, y + this.param.trackHeight - 1, range.desc);
+                        var txt = svg.text(g, x1 + this.scale, y + this.param.trackHeight - 1, range.desc,{
+                            'font-family': 'Roboto', 'font-weight':'500'
+                        });
                         
 
 
@@ -1175,7 +1178,9 @@ define(['jquery','params','colors','bootstrap/tooltip'],
                 //var length = tooltip.getComputedTextLength();
 
                 var txt = svg.text(g2, x1 + this.scale, y + this.param.trackHeight - 1,
-                    domain.name + " - " + domain.desc);
+                    domain.name + " - " + domain.desc,{
+                        'font-family': 'Roboto','font-weight':'500',
+                    });
 
                 
                 this.checkTxtLength(txt, domain.start, domain.end, domain.name);
@@ -1428,7 +1433,9 @@ define(['jquery','params','colors','bootstrap/tooltip'],
             var pfamTrackHeight = this.param.trackHeight;
 
             var g = svg.group({
-                id: 'pfamTrack', fontWeight: 'bold',
+                id: 'pfamTrack', 
+                'font-family': 'Roboto',
+                'font-weight':'normal',                
                 fontSize: '10', fill: 'black'
             });
 
@@ -1458,7 +1465,9 @@ define(['jquery','params','colors','bootstrap/tooltip'],
                 var defs = svg.defs();
 
                 var g2 = svg.group({
-                    id: 'pfam' + i, fontWeight: 'bold',
+                    id: 'pfam' + i, 
+                    'font-family': 'Roboto',
+                    'font-weight':'normal',
                     fontSize: '10', fill: color.textcolor
                 });
 
@@ -2035,7 +2044,8 @@ define(['jquery','params','colors','bootstrap/tooltip'],
         Draw.prototype.drawTick = function (svg, seqpos, y, height) {
 
             var g = svg.group(
-                {fontWeight: 'normal', fontSize: 10, fill: 'black'}
+                {   'font-family': 'Roboto','font-weight':'300','font-size':'10',
+                     fill: 'black'}
             );
             svg.text(g, this.seq2Screen(seqpos), y - 2 - 1, (seqpos + 1) + "");
             svg.rect(this.seq2Screen(seqpos), y, 1 * this.scale, height,
@@ -2486,7 +2496,9 @@ define(['jquery','params','colors','bootstrap/tooltip'],
                             dispText = "";
                         }
 
-                        var txt = svg.text(g, x1 + this.scale, y + this.param.trackHeight - 1, dispText);
+                        var txt = svg.text(g, x1 + this.scale, y + this.param.trackHeight - 1, dispText,{
+                            'font-family': 'Roboto','font-weight':'500'
+                        });
 
                         this.checkTxtLength(txt, range.start, range.end, dispText);
 
@@ -2578,7 +2590,9 @@ define(['jquery','params','colors','bootstrap/tooltip'],
                     stroke: blue.darkercolor,
                     strokeWidth: 1
                 });
-            var txt = svg.text(g, x1 + this.scale, y + this.param.trackHeight - 1, range.desc);
+            var txt = svg.text(g, x1 + this.scale, y + this.param.trackHeight - 1, range.desc,{
+                'font-family': 'Roboto','font-weight':'normal'
+            });
             this.checkTxtLength(txt, range.start, range.end, range.desc);
 
             var title = range.desc + "-" + range.name;
@@ -2605,7 +2619,7 @@ define(['jquery','params','colors','bootstrap/tooltip'],
 
             var g = svg.group({
                     id: trackName + this.viewer.getData().uniprotID,
-                    fontWeight: 'bold',
+                    'font-family': 'Roboto','font-weight':'normal',                    
                     fontSize: '10',
                     fill: 'black'
                 }
@@ -2673,7 +2687,7 @@ define(['jquery','params','colors','bootstrap/tooltip'],
 
             var g = svg.group({
                     id: trackName + this.viewer.getData().uniprotID,
-                    fontWeight: 'bold',
+                    'font-family': 'Roboto','font-weight':'normal',                    
                     fontSize: '10',
                     fill: 'black'
                 }
