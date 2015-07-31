@@ -55,6 +55,9 @@
             this.up_colors.push(this.paired_colors[2]);
             this.up_colors.push(this.paired_colors[3]);
 
+            this.expressionTagColor = colors.rgb.getDomainColors()[0];
+            this.conflictColor = colors.rgb.getRedBluePalette()[
+                    colors.rgb.getRedBluePalette().length-1];
 
     	}
 

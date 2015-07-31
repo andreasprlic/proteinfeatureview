@@ -1774,7 +1774,146 @@ define(['jquery','params','colors','bootstrap/tooltip'],
             }
 
 
+            if ( typeof track.seqdiff !== 'undefined') {
+                this.drawSeqDiff(svg, track, y, trackID);
+            }
+
+
             return y + this.height;
+
+        };
+
+
+        /** Provides more detailed info about sequence mismatches
+        */
+        Draw.prototype.drawSeqDiff = function (svg, track, y, trackID){
+
+            if ( typeof track.seqdiff === 'undefined') {
+                return;
+            }
+
+            if ( track.seqdiff.length < 1) {
+                return;
+            }
+            
+            var colorPos = 0;
+            var mycolors = this.param.up_colors;
+
+            var siteTrackHeight = this.param.trackHeight ;
+            var baseLineHeight = this.param.baseLineHeight;
+
+            var g = svg.group({id: trackID, fontWeight: 'bold', fontSize: '10', fill: 'black'});
+
+
+
+            for ( var i = 0 ; i < track.seqdiff.length; i++) {
+                // draw a tick..
+
+                var feature = track.seqdiff[i];
+
+                var color = colorDict[feature.detail];
+
+                if (feature.detail.toUpperCase() === 'EXPRESSION TAG') {
+                    color = this.param.expressionTagColor;
+                } else if (feature.detail.toUpperCase() === 'CONFLICT') {
+                    color = this.param.conflictColor;
+                }
+
+
+
+                if (typeof color === 'undefined') {
+                    colorPos++;
+                    if (colorPos > mycolors.length - 1) {
+                        colorPos = 0;
+                    }
+                    color = mycolors[colorPos];
+                    colorDict[feature.detail] = color;
+                    //console.log("setting new color for " + site.name + " " + color.color);
+                }
+               
+                var xpos = this.seq2Screen(feature.start) - this.scale / 2;
+
+                // if ( this.scale > 8 ) {
+                //     xpos = this.seq2Screen(feature.start) ;
+                // }
+
+                svg.radialGradient(g, 'seqDiffGradient' + i + this.viewer.getData().uniprotID, [
+                            ['0%', color.lightercolor],
+                            ['100%', color.color]
+                        ],
+                        //0,y,0, y+ trackHeight,
+                        xpos, y + baseLineHeight - 4, 4,
+                        xpos, y + baseLineHeight - 3,
+                        {
+                            gradientUnits: 'userSpaceOnUse'
+
+                        }
+                    );
+
+                var rect = svg.rect(g, xpos , y + baseLineHeight,
+                        2, siteTrackHeight - baseLineHeight,
+                        {
+                            fill: 'black'
+                        });
+                 var circle = svg.circle(g, xpos, y, 4,
+                        {
+                            fill: 'url(#seqDiffGradient' + i + this.viewer.getData().uniprotID + ')',
+                            stroke: color.darkerColor,
+                            strokeWidth: 1
+                        });
+
+
+                 
+
+
+                var title = feature.detail ;
+
+                if ( typeof feature.aa !== 'undefined' )  {
+                    title += ' ' + feature.aa ;
+                }
+                 title +=  ' at ' + feature.pdbID + "." + feature.chainID + ' resnum:' + 
+                            feature.pdbStart +  ' up: ' + feature.start;
+
+                 $(rect).attr("title", title);
+                 this.registerTooltip(rect);
+
+                 $(circle).attr("title", title);
+                 this.registerTooltip(circle);
+
+                 var shortText = "";
+
+                if ( feature.detail.toUpperCase().startsWith('ENGINEERED')) {
+                        shortText = "E";
+                } else  if ( feature.detail.toUpperCase().startsWith('MODIFIED')) {
+                    shortText = "M";
+                } else  if ( feature.detail.toUpperCase().startsWith('CLONING')) {
+                    shortText = "C";
+                } else  if ( feature.detail.toUpperCase().startsWith('EXPRESSION TAG')) {
+                    shortText = "T";
+                } else  if ( feature.detail.toUpperCase().startsWith('DELETION')) {
+                    shortText = "D";
+                }
+                 
+
+                if ( shortText.length > 0) {
+                
+                    // draw a tiny E...
+
+                    var txt = svg.text(g, xpos-2, y +siteTrackHeight/4, 
+                    shortText,{'font-size' :'8'});
+                    $(txt).attr("title", title);
+                     this.registerTooltip(txt);
+                                       
+                 }
+
+                
+                  
+                                       
+                 
+
+                 
+            }
+
 
         };
 
@@ -2117,20 +2256,20 @@ define(['jquery','params','colors','bootstrap/tooltip'],
                 var ecrows = this.breakTrackInRows(ecs);
 
                 var brendaurl = "http://www.brenda-enzymes.org/php/result_flat.php4?ecno=";
-
-                console.log("EC STUFF:" + this.viewer.getData().enzymeClassification.tracks.length);
+                var pdbecurl = this.viewer.rcsbServer  + "/pdb/search/smartSubquery.do?smartSearchSubtype=" +
+                    "EnzymeClassificationQuery&Enzyme_Classification=" ;
 
                 var callbackec = function () {
 
-                    var pdbecurl = that.rcsbServer  + "/pdb/search/smartSubquery.do?smartSearchSubtype=" +
-                    "EnzymeClassificationQuery&Enzyme_Classification=";
+
+                    
 
 
                     var html = "<h3>" + this.name + " - " + this.desc + "</h3>";
                     html += "<ul><li>View in <a href='" + brendaurl + this.name +
                         "' target='_new'>BRENDA</a></li>";
-                    html += "<li>View <a href='" + pdbecurl + this.name +
-                        "'>other PDB entries with the same E.C. number</a></li>";
+                    html += "<li>View <a href='" + pdbecurl + this.name + "'>other PDB entries with" +
+                                " the same E.C. number</a></li>";
                     html += "</ul>";
 
                     if (typeof pageTracker !== 'undefined') {
