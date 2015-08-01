@@ -59,6 +59,7 @@
             this.conflictColor = colors.rgb.getRedBluePalette()[
                     colors.rgb.getRedBluePalette().length-1];
 
+            this.deletionColor = this.paired_colors[6];
     	}
 
 
