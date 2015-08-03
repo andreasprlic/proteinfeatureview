@@ -2,8 +2,6 @@
 
 SVG library for visualising protein annotations
 
-[![Build Status](https://travis-ci.org/andreasprlic/proteinfeatureview.svg)](https://travis-ci.org/andreasprlic/proteinfeatureview)
-
 This is the library behind the Protein Feature View at [RCSB PDB](http://www.rcsb.org/pdb/protein/P06213).
 
 ![Screenshot of Protein Feature View at RCSB]
@@ -124,6 +122,9 @@ currently supported events:
 
 GPL 3.0 [http://www.gnu.org/licenses/gpl.html](http://www.gnu.org/licenses/gpl.html)
 
+## How to cite
+
+At the present, there is no primary citation yet, however Protein Feature View got mentioned in the most recent [ http://nar.oxfordjournals.org/content/43/D1/D345.full](RCSB PDB Nucleic acid research database issue paper).
 
 ## Author
 
