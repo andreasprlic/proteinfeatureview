@@ -850,7 +850,7 @@ define(['jquery','params','colors','bootstrap/tooltip'],
                 });
 
             var title = "Poor fit to the electron density (RSRZ > 2) chain " + 
-                        site.chainID + " PDB resnum: " + site.pdbStart;
+                        site.chainID + " PDB residue: " + site.pdbStart;
 
             $(rect).attr(  "title",title);
             $(circle).attr("title",title);
@@ -1640,14 +1640,14 @@ define(['jquery','params','colors','bootstrap/tooltip'],
                             });
 
 
-                        var txt = " (seq pos: " + rangeOrig.start;
+                        var txt = " (sequence position: " + rangeOrig.start;
                         if (rangeOrig.start !== rangeOrig.end) {
                             txt += " - " + rangeOrig.end;
                         }
                         txt += ") ";
 
                         if ( typeof rangeOrig.pdbStart !== 'undefined') {
-                            txt += '(PDB resnum:' + rangeOrig.pdbStart ;
+                            txt += '(PDB residue:' + rangeOrig.pdbStart ;
                             if ( rangeOrig.pdbStart !== rangeOrig.pdbEnd) {
                                 txt += '-' + rangeOrig.pdbEnd;
                             }
@@ -1705,9 +1705,9 @@ define(['jquery','params','colors','bootstrap/tooltip'],
 
                         var title = "PDB ID " + track.pdbID + " chain " +
                         track.chainID + " - " +
-                        track.desc + " (seq pos: " + rangeOrig.start + "-" + rangeOrig.end + ") " ;
+                        track.desc + " (sequence position: " + rangeOrig.start + "-" + rangeOrig.end + ") " ;
                         if ( typeof rangeOrig.pdbStart !== 'undefined') {
-                            title += '(PDB resnum: ' + rangeOrig.pdbStart ;
+                            title += '(PDB residue: ' + rangeOrig.pdbStart ;
 
                             if ( rangeOrig.pdbEnd !== rangeOrig.pdbStart) {
                                 title +=  '-' + rangeOrig.pdbEnd;
@@ -1837,21 +1837,26 @@ define(['jquery','params','colors','bootstrap/tooltip'],
 
                 var feature = track.seqdiff[i];
 
-                var color = colorDict[feature.detail];
-
-                
-
-                 var title = feature.detail ;
+                if ( typeof feature.uniprot  !== 'undefined' && (feature.uniprot!== this.viewer.getData().uniprotID)) {
+                    // this is an issue for fusion proteins, where a PDB chain can map
+                    // to more than one UniProt entry.
+                    continue;
+                }
 
                 var detail = feature.detail.toUpperCase();
+
+                var color = colorDict[detail];
+
+                var title = feature.detail ;
+
 
                 if ( typeof feature.aa !== 'undefined' )  {
                     title += ' ' + feature.aa ;
                 }
-                 title +=  ' at ' + feature.pdbID + "." + feature.chainID + ' resnum:' + 
-                            feature.pdbStart +  ' up: ' + feature.start;
+                 title +=  ' at ' + feature.pdbID + "." + feature.chainID + ' PDB residue:' + 
+                            feature.pdbStart +  ' sequence position: ' + feature.start;
 
-                
+                title += " " + feature.uniprot;
 
                 if (detail === 'CONFLICT') {
                     color = this.param.conflictColor;
@@ -1882,7 +1887,7 @@ define(['jquery','params','colors','bootstrap/tooltip'],
                     fontSize = 6;
                     xCorrection = -6;
                 }  else  if ( detail.indexOf(' TAG' ) > -1) {
-                    shortText = "T";
+                     shortText = "T";
                      color = this.param.expressionTagColor;
                 
                 } else  if ( detail.indexOf('DELETION') > -1) {
@@ -1896,18 +1901,18 @@ define(['jquery','params','colors','bootstrap/tooltip'],
                 }
 
 
-
-
                 if (typeof color === 'undefined') {
                     colorPos++;
                     if (colorPos > mycolors.length - 1) {
                         colorPos = 0;
                     }
                     color = mycolors[colorPos];
-                    colorDict[feature.detail] = color;
-                    //console.log("setting new color for " + site.name + " " + color.color);
-                }
+                    colorDict[detail] = color;
+    
+                } 
                
+                //console.log("setting color for " + detail + " " + color.darkercolor);
+
                 var xpos = this.seq2Screen(feature.start) - this.scale / 2;
 
                 // if ( this.scale > 8 ) {
@@ -1967,7 +1972,7 @@ define(['jquery','params','colors','bootstrap/tooltip'],
 
                     var circle = svg.circle(g, xpos, y, 4,
                         {
-                            fill: color.lightercolor,
+                            fill: 'url(#seqDiffGradient' + i + this.viewer.getData().uniprotID + ')',
                             stroke: color.darkerColor,
                             strokeWidth: 1
                         });
