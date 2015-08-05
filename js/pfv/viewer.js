@@ -1031,7 +1031,7 @@ define(['jquery','colors','draw','params',
                 return;
             }
 
-            var now = new Date().getTime();
+            //var now = new Date().getTime();
 
             var data = this.data;
 
@@ -1392,10 +1392,10 @@ define(['jquery','colors','draw','params',
             
             //console.log('init - tooltip ' + (timet-now));
 
-            var end = new Date().getTime();
+            //var end = new Date().getTime();
 
 
-            console.log("time to repaint SVG graphics: " + (end-now));
+            //console.log("time to repaint SVG graphics: " + (end-now));
 
         };
 
