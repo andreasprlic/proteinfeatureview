@@ -111,6 +111,10 @@ define(['jquery','colors','draw','params',
         };
 
 
+        Viewer.prototype.setUniprotId = function(uniprotId){
+            this.uniprotID = uniprotId;
+        };
+
         Viewer.prototype.loadUniprot = function (uniprotId) {
 
             this.uniprotID = uniprotId;
@@ -131,13 +135,18 @@ define(['jquery','colors','draw','params',
             $.getJSON(url, function (json) {
 
                 console.log("got json response from " + url);
+
+
                 that.setData(json);
 
                 $(that.parent).svg();
+                
                 var svg = $(that.parent).svg('get');
 
                 that.drawInitial(svg);
+                
                 that.updateScale();
+                
                 that.repaint();
 
             });
@@ -356,6 +365,7 @@ define(['jquery','colors','draw','params',
 
             // trigger async loads...
             if (typeof this.asyncTracks === 'undefined') {
+                // we always updated the tracks based on the uniProt IDs
                 this.setDefaultTracks();
             }
 
@@ -402,6 +412,7 @@ define(['jquery','colors','draw','params',
                 //this.loadURLAsync(url);
                 var that = this;
 
+                console.log("requesting " + url);
                 jQuery.ajax({
                     url: url,
                     dataType: "json",
@@ -527,7 +538,7 @@ define(['jquery','colors','draw','params',
             } else if ((typeof json.scop !== 'undefined') || (typeof json.scope !== 'undefined')) {
                 if (typeof json.scop !== 'undefined') {
                     this.data.scop = json.scop;
-                    console.log("got scop response");
+                    console.log("got scop response");                    
                 }
                 if (typeof json.scope !== 'undefined') {
                     this.data.scope = json.scope;
@@ -553,12 +564,25 @@ define(['jquery','colors','draw','params',
          *
          * @param pdbId
          */
-        Viewer.prototype.showPDB = function (pdbId) {
+        Viewer.prototype.showPDB = function ( pdbId ) {
 
             if (typeof pdbId !== 'undefined') {
-                this.singlePDBmode = true;
-                this.displayPDB = pdbId;
-                this.showCondensed = false;
+
+                if ( pdbId.length > 3) {
+
+                    this.singlePDBmode = true;
+                
+                    this.displayPDB = pdbId;
+                
+                    this.showCondensed = false;
+                } else if ( pdbId.length === 0 ){
+                    // pdbId is set to ''
+                    this.singlePDBmode = false;
+                    this.displayPDB = pdbId;
+                
+                    this.showCondensed = true;
+                }
+            
             }
 
         };
@@ -570,6 +594,7 @@ define(['jquery','colors','draw','params',
         Viewer.prototype.showAll = function (flag) {
 
             this.singlePDBmode = flag;
+            
 
         };
 

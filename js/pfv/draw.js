@@ -972,7 +972,7 @@ define(['jquery','params','colors','bootstrap/tooltip'],
                     
                         });
 
-                var title = valid.desc +" geometric outliers for residue " + valid.pdbStart + 
+                var title = valid.desc +" geometric outliers for " + valid.pdbID + " residue " + valid.pdbStart + 
                     "  in chain " + valid.chainID ;
 
                 $(rect).attr("title", title);
@@ -1723,7 +1723,6 @@ define(['jquery','params','colors','bootstrap/tooltip'],
 
                         if ( this.scale > 8 ) {
 
-                            if ( typeof rangeOrig.pdbStart !== 'undefined') {
                                 
                                 for ( var s1 = range.start ; s1 <= range.end ; s1++) {
 
@@ -1736,7 +1735,7 @@ define(['jquery','params','colors','bootstrap/tooltip'],
                                     this.param.trackHeight - 1, aam);
 
                                     //todo: add tooltip for text here?
-                                }
+                                
                             }
 
                         }

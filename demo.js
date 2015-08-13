@@ -50,7 +50,7 @@ require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/d
     $( document ).ready(function() {
         console.log('document ready - pfv');
 
-        var uniprotID="P03372";
+        var uniprotID="P06213";
 
         // if has not been initialized, initialize...
 
@@ -62,16 +62,22 @@ require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/d
 
         featureView.setRcsbServer("http://www.rcsb.org");
 
-        featureView.setShowSeqres(true);
-
-
         featureView.loadUniprot(uniprotID);
 
+
         $('#up-field').val(uniprotID);
+
         $('#up-field').change(function(){
 
             var val =   $('#up-field').val();
+            
             console.log("loading new uniprot " + val );
+
+            // update the track URLs
+            featureView.setUniprotId(val);
+   
+    
+            featureView.setDefaultTracks();
             featureView.loadUniprot(val);
 
         });
