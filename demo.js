@@ -6,7 +6,7 @@ requirejs.config({
         viewer:'pfv/viewer',
         draw:'pfv/draw',
         params:'pfv/params',
-        jquery:'vendor/jquery-2.1.3.min',        
+        jquery:'vendor/jquery-2.1.3.min',
         jquerysvg:'vendor/svg/jquery.svg.min',
         'bootstrap/tooltip':'vendor/bootstrap-3.3.5/js/tooltip',
         'bootstrap/modal':'vendor/bootstrap-3.3.5/js/modal',
@@ -19,7 +19,7 @@ requirejs.config({
             exports:"$",
             deps:['jquery']
         },
-        'bootstrap/affix':      { deps: ['jquery'], exports: '$.fn.affix' }, 
+        'bootstrap/affix':      { deps: ['jquery'], exports: '$.fn.affix' },
         'bootstrap/alert':      { deps: ['jquery'], exports: '$.fn.alert' },
         'bootstrap/button':     { deps: ['jquery'], exports: '$.fn.button' },
         'bootstrap/carousel':   { deps: ['jquery'], exports: '$.fn.carousel' },
@@ -30,12 +30,12 @@ requirejs.config({
         'bootstrap/scrollspy':  { deps: ['jquery'], exports: '$.fn.scrollspy' },
         'bootstrap/tab':        { deps: ['jquery'], exports: '$.fn.tab'        },
         'bootstrap/tooltip':    { deps: ['jquery'], exports: '$.fn.tooltip' },
-        'bootstrap/transition': { deps: ['jquery'], exports: '$.fn.transition' }, 
+        'bootstrap/transition': { deps: ['jquery'], exports: '$.fn.transition' },
 
         'bootstrapslider': {
             deps:['bootstrap/tooltip']
         }
-        
+
     }
 });
 
@@ -70,13 +70,13 @@ require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/d
         $('#up-field').change(function(){
 
             var val =   $('#up-field').val();
-            
+
             console.log("loading new uniprot " + val );
 
             // update the track URLs
             featureView.setUniprotId(val);
-   
-    
+
+
             featureView.setDefaultTracks();
             featureView.loadUniprot(val);
 
@@ -99,7 +99,7 @@ require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/d
 
 
         $('#fullScreen').click(function(){
-            featureView.requestFullscreen(); 
+            featureView.requestFullscreen();
             return false;
         });
 
@@ -112,7 +112,7 @@ require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/d
             });
 
 
-        
+
 
     }); // document ready
 
@@ -178,7 +178,7 @@ $("#findSequenceMotif").submit(function(event){
         console.log(e);
     }
     event.preventDefault();
-    }); // 
+    }); //
 
 
 
@@ -186,5 +186,3 @@ $("#findSequenceMotif").submit(function(event){
 
 
 }); // require
-
-
