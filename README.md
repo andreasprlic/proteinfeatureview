@@ -123,6 +123,9 @@ currently supported events:
 
 GPL 3.0 [http://www.gnu.org/licenses/gpl.html](http://www.gnu.org/licenses/gpl.html)
 
+## How to cite
+
+At the present, there is no primary citation yet, however Protein Feature View got mentioned in the most recent [RCSB PDB Nucleic acid research database issue paper](http://nar.oxfordjournals.org/content/43/D1/D345.full).
 
 ## Author
 

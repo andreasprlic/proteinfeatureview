@@ -8,7 +8,10 @@ requirejs.config({
         params:'pfv/params',
         jquery:'vendor/jquery-2.1.3.min',        
         jquerysvg:'vendor/svg/jquery.svg.min',
-        bootstrap:'vendor/bootstrap-3.3.4.min',
+        'bootstrap/tooltip':'vendor/bootstrap-3.3.5/js/tooltip',
+        'bootstrap/modal':'vendor/bootstrap-3.3.5/js/modal',
+        'bootstrap/button':'vendor/bootstrap-3.3.5/js/button',
+        'bootstrap/dropdown':'vendor/bootstrap-3.3.5/js/dropdown',
         bootstrapslider:'vendor/bootstrap-slider.min'
     },
     shim:{
@@ -16,11 +19,21 @@ requirejs.config({
             exports:"$",
             deps:['jquery']
         },
-        'bootstrap': {
-            deps:['jquery']
-        },        
+        'bootstrap/affix':      { deps: ['jquery'], exports: '$.fn.affix' }, 
+        'bootstrap/alert':      { deps: ['jquery'], exports: '$.fn.alert' },
+        'bootstrap/button':     { deps: ['jquery'], exports: '$.fn.button' },
+        'bootstrap/carousel':   { deps: ['jquery'], exports: '$.fn.carousel' },
+        'bootstrap/collapse':   { deps: ['jquery'], exports: '$.fn.collapse' },
+        'bootstrap/dropdown':   { deps: ['jquery'], exports: '$.fn.dropdown' },
+        'bootstrap/modal':      { deps: ['jquery'], exports: '$.fn.modal' },
+        'bootstrap/popover':    { deps: ['jquery'], exports: '$.fn.popover' },
+        'bootstrap/scrollspy':  { deps: ['jquery'], exports: '$.fn.scrollspy' },
+        'bootstrap/tab':        { deps: ['jquery'], exports: '$.fn.tab'        },
+        'bootstrap/tooltip':    { deps: ['jquery'], exports: '$.fn.tooltip' },
+        'bootstrap/transition': { deps: ['jquery'], exports: '$.fn.transition' }, 
+
         'bootstrapslider': {
-            deps:['bootstrap']
+            deps:['bootstrap/tooltip']
         }
         
     }
@@ -28,7 +41,7 @@ requirejs.config({
 
 var proteinFeatureView ;
 
-require(['viewer','jquerysvg','bootstrap','bootstrapslider'], function(PFV){
+require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/dropdown','bootstrapslider'], function(PFV){
 
     proteinFeatureView = PFV;
 
@@ -47,18 +60,24 @@ require(['viewer','jquerysvg','bootstrap','bootstrapslider'], function(PFV){
         featureView.setDialogDiv('#dialog');
         featureView.setScrollBarDiv('#svgScrollBar');
 
-        featureView.setRcsbServer("http://pepper.rcsb.org:8080");
-
-        featureView.setShowSeqres(true);
-
+        featureView.setRcsbServer("http://www.rcsb.org");
 
         featureView.loadUniprot(uniprotID);
 
+
         $('#up-field').val(uniprotID);
+
         $('#up-field').change(function(){
 
             var val =   $('#up-field').val();
+            
             console.log("loading new uniprot " + val );
+
+            // update the track URLs
+            featureView.setUniprotId(val);
+   
+    
+            featureView.setDefaultTracks();
             featureView.loadUniprot(val);
 
         });

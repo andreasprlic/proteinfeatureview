@@ -98,6 +98,8 @@ module.exports = function(grunt) {
 
   // Default task(s).
   grunt.registerTask('default', [
-    'jshint', 'requirejs', 'buildnumber', 'string-replace', 'uglify'
+    'jshint', 'requirejs', 'removelogging', 'buildnumber', 'string-replace', 'uglify'
   ]);
+
+
 };
