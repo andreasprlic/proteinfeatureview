@@ -13,18 +13,13 @@
 
 define(['colors', 'draw', 'params'],
   function(colors, draw, params) {
-
-    /** A No args constructor. Needs to call setParent and loadUniprot from the user side
-     *
+    /**
+     * A No args constructor. Needs to call setParent and loadUniprot from the user side
      */
-
     function Viewer() {
-
       this.initClass();
-
       var that = this;
       $(window).resize(function() {
-
         $(that.parent).css('overflow', 'hidden');
         $(that.parent).css('width', 'auto');
         //$(parent).removeAttr('css');
@@ -37,10 +32,7 @@ define(['colors', 'draw', 'params'],
       var drawer = new draw.Draw(this);
       this.drawer = drawer;
       this.params = params;
-
     }
-
-
 
     /** Initialize the internals
      *
@@ -99,7 +91,11 @@ define(['colors', 'draw', 'params'],
       }
 
       this.startedAt = new Date().getTime();
-      console.log("*** Initializing Protein Feature View V." + this.version + " ***");
+
+      //$(this.scrollBarDiv).bind('slidechange', $.proxy( this, 'srcollValueChanged' ));
+
+      console.log("*** Protein Feature View V." + this.version + " ***");
+
     };
 
     Viewer.prototype.getVersion = function() {
@@ -107,23 +103,21 @@ define(['colors', 'draw', 'params'],
     };
 
 
-    Viewer.prototype.loadUniprot = function(uniprotId) {
-
+    Viewer.prototype.setUniprotId = function(uniprotId) {
       this.uniprotID = uniprotId;
+    };
 
+    Viewer.prototype.loadUniprot = function(uniprotId) {
+      this.uniprotID = uniprotId;
       if (typeof uniprotId === 'undefined') {
         return;
       }
       this.data = {};
-
       var url = this.rcsbServer + this.masterURL + this.uniprotID + "?type=json";
-
       if (this.singlePDBmode) {
         url += "&display=" + this.displayPDB;
       }
-
       var that = this;
-
       $.getJSON(url, function(json) {
         // console.log("got json response from " + url);
         that.setData(json);
@@ -148,7 +142,7 @@ define(['colors', 'draw', 'params'],
           var g = path.target.parentNode;
           var id = g.id;
 
-          console.log("user clicked " + id);
+          // console.log("user clicked " + id);
 
           if (id.indexOf('pfam') > -1) {
 
@@ -164,7 +158,7 @@ define(['colors', 'draw', 'params'],
 
             var exonpos = id.substring(4, id.length);
 
-            console.log("clicked on exon " + id + " " + exonpos);
+            // console.log("clicked on exon " + id + " " + exonpos);
 
             if (exonpos !== 'track') {
               that.showExonDialog(that.data.exon.tracks[exonpos]);
@@ -212,7 +206,7 @@ define(['colors', 'draw', 'params'],
         val = 100;
       }
 
-      console.log("setting scroll value to " + val);
+      // console.log("setting scroll value to " + val);
 
       var minScale = this.getMinScale();
       //
@@ -337,6 +331,7 @@ define(['colors', 'draw', 'params'],
 
       // trigger async loads...
       if (typeof this.asyncTracks === 'undefined') {
+        // we always updated the tracks based on the uniProt IDs
         this.setDefaultTracks();
       }
 
@@ -385,6 +380,7 @@ define(['colors', 'draw', 'params'],
         //this.loadURLAsync(url);
         var that = this;
 
+        console.log("requesting " + url);
         $.ajax({
           url: url,
           dataType: "json",
@@ -392,7 +388,8 @@ define(['colors', 'draw', 'params'],
           cache: true,
           context: that,
           success: successMethod,
-          error: errorMethod
+          error: errorMethod,
+          async: true
         });
 
       }
@@ -447,6 +444,7 @@ define(['colors', 'draw', 'params'],
           type: "GET",
           cache: true,
           context: that,
+          async: true,
           success: function(json) {
             that.parseJsonResponse(json);
           },
@@ -484,18 +482,18 @@ define(['colors', 'draw', 'params'],
       //console.log("got json response..." + JSON.stringify(json));
       if (typeof json.pfam !== 'undefined') {
         this.data.pfam = json.pfam;
-        // console.log("got pfam response");
+        console.log("got pfam response");
       } else if (typeof json.pmp !== 'undefined') {
         this.data.pmp = json.pmp;
-        // console.log("got PMP response");
+        console.log("got PMP response");
       } else if (typeof json.pdbsites !== 'undefined') {
         this.data.pdbsites = json.pdbsites;
         // console.log("got PDB sites response for " + json.pdbID);
       } else if (typeof json.phosphorylation !== 'undefined') {
         this.data.phospho = json.phosphorylation;
-        // console.log("got phosphosite response");
+        console.log("got phosphosite response");
       } else if (typeof json.hydropathy !== 'undefined') {
-        // console.log("got hydropathy response");
+        console.log("got hydropathy response");
         this.data.hydropathy_max = json.hydropathy.hydropathy_max;
         this.data.hydropathy_min = json.hydropathy.hydropathy_min;
         this.data.hydropathy = json.hydropathy;
@@ -503,22 +501,22 @@ define(['colors', 'draw', 'params'],
         this.data.jronn_max = json.jronn.jronn_max;
         this.data.jronn_min = json.jronn.jronn_min;
         this.data.jronn = json.jronn;
-        // console.log("got jronn response");
+        console.log("got jronn response");
       } else if ((typeof json.scop !== 'undefined') || (typeof json.scope !== 'undefined')) {
         if (typeof json.scop !== 'undefined') {
           this.data.scop = json.scop;
-          // console.log("got scop response");
+          console.log("got scop response");
         }
         if (typeof json.scope !== 'undefined') {
           this.data.scope = json.scope;
-          // console.log("got scope response");
+          console.log("got scope response");
         }
       } else if (typeof json.exon !== 'undefined') {
         this.data.exon = json.exon;
-        // console.log("got EXON response: ");
+        console.log("got EXON response: ");
       } else if (typeof json.validation !== 'undefined') {
         this.data.validation = json.validation;
-        // console.log("got validation response");
+        console.log("got validation response");
       }
       this.repaint();
     };
@@ -534,9 +532,22 @@ define(['colors', 'draw', 'params'],
     Viewer.prototype.showPDB = function(pdbId) {
 
       if (typeof pdbId !== 'undefined') {
-        this.singlePDBmode = true;
-        this.displayPDB = pdbId;
-        this.showCondensed = false;
+
+        if (pdbId.length > 3) {
+
+          this.singlePDBmode = true;
+
+          this.displayPDB = pdbId;
+
+          this.showCondensed = false;
+        } else if (pdbId.length === 0) {
+          // pdbId is set to ''
+          this.singlePDBmode = false;
+          this.displayPDB = pdbId;
+
+          this.showCondensed = true;
+        }
+
       }
 
     };
@@ -548,6 +559,7 @@ define(['colors', 'draw', 'params'],
     Viewer.prototype.showAll = function(flag) {
 
       this.singlePDBmode = flag;
+
 
     };
 
@@ -706,6 +718,8 @@ define(['colors', 'draw', 'params'],
 
     };
 
+
+
     Viewer.prototype.doModal = function(placementId, heading, formContent, strSubmitFunc, btnText) {
       var html = '<div id="modalWindow" class="modal fade " tabindex="-1" role="dialog" ' +
         ' aria-hidden="true">';
@@ -725,23 +739,22 @@ define(['colors', 'draw', 'params'],
         html += ' onClick="' + strSubmitFunc + '; event.preventDefault();">' + btnText;
         html += '</button>';
       }
-      html += '<button class="btn" data-dismiss="modal" onClick="this.hideModal();">Close';
+      html += '<button class="btn" data-dismiss="modal">Close';
       html += '</button>'; // close button
       html += '</div>'; // footer
       html += '</div></div>'; //content, dialog
       html += '</div>'; // modalWindow
       $(placementId).html(html);
-
       $('#modalWindow').modal();
       $('#modalWindow').show();
     };
-
 
     Viewer.prototype.hideModal = function() {
       // Using a very general selector - this is because $('#modalDiv').hide
       // will remove the modal window but not the mask
       $('.modal.in').modal('hide');
     };
+
 
     Viewer.prototype.load3DChain = function(pdbID, chainID) {
 
@@ -854,14 +867,22 @@ define(['colors', 'draw', 'params'],
      * @param zoom
      */
     Viewer.prototype.setZoomLevel = function(zoom) {
+
+
       //console.log($('#sequencezoom').val() + " ?? " + zoom);
+
       if (zoom.indexOf("whole") !== -1) {
+
         this.updateScale();
+
       } else {
         $(this.scrollBarDiv).slider().slider('setValue', 100);
+
         this.setScale(this.params.maxTextSize);
       }
+
       this.repaint();
+
     };
 
 
@@ -912,7 +933,10 @@ define(['colors', 'draw', 'params'],
 
         newScale = (availWidth) / (this.sequence.length);
 
-        $(this.scrollBarDiv).slider().slider('setValue', 0);
+        if (typeof $(this.scrollBarDiv).slider() !== 'undefined') {
+
+          $(this.scrollBarDiv).slider().slider('setValue', 0);
+        }
         $(this.parent).css('overflow', 'auto');
         $(this.parent).css('width', $(this.outerParent).width());
 
@@ -991,7 +1015,7 @@ define(['colors', 'draw', 'params'],
         return;
       }
 
-      var now = new Date().getTime();
+      //var now = new Date().getTime();
 
       var data = this.data;
 
@@ -1314,6 +1338,7 @@ define(['colors', 'draw', 'params'],
         y = drawer.drawExpandCondensedSymbol(svg, pdbBottomY, title1, callback1);
       }
 
+
       var w = (data.length) * drawer.scale + this.params.leftBorder + this.params.rightBorder;
 
       // if ( w > $(svg._container).width() ) {
@@ -1327,34 +1352,54 @@ define(['colors', 'draw', 'params'],
       //     this.params.rightBorder, y + this.params.bottomBorder);
 
       var fullTrackCount = this.getTotalNrPDBTracks();
+
       if (counter > 0) {
         if (counter < fullTrackCount) {
+
           $("#clusterStats").html("Showing " + counter + " representative out of " +
             fullTrackCount + " PDB chains");
         } else {
           $("#clusterStats").html("Showing all " + counter + " PDB chains");
         }
       } else {
+
         $("#clusterStats").html("Showing all PDB entries");
       }
+
       this.y = y;
+
       //var timet = new Date().getTime();
+
       $('[data-toggle="tooltip"]').tooltip();
+
+
       //console.log('init - tooltip ' + (timet-now));
-      var end = new Date().getTime();
-      console.log("Time to repaint SVG graphics: " + (end - now));
+
+      //var end = new Date().getTime();
+
+
+      //console.log("time to repaint SVG graphics: " + (end-now));
+
     };
+
 
     /** Returns the total number of PDB entries that match to this UniProt.
      *
      */
     Viewer.prototype.getTotalNrPDBTracks = function() {
+
+
       var fullTrackCount = this.data.tracks.length;
       if (typeof this.data.backupTracks !== 'undefined') {
+
         fullTrackCount = this.data.backupTracks.length;
       }
       return fullTrackCount;
+
     };
+
+
+
 
     Viewer.prototype.hideColorLegend = function() {
       $("#colorLegend").html("");
@@ -1852,6 +1897,7 @@ define(['colors', 'draw', 'params'],
 
     return {
       PFV: function(elem, options) {
+
         return new Viewer(elem, options);
       }
 

@@ -54,7 +54,7 @@ module.exports = function(grunt) {
 
     removelogging: {
       dist: {
-        src: 'build/<%= pkg.name %>.dbg.js',
+        src: 'build/<%= pkg.name %>.ver.js',
         dest: 'build/<%= pkg.name %>.rel.js'
       }
     },
@@ -64,7 +64,7 @@ module.exports = function(grunt) {
         banner: BANNER
       },
       build: {
-        src: 'build/<%= pkg.name %>.ver.js',
+        src: 'build/<%= pkg.name %>.rel.js',
         dest: 'build/<%= pkg.name %>-<%=pkg.version %>.min.js'
       }
     },
@@ -98,7 +98,7 @@ module.exports = function(grunt) {
 
   // Default task(s).
   grunt.registerTask('default', [
-    'jshint', 'requirejs', 'removelogging', 'buildnumber', 'string-replace', 'uglify'
+    'jshint', 'requirejs', 'buildnumber', 'string-replace', 'removelogging', 'uglify'
   ]);
 
 

@@ -8,3 +8,4 @@ build/proteinfeatureview.ver.js
 
 # Other files and folders
 .settings/
+proteinfeatureview.rel.js

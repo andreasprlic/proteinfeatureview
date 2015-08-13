@@ -58,6 +58,7 @@ define(['params', 'colors'],
 
       var g = svg.group({
         id: id,
+        'font-size': '12px',
         fontWeight: 'bold',
         fontSize: '10',
         fill: 'black'
@@ -137,7 +138,12 @@ define(['params', 'colors'],
     Draw.prototype.drawName = function(svg, g, ty, text, callbackFunction, label) {
 
 
-      var txt = svg.text(g, this.param.textLeft + 2, ty + this.param.trackHeight - 1, text);
+      var txt = svg.text(g, this.param.textLeft + 2, ty + this.param.trackHeight - 1, text, {
+        style: {
+          'font-family': 'Jura,"Helvetica Neue", Helvetica, Arial, sans-serif;'
+        }
+      });
+
 
       if (typeof callbackFunction !== 'undefined') {
 
@@ -212,13 +218,26 @@ define(['params', 'colors'],
 
       this.registerTooltip(rect);
 
+
+
       y += seqTrackHeight;
+
+
+      // add label on sequence
+
+
+      var label = sequence.name + " - " + this.viewer.getData().name + " - " +
+        this.viewer.getData().desc;
+
+      var slabel = svg.text(g, this.seq2Screen(1), y - this.param.trackHeight / 2, label, {
+        'fill': 'black'
+      });
+      this.checkTxtLength(slabel, 1, sequence.length, label);
+      $(slabel).attr('title', title);
+      this.registerTooltip(slabel);
 
       if (this.scale >= 8) {
         // draw Sequence text
-
-
-
 
         for (var s = 0; s < sequence.length; s++) {
 
@@ -244,6 +263,8 @@ define(['params', 'colors'],
         }
         y += this.param.trackHeight;
       }
+
+
 
       // extra spacer
       return y + 5;
@@ -487,6 +508,11 @@ define(['params', 'colors'],
         return y;
       }
 
+
+
+
+
+
       var colorPos = 0;
       var g0 = svg.group({
         id: label + this.viewer.getData().uniprotID,
@@ -497,6 +523,7 @@ define(['params', 'colors'],
 
       this.drawName(svg, g0, y, label, undefined, info);
 
+
       nextRow:
         for (var j = 0; j < rows.length; j++) {
 
@@ -505,6 +532,8 @@ define(['params', 'colors'],
           if (typeof row === 'undefined') {
             continue;
           }
+
+
 
           // prepare the gradients for the colors:
           // gradients are always per-row of annotations.
@@ -515,7 +544,7 @@ define(['params', 'colors'],
             var mcolor = mycolors[c];
 
             var defs = svg.defs();
-            svg.linearGradient(defs, trackName + 'GR' + c + this.viewer.getData().uniprotID, [
+            svg.linearGradient(defs, trackName + 'GR' + j + c + this.viewer.getData().uniprotID, [
                 ['0%', 'white'],
                 ['100%', mcolor.darkercolor]
               ],
@@ -550,28 +579,33 @@ define(['params', 'colors'],
                   continue nextInLine;
                 }
 
-                // console.log(range);
+                if (trackName.indexOf("scop") === -1) {
 
-                if (range.desc.indexOf('Cytoplasmic') > -1) {
-                  this.drawCytoplasmic(y, svg, range, trackName);
-                  continue nextInLine;
-                } else if (
-                  (range.desc.indexOf('Periplasmic') > -1) ||
-                  (range.desc.indexOf('Extracellular') > -1) ||
-                  (range.desc.indexOf('Lumenal') > -1)
-                ) {
-                  this.drawPeriplasmic(y, svg, range, trackName);
-                  continue nextInLine;
-                } else if (range.name.indexOf('transmembrane') > -1) {
-                  this.drawTransmembrane(y, svg, range, trackName);
-                  continue nextInLine;
-                } else if (range.name.indexOf('intramembrane') > -1) {
-                  this.drawIntramembrane(y, svg, range, trackName);
-                  continue nextInLine;
+                  // we only do these checks if we are not rendering SCOP
+                  // otherwise some scop domains have weird display
+
+
+                  if (range.desc.indexOf('Cytoplasmic') > -1) {
+                    this.drawCytoplasmic(y, svg, range, trackName);
+                    continue nextInLine;
+                  } else if (
+                    (range.desc.indexOf('Periplasmic') > -1) ||
+                    (range.desc.indexOf('Extracellular') > -1) ||
+                    (range.desc.indexOf('Lumenal') > -1)
+                  ) {
+                    this.drawPeriplasmic(y, svg, range, trackName);
+                    continue nextInLine;
+                  } else if (range.name.indexOf('transmembrane') > -1) {
+                    this.drawTransmembrane(y, svg, range, trackName);
+                    continue nextInLine;
+                  } else if (range.name.indexOf('intramembrane') > -1) {
+                    this.drawIntramembrane(y, svg, range, trackName);
+                    continue nextInLine;
+                  }
                 }
 
                 colorPos++;
-                if (colorPos > mycolors.length - 1) {
+                if (colorPos >= mycolors.length) {
                   colorPos = 0;
                 }
 
@@ -583,8 +617,7 @@ define(['params', 'colors'],
                 var x1 = this.seq2Screen(range.start - 1);
 
                 // get gradient name and group name
-                var gradientName = trackName + 'GR' + colorPos + this.viewer.getData().uniprotID;
-
+                var gradientName = trackName + 'GR' + j + colorPos + this.viewer.getData().uniprotID;
 
 
                 var rect = svg.rect(g, x1, y, width * this.scale, this.param.trackHeight,
@@ -597,6 +630,8 @@ define(['params', 'colors'],
 
                 var txt = svg.text(g, x1 + this.scale, y + this.param.trackHeight - 1, range.desc);
 
+
+
                 this.checkTxtLength(txt, range.start, range.end, range.desc);
 
 
@@ -608,7 +643,7 @@ define(['params', 'colors'],
                   title += " - " + range.status;
                 }
 
-                //title += " " + range.start + "-" + range.end;
+
                 $(rect).attr('title', title);
                 this.registerTooltip(rect);
 
@@ -670,8 +705,39 @@ define(['params', 'colors'],
 
       var siteTrackHeight = this.param.trackHeight + 5;
 
+      var that = this;
+      var clickUpSiteMethod = function(event) {
+
+        var parent = event.toElement;
+
+        var title = parent.title;
+
+        if (typeof title === 'undefined') {
+          // probably the tooltip is open
+          title = $(parent).attr('data-original-title');
+        }
+
+        // show Popup
+        if (typeof pageTracker !== 'undefined') {
+          pageTracker._trackEvent('ProteinFeatureView',
+            'clickUPSite', that.viewer.data.uniprotID);
+        }
+
+        var html = "<h3>" + title + "</h3>";
+
+        var heading = title;
+
+        var strSubmitFunc = "";
+        var btnText = "";
+
+        that.viewer.doModal(that.viewer.dialogDiv, heading, html, strSubmitFunc, btnText);
+      };
+
+
+
       this.drawSiteResidues(svg, this.viewer.getData().upsites, y, 'upsitesTrack' +
-        this.viewer.getData().uniprotID, this.param.paired_colors, 'up', siteTrackHeight);
+        this.viewer.getData().uniprotID, this.param.paired_colors, 'up', siteTrackHeight,
+        clickUpSiteMethod);
 
       return y + siteTrackHeight;
 
@@ -699,8 +765,55 @@ define(['params', 'colors'],
 
       var siteTrackHeight = this.param.trackHeight + 5;
 
+      var that = this;
+      var clickPhosphoMethod = function(event) {
+
+        var parent = event.toElement;
+
+        var title = parent.title;
+
+        if (typeof title === 'undefined') {
+          // probably the tooltip is open
+          title = $(parent).attr('data-original-title');
+        }
+
+        console.log(title);
+
+        // show Popup
+        if (typeof pageTracker !== 'undefined') {
+          pageTracker._trackEvent('ProteinFeatureView',
+            'clickPhosphoSite', that.viewer.data.uniprotID);
+        }
+
+        var html = "<h3>" + title + "</h3>";
+        html += "<ul>";
+
+        var url = "http://www.phosphosite.org/" +
+          "proteinSearchSubmitAction.do?accessionIds=" +
+          that.viewer.data.uniprotID;
+
+        html += "<li>Show at <a target='_new'' href='" + url +
+          "'>PhosphoSitePlus website</a></li>";
+
+
+        html += "</ul>";
+
+
+
+        var heading = title;
+
+        var strSubmitFunc = "";
+        var btnText = "";
+
+        that.viewer.doModal(that.viewer.dialogDiv, heading, html, strSubmitFunc, btnText);
+      };
+
+
+
+
       this.drawSiteResidues(svg, this.viewer.getData().phospho, y, 'phosphositesTrack' +
-        this.viewer.getData().uniprotID, this.param.paired_colors, 'up', siteTrackHeight);
+        this.viewer.getData().uniprotID, this.param.paired_colors,
+        'up', siteTrackHeight, clickPhosphoMethod);
 
       return y + siteTrackHeight + 22;
 
@@ -758,7 +871,7 @@ define(['params', 'colors'],
       });
 
       var title = "Poor fit to the electron density (RSRZ > 2) chain " +
-        site.chainID + " PDB resnum: " + site.pdbStart;
+        site.chainID + " PDB residue: " + site.pdbStart;
 
       $(rect).attr("title", title);
       $(circle).attr("title", title);
@@ -878,7 +991,7 @@ define(['params', 'colors'],
 
           });
 
-        var title = valid.desc + " geometric outliers for residue " + valid.pdbStart +
+        var title = valid.desc + " geometric outliers for " + valid.pdbID + " residue " + valid.pdbStart +
           "  in chain " + valid.chainID;
 
         $(rect).attr("title", title);
@@ -907,8 +1020,10 @@ define(['params', 'colors'],
 
         }
       }
-      // console.log("returning " + (y + validationTrackHeight + 2));
+
+      console.log("returning " + (y + validationTrackHeight + 2));
       return y + validationTrackHeight + 2;
+
     };
 
     Draw.prototype.drawSCOP = function(svg, sequence, y) {
@@ -1107,6 +1222,7 @@ define(['params', 'colors'],
 
         var txt = svg.text(g2, x1 + this.scale, y + this.param.trackHeight - 1,
           domain.name + " - " + domain.desc);
+
 
         this.checkTxtLength(txt, domain.start, domain.end, domain.name);
 
@@ -1436,6 +1552,7 @@ define(['params', 'colors'],
         var txt = svg.text(g2, x1 + this.scale, y + this.param.trackHeight - 1,
           domain.name + " - " + domain.desc);
 
+
         this.checkTxtLength(txt, domain.start, domain.end, domain.name);
 
         this.registerTooltip(rect);
@@ -1560,14 +1677,14 @@ define(['params', 'colors'],
               });
 
 
-            var txt = " (seq pos: " + rangeOrig.start;
+            var txt = " (sequence position: " + rangeOrig.start;
             if (rangeOrig.start !== rangeOrig.end) {
               txt += " - " + rangeOrig.end;
             }
             txt += ") ";
 
             if (typeof rangeOrig.pdbStart !== 'undefined') {
-              txt += '(PDB resnum:' + rangeOrig.pdbStart;
+              txt += '(PDB residue:' + rangeOrig.pdbStart;
               if (rangeOrig.pdbStart !== rangeOrig.pdbEnd) {
                 txt += '-' + rangeOrig.pdbEnd;
               }
@@ -1624,9 +1741,9 @@ define(['params', 'colors'],
 
             var title = "PDB ID " + track.pdbID + " chain " +
               track.chainID + " - " +
-              track.desc + " (seq pos: " + rangeOrig.start + "-" + rangeOrig.end + ") ";
+              track.desc + " (sequence position: " + rangeOrig.start + "-" + rangeOrig.end + ") ";
             if (typeof rangeOrig.pdbStart !== 'undefined') {
-              title += '(PDB resnum: ' + rangeOrig.pdbStart;
+              title += '(PDB residue: ' + rangeOrig.pdbStart;
 
               if (rangeOrig.pdbEnd !== rangeOrig.pdbStart) {
                 title += '-' + rangeOrig.pdbEnd;
@@ -1642,20 +1759,19 @@ define(['params', 'colors'],
 
             if (this.scale > 8) {
 
-              if (typeof rangeOrig.pdbStart !== 'undefined') {
 
-                for (var s1 = range.start; s1 <= range.end; s1++) {
+              for (var s1 = range.start; s1 <= range.end; s1++) {
 
-                  // this gives the UP sequence, but here is a mismatch
-                  // this.viewer.getData().sequence.charAt(s)
-                  // need to show the PDB sequence...
-                  var aam = this.viewer.getData().sequence.charAt(s1);
+                // this gives the UP sequence, but here is a mismatch
+                // this.viewer.getData().sequence.charAt(s)
+                // need to show the PDB sequence...
+                var aam = this.viewer.getData().sequence.charAt(s1);
 
-                  svg.text(g, this.seq2Screen(s1) + 1, y +
-                    this.param.trackHeight - 1, aam);
+                svg.text(g, this.seq2Screen(s1) + 1, y +
+                  this.param.trackHeight - 1, aam);
 
-                  //todo: add tooltip for text here?
-                }
+                //todo: add tooltip for text here?
+
               }
 
             }
@@ -1692,7 +1808,7 @@ define(['params', 'colors'],
 
 
             $(line).attr("title", "No coordinates have been " +
-              "determined for this region, " +
+              "determined for region (" + range.start + "-" + range.end + "), " +
               "but the sequence is recorded in the SEQRES records. ");
 
             this.registerTooltip(line);
@@ -1719,7 +1835,222 @@ define(['params', 'colors'],
       }
 
 
+      if (typeof track.seqdiff !== 'undefined') {
+        this.drawSeqDiff(svg, track, y, trackID);
+      }
+
+
       return y + this.height;
+
+    };
+
+
+    /** Provides more detailed info about sequence mismatches
+     */
+    Draw.prototype.drawSeqDiff = function(svg, track, y, trackID) {
+
+      if (typeof track.seqdiff === 'undefined') {
+        return;
+      }
+
+      if (track.seqdiff.length < 1) {
+        return;
+      }
+
+      var colorPos = 0;
+      var mycolors = this.param.up_colors;
+
+      var siteTrackHeight = this.param.trackHeight;
+      var baseLineHeight = this.param.baseLineHeight;
+
+      var g = svg.group({
+        id: trackID,
+        fontWeight: 'bold',
+        fontSize: '10',
+        fill: 'black'
+      });
+
+
+
+      for (var i = 0; i < track.seqdiff.length; i++) {
+        // draw a tick..
+
+        var feature = track.seqdiff[i];
+
+        if (typeof feature.uniprot !== 'undefined' && (feature.uniprot !== this.viewer.getData().uniprotID)) {
+          // this is an issue for fusion proteins, where a PDB chain can map
+          // to more than one UniProt entry.
+          continue;
+        }
+
+        var detail = feature.detail.toUpperCase();
+
+        var color = colorDict[detail];
+
+        var title = feature.detail;
+
+
+        if (typeof feature.aa !== 'undefined') {
+          title += ' ' + feature.aa;
+        }
+        title += ' at ' + feature.pdbID + "." + feature.chainID + ' PDB residue:' +
+          feature.pdbStart + ' sequence position: ' + feature.start;
+
+        title += " " + feature.uniprot;
+
+        if (detail === 'CONFLICT') {
+          color = this.param.conflictColor;
+        }
+
+        var shortText = "";
+        var fontSize = 8;
+        var xCorrection = -3;
+        var shape = 'circle';
+
+        if (detail.startsWith('ENGINEERED')) {
+          shortText = "E";
+        } else if (detail.startsWith('MODIFIED')) {
+          shortText = feature.aa;
+          fontSize = 6;
+          xCorrection = -6;
+        } else if (detail.startsWith('CLONING')) {
+          shortText = "C";
+        } else if (detail.startsWith('GAP')) {
+          shortText = "";
+          shape = 'triangle';
+        } else if (detail.startsWith('INITIAL METH')) {
+          shortText = feature.aa;
+          xCorrection = -6;
+          fontSize = 6;
+        } else if (detail.startsWith('CHROMOPHORE')) {
+          shortText = feature.aa;
+          fontSize = 6;
+          xCorrection = -6;
+        } else if (detail.indexOf(' TAG') > -1) {
+          shortText = "T";
+          color = this.param.expressionTagColor;
+
+        } else if (detail.indexOf('DELETION') > -1) {
+          shortText = "";
+          shape = 'triangle';
+          color = this.param.deletionColor;
+        } else if (detail.indexOf('INSERTION') > -1) {
+          shortText = "";
+          shape = 'triangle-up';
+          color = this.param.deletionColor;
+        }
+
+
+        if (typeof color === 'undefined') {
+          colorPos++;
+          if (colorPos > mycolors.length - 1) {
+            colorPos = 0;
+          }
+          color = mycolors[colorPos];
+          colorDict[detail] = color;
+
+        }
+
+        //console.log("setting color for " + detail + " " + color.darkercolor);
+
+        var xpos = this.seq2Screen(feature.start) - this.scale / 2;
+
+        // if ( this.scale > 8 ) {
+        //     xpos = this.seq2Screen(feature.start) ;
+        // }
+
+        svg.radialGradient(g, 'seqDiffGradient' + i + this.viewer.getData().uniprotID, [
+            ['0%', color.lightercolor],
+            ['100%', color.color]
+          ],
+          //0,y,0, y+ trackHeight,
+          xpos, y + baseLineHeight - 4, 4,
+          xpos, y + baseLineHeight - 3, {
+            gradientUnits: 'userSpaceOnUse'
+
+          }
+        );
+
+
+
+        if (shape === 'triangle') {
+
+          xpos = this.seq2Screen(feature.start) + this.scale / 2;
+
+          var w2 = this.scale / 2;
+          var tri = svg.polygon(g, [
+            [xpos - w2, y - baseLineHeight],
+            [xpos + 1, y + baseLineHeight + 2],
+            [xpos + w2 + 1, y - baseLineHeight]
+          ], {
+            fill: 'url(#seqDiffGradient' + i + this.viewer.getData().uniprotID + ')',
+            stroke: color.darkerColor,
+            strokeWidth: 1
+          });
+          $(tri).attr("title", title);
+          this.registerTooltip(tri);
+
+        } else if (shape === 'triangle-up') {
+
+          xpos = this.seq2Screen(feature.start) + this.scale / 2;
+
+          var w3 = this.scale / 2;
+          var tru = svg.polygon(g, [
+            [xpos - w3, y + baseLineHeight + 2],
+            [xpos + 1, y - baseLineHeight],
+            [xpos + w3 + 1, y + baseLineHeight + 2]
+          ], {
+            fill: 'url(#seqDiffGradient' + i + this.viewer.getData().uniprotID + ')',
+            stroke: color.darkerColor,
+            strokeWidth: 1
+          });
+          $(tru).attr("title", title);
+          this.registerTooltip(tru);
+
+        } else {
+
+          var circle = svg.circle(g, xpos, y, 4, {
+            fill: 'url(#seqDiffGradient' + i + this.viewer.getData().uniprotID + ')',
+            stroke: color.darkerColor,
+            strokeWidth: 1
+          });
+          $(circle).attr("title", title);
+          this.registerTooltip(circle);
+
+
+
+
+        }
+
+        var rect = svg.rect(g, xpos, y + baseLineHeight,
+          2, siteTrackHeight - baseLineHeight, {
+            fill: 'black'
+          });
+        $(rect).attr("title", title);
+        this.registerTooltip(rect);
+
+
+        if (shortText.length > 0) {
+
+          // draw a tiny E...
+
+          var txt = svg.text(g, xpos + xCorrection, y + siteTrackHeight / 4,
+            shortText, {
+              'font-size': fontSize
+            });
+          $(txt).attr("title", title);
+          this.registerTooltip(txt);
+
+        }
+
+
+
+
+
+
+
+      }
+
 
     };
 
@@ -1732,9 +2063,12 @@ define(['params', 'colors'],
      * @param trackID
      * @param mycolors
      * @param orientation - should the site-arrows point upwards or downwards? either 'up' or 'down'
+     * @param siteTrackHeight
+     * @param modalFunction (optional) used to show a modal window if user clicks on track
      */
     Draw.prototype.drawSiteResidues = function(svg, feature, y, trackID,
-      mycolors, orientation, siteTrackHeight) {
+      mycolors, orientation, siteTrackHeight,
+      modalFunction) {
 
 
       if (typeof feature.tracks === 'undefined') {
@@ -1815,47 +2149,6 @@ define(['params', 'colors'],
         feature.tracks[0].pdbID + "." + feature.tracks[0].chainID);
       this.registerTooltip(rect1);
 
-      var that = this;
-
-
-      var clickPhosphoMethod = function(eve) {
-
-
-        var event = eve.originalEvent;
-        console.log(event);
-
-        var g = event.target;
-
-        console.log(g.id + " " + g.title);
-
-        // show Popup
-        if (typeof pageTracker !== 'undefined') {
-          pageTracker._trackEvent('ProteinFeatureView',
-            'clickPhosphoSite', that.viewer.data.uniprotID);
-        }
-
-        var html = "<h3>" + g.title + "</h3>";
-        html += "<ul>";
-
-        var url = "http://www.phosphosite.org/" +
-          "proteinSearchSubmitAction.do?accessionIds=" +
-          that.viewer.data.uniprotID;
-
-        html += "<li>Show at <a target='_new'' href='" + url +
-          "'>PhosphoSitePlus website</a></li>";
-
-
-        html += "</ul>";
-
-
-
-        var heading = that.title;
-
-        var strSubmitFunc = "";
-        var btnText = "";
-
-        that.viewer.doModal(that.viewer.dialogDiv, heading, html, strSubmitFunc, btnText);
-      };
 
       for (var i = 0; i < feature.tracks.length; i++) {
         var site = feature.tracks[i];
@@ -1974,13 +2267,15 @@ define(['params', 'colors'],
         this.registerTooltip(circle);
 
         if (isPhospho) {
+
           $(circle).attr("id", site.acc);
           $(circle).attr("name", this.title);
+
+        }
+
+        if (typeof modalFunction !== 'undefined') {
           $(circle).css('cursor', 'pointer');
-
-          $(circle).bind('click', clickPhosphoMethod);
-
-
+          $(circle).bind('click', modalFunction);
         }
 
 
@@ -2084,25 +2379,31 @@ define(['params', 'colors'],
           this.param.up_colors, undefined, callback, this.viewer.getData().motifs.label);
 
       }
-      if (typeof this.viewer.getData().enzymeClassification !== 'undefined') {
+
+
+
+      if ((typeof this.viewer.getData().enzymeClassification !== 'undefined') &&
+        (this.viewer.getData().enzymeClassification.tracks.length > 0)) {
 
         var ecs = this.viewer.getData().enzymeClassification.tracks;
 
         var ecrows = this.breakTrackInRows(ecs);
 
         var brendaurl = "http://www.brenda-enzymes.org/php/result_flat.php4?ecno=";
-
-        var pdburl = this.rcsbServer + "/pdb/search/smartSubquery.do?smartSearchSubtype=" +
+        var pdbecurl = this.viewer.rcsbServer + "/pdb/search/smartSubquery.do?smartSearchSubtype=" +
           "EnzymeClassificationQuery&Enzyme_Classification=";
 
-
         var callbackec = function() {
+
+
+
+
 
           var html = "<h3>" + this.name + " - " + this.desc + "</h3>";
           html += "<ul><li>View in <a href='" + brendaurl + this.name +
             "' target='_new'>BRENDA</a></li>";
-          html += "<li>View <a href='" + pdburl + this.name +
-            "'>other PDB entries with the same E.C. number</a></li>";
+          html += "<li>View <a href='" + pdbecurl + this.name + "'>other PDB entries with" +
+            " the same E.C. number</a></li>";
           html += "</ul>";
 
           if (typeof pageTracker !== 'undefined') {
@@ -2719,7 +3020,10 @@ define(['params', 'colors'],
               for (var k = 0; k < row.length; k++) {
 
                 featureCount++;
+
                 var f = row[k];
+
+
                 var overlap = this.getOverlap(range.start, range.end, f.start, f.end);
 
 
@@ -2727,7 +3031,7 @@ define(['params', 'colors'],
 
                   foundOverlap = true;
                   lowestRow++;
-                  break nextRow;
+                  continue nextRow;
                 }
               }
 
@@ -2828,6 +3132,10 @@ define(['params', 'colors'],
 
 
     Draw.prototype.checkTxtLength = function(txt, start, end, fullText) {
+
+      if (typeof fullText === 'undefined') {
+        return;
+      }
 
       var tlength = txt.getComputedTextLength();
 

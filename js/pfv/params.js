@@ -8,9 +8,7 @@
 
 define(['colors'],
   function(colors) {
-
     function Params() {
-
       this.textLeft = 20;
       this.leftBorder = 130;
       this.bottomBorder = 15;
@@ -55,7 +53,11 @@ define(['colors'],
       this.up_colors.push(this.paired_colors[2]);
       this.up_colors.push(this.paired_colors[3]);
 
+      this.expressionTagColor = colors.rgb.getDomainColors()[0];
+      this.conflictColor = colors.rgb.getRedBluePalette()[
+        colors.rgb.getRedBluePalette().length - 1];
 
+      this.deletionColor = this.paired_colors[6];
     }
 
 
