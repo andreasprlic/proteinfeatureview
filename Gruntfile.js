@@ -1,99 +1,84 @@
-SOURCE_FILES=[
-	      'js/pfv/viewer.js',
-	      'js/pfv/colors.js',
-        'js/pfv/draw.js',
-        'js/pfv/params.js',
+SOURCE_FILES = [
+  'js/pfv/viewer.js',
+  'js/pfv/colors.js',
+  'js/pfv/draw.js',
+  'js/pfv/params.js',
 ];
 
-module.exports = function(grunt){
-
+module.exports = function(grunt) {
   "use strict";
-
   var pkg = grunt.file.readJSON('package.json');
-
   var BANNER = '/*! Protein Feature View. <%= pkg.name %> <%= pkg.version %>  <%= grunt.template.today("yyy-mm-dd") %> */\n';
-
-
   grunt.initConfig({
-    
     pkg: pkg,
-
-    config : {
+    config: {
       src: 'js/pfv/**.js',
       dist: 'build/'
     },
 
-	  buildnumber:{
-      package:{}
+    buildnumber: {
+      package: {}
     },
 
-    jshint : {
-
+    jshint: {
       options: {
-        multistr :true,
-        curly : true,
-        eqeqeq : true,
-        forin : true,
+        multistr: true,
+        curly: true,
+        eqeqeq: true,
+        forin: true,
         maxlen: 100,
         /*freeze : true, */
-        immed : true,
-        latedef : true,
-        undef : true,
-        browser : true,
-        devel : true,
-        predef : [ 'define' ],
-        unused : true
+        immed: true,
+        latedef: true,
+        undef: true,
+        browser: true,
+        devel: true,
+        predef: ['define'],
+        unused: true
       },
       all: SOURCE_FILES
     },
 
-
     requirejs: {
       compile: {
         options: {
-         name:'viewer',
+          name: 'viewer',
           optimize: 'none',
           baseUrl: "js",
           mainConfigFile: "config.js",
           out: "build/<%= pkg.name %>.dbg.js",
-          include:['vendor/require.js']
-
+          include: ['vendor/require.js']
         },
-        
       },
-
     },
 
-    removelogging : {
-      dist :  {
-        src : 'build/<%= pkg.name %>.dbg.js',
-        dest : 'build/<%= pkg.name %>.rel.js'
+    removelogging: {
+      dist: {
+        src: 'build/<%= pkg.name %>.ver.js',
+        dest: 'build/<%= pkg.name %>.rel.js'
       }
     },
 
     uglify: {
-      options : {
+      options: {
         banner: BANNER
       },
-      build : {
-        src:  'build/<%= pkg.name %>.ver.js',
-        dest: 'build/<%= pkg.name %>.min.js'
+      build: {
+        src: 'build/<%= pkg.name %>.rel.js',
+        dest: 'build/<%= pkg.name %>-<%=pkg.version %>.min.js'
       }
     },
-    
+
     'string-replace': {
       version: {
-        files: { 
-          'build/<%= pkg.name %>.ver.js' : 'build/<%= pkg.name %>.dbg.js',
-          
-          }
-        ,
+        files: {
+          'build/<%= pkg.name %>.ver.js': 'build/<%= pkg.name %>.dbg.js',
+        },
         options: {
           replacements: [{
             pattern: /{{ VERSION }}/g,
             replacement: '<%=pkg.version %>'
-          },
-          {
+          }, {
             pattern: /{{ BUILD }}/g,
             replacement: '<%=pkg.build %>'
           }]
@@ -102,7 +87,7 @@ module.exports = function(grunt){
     }
   });
 
-// Load the plugin that provides the "uglify" task.
+  // Load the plugin that provides the "uglify" task.
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
@@ -111,9 +96,9 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-build-number');
   grunt.loadNpmTasks('grunt-string-replace');
 
-// Default task(s).
+  // Default task(s).
   grunt.registerTask('default', [
-				 'jshint', 'requirejs', 'removelogging',  'buildnumber' ,'string-replace' , 'uglify'
+    'jshint', 'requirejs', 'buildnumber', 'string-replace', 'removelogging', 'uglify'
   ]);
 
 

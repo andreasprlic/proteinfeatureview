@@ -1,4 +1,4 @@
-# The Protein Feature View 
+# The Protein Feature View
 
 SVG library for visualising protein annotations
 
@@ -20,7 +20,7 @@ The vertical color bar on the left side indicates data provenance.
 
   Data in green originates from
   <a href="http://www.uniprot.org" target="_new">UniProtKB</a>
-  
+
 </div>
 
 <div style="border-left:10px solid #fdbf6f; padding-bottom: 10px;">  
@@ -31,13 +31,13 @@ The vertical color bar on the left side indicates data provenance.
 
 <div style="border-left:10px solid #6a3d9a; padding-bottom: 10px;">
   Data in purple originates from
-  <a href="http://www.phosphosite.org" target="_new">Phosphosite</a>.      
+  <a href="http://www.phosphosite.org" target="_new">Phosphosite</a>.
 </div>
 
-<div style="border-left:10px solid #ff7f00;padding-bottom: 10px;">    
+<div style="border-left:10px solid #ff7f00;padding-bottom: 10px;">
   Data in orange originates from
   the <a href="http://scop.mrc-lmb.cam.ac.uk/scop/">SCOP </a> (version 1.75)
-  and <a href="http://scop.berkeley.edu">SCOPe</a> (version 2.04) classifications.      
+  and <a href="http://scop.berkeley.edu">SCOPe</a> (version 2.04) classifications.
 </div>
 
 <div style="border-left:10px solid grey; padding-bottom: 10px;">
@@ -81,7 +81,7 @@ The vertical color bar on the left side indicates data provenance.
 
   Data in blue originates from PDB
 
-  * Secstruc: Secondary structure projected from representative 
+  * Secstruc: Secondary structure projected from representative
   PDB entries onto the UniProt sequence.
 
 </div>
@@ -100,11 +100,11 @@ The vertical color bar on the left side indicates data provenance.
 
 ## Event model
 
-An event model allows to register "listeners" that get triggered when certain events occur. A listener can get registered with: 
+An event model allows to register "listeners" that get triggered when certain events occur. A listener can get registered with:
 
 ```javascript
  pfv.addListener(eventName,function);
-``` 
+```
 
 currently supported events:
 
@@ -114,9 +114,9 @@ currently supported events:
 
 ## Dependencies
 
-* jquery (V. 1.7.2)
-* jqueryui (V. 1.8.22)
-* jquery SVG (V. 1.4.5)
+* jquery (V. 1.7.2+)
+* jquery SVG (V. 1.4.5+)
+* bootstrap-slider (V. 4.10.0+)
 
 ## License
 
@@ -133,7 +133,3 @@ Andreas Prlic - [RCSB Protein Data Bank](http://www.rcsb.org)
 ## How to get started?
 
 Take a look at [minimal.html](minimal.html) for how to create a basic setup
-
-
-
-

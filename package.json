@@ -1,6 +1,6 @@
 {
   "name": "proteinfeatureview",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-build-number": "^1.0.0",
@@ -13,11 +13,11 @@
     "type": "git",
     "url": "git://github.com/rcsb/proteinfeatureview"
   },
-  "licenses": [
-    {
-      "type": "GPL",
-      "url": "https://github.com/rcsb/proteinfeatureview/blob/master/LICENSE.txt"
-    }
-  ],
-  "build": "241"
+  "license": "GPL-3.0",
+  "build": "241",
+  "dependencies": {
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt-contrib-requirejs": "^0.4.4",
+    "grunt-remove-logging": "^0.2.0"
+  }
 }
