@@ -1880,6 +1880,8 @@ define(['params','colors'],
                     xCorrection = -6;
                 } else if ( detail.indexOf('MUTATION') > -1) {
                     shortText = "M";
+                } else if ( detail.startsWith('ENGINEERED')) {
+                    shortText = "E";
                 }  else  if ( detail.indexOf(' TAG' ) > -1) {
                     shortText = "T";
                     color = this.param.expressionTagColor;
@@ -2889,14 +2891,6 @@ define(['params','colors'],
             //var color = bw_colors[3];
             var color = red;
             //cytoplasmic is a the bottom
-
-            // var g = svg.group({
-            //         id: trackName + this.viewer.getData().uniprotID,
-            //         fontWeight: 'bold',
-            //         fontSize: '10',
-            //         fill: 'black'
-            //     }
-            // );
 
             var g = this.getGroup( trackName + this.viewer.getData().uniprotID);
 
