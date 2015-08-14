@@ -679,6 +679,10 @@ define(['colors', 'draw', 'params'],
 
         this.drawer.maxY = this.y + this.params.bottomBorder;
 
+
+        // prevent hanging tooltips on resize
+        $('.tooltip').tooltip('hide');
+
       } catch (err) {
         console.error(err);
       }
