@@ -427,7 +427,7 @@ define(['params','colors'],
 
             var g = this.getGroup(name +this.viewer.getData().uniprotID);
             $(g).attr('font-weight',900);
-            
+
             var rect = svg.rect(g, 11, topY, 10, bottomY - topY,
                 {
                     //fill: 'white',
@@ -2790,13 +2790,7 @@ define(['params','colors'],
 
             //cytoplasmic is a the bottom
 
-            var g = svg.group({
-                    id: trackName + this.viewer.getData().uniprotID,
-                    fontWeight: 'bold',
-                    fontSize: '10',
-                    fill: 'black'
-                }
-            );
+            var g = this.getGroup(trackName + this.viewer.getData().uniprotID);
 
             var width = (range.end - range.start) + 1;
 
@@ -2833,13 +2827,8 @@ define(['params','colors'],
             //var color = red;
             //cytoplasmic is a the bottom
 
-            var g = svg.group({
-                    id: trackName + this.viewer.getData().uniprotID,
-                    fontWeight: 'bold',
-                    fontSize: '10',
-                    fill: 'black'
-                }
-            );
+
+            var g = this.drawGroup(trackName + this.viewer.getData().uniprotID);
 
             var width = (range.end - range.start) + 1;
 
@@ -2901,13 +2890,15 @@ define(['params','colors'],
             var color = red;
             //cytoplasmic is a the bottom
 
-            var g = svg.group({
-                    id: trackName + this.viewer.getData().uniprotID,
-                    fontWeight: 'bold',
-                    fontSize: '10',
-                    fill: 'black'
-                }
-            );
+            // var g = svg.group({
+            //         id: trackName + this.viewer.getData().uniprotID,
+            //         fontWeight: 'bold',
+            //         fontSize: '10',
+            //         fill: 'black'
+            //     }
+            // );
+
+            var g = this.getGroup( trackName + this.viewer.getData().uniprotID);
 
             var width = (range.end - range.start) + 1;
 
