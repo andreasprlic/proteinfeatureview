@@ -58,8 +58,8 @@ define(['params','colors'],
 
             var g = svg.group({
                     id: id,
-                    'font-size': '12px',
-                    fontWeight: 'bold',
+                    'font-family':'Roboto',
+                    'font-weight':700,
                     fontSize: '10', fill: 'black'
                 }
             );
@@ -136,7 +136,8 @@ define(['params','colors'],
 
 
             var txt = svg.text(g, this.param.textLeft + 2, ty + this.param.trackHeight - 1, text,{
-                style:{'font-family': 'Jura,"Helvetica Neue", Helvetica, Arial, sans-serif;'}
+                style:{'font-family': 'RobotoSlab, sans-serif;',
+                        'font-weight':'900'}
             });
 
 
@@ -425,7 +426,8 @@ define(['params','colors'],
 
 
             var g = this.getGroup(name +this.viewer.getData().uniprotID);
-
+            $(g).attr('font-weight',900);
+            
             var rect = svg.rect(g, 11, topY, 10, bottomY - topY,
                 {
                     //fill: 'white',
@@ -482,18 +484,9 @@ define(['params','colors'],
                 return y;
             }
 
-
-
-
-
-
             var colorPos = 0;
-            var g0 = svg.group({
-                    id: label + this.viewer.getData().uniprotID,
-                    fontWeight: 'bold',
-                    fontSize: '10', fill: 'black'
-                }
-            );
+
+            var g0 = this.getGroup(label + this.viewer.getData().uniprotID);
 
             this.drawName(svg, g0, y, label, undefined, info);
 
@@ -529,13 +522,17 @@ define(['params','colors'],
                             }
                         );
 
-                        var mgroup = svg.group({
-                                id: trackName + this.viewer.getData().uniprotID,
-                                fontWeight: 'bold',
-                                fontSize: '10',
-                                fill: mcolor.textcolor
-                            }
-                        );
+                        // var mgroup = svg.group({
+                        //         id: trackName + this.viewer.getData().uniprotID,
+                        //         fontWeight: 'bold',
+                        //         fontSize: '10',
+                        //         fill: mcolor.textcolor
+                        //     }
+                        // );
+
+                        var mgroup = this.getGroup(trackName + this.viewer.getData().uniprotID);
+                        $(mgroup).attr('fill',mcolor.textcolor)  ;
+
                         groups[c] = mgroup;
                     }
 
@@ -671,12 +668,14 @@ define(['params','colors'],
             // mini space to keep distance to above.
             y += 2;
 
-            var g = svg.group({
-                    id: 'upsitesTrackG' + this.viewer.getData().uniprotID,
-                    fontWeight: 'bold',
-                    fontSize: '10', fill: 'black'
-                }
-            );
+            // var g = svg.group({
+            //         id: 'upsitesTrackG' + this.viewer.getData().uniprotID,
+            //         fontWeight: 'bold',
+            //         fontSize: '10', fill: 'black'
+            //     }
+            // );
+
+            var g = this.getGroup('upsitesTrackG' + this.viewer.getData().uniprotID);
 
             this.drawName(svg, g, y, 'UP Sites', undefined, this.viewer.getData().upsites.label);
 
@@ -808,13 +807,8 @@ define(['params','colors'],
                 return y;
             }
 
-            var g = svg.group({
-                    id: 'sitesTrackG' + this.viewer.getData().uniprotID,
-                    fontWeight: 'bold',
-                    fontSize: '10', fill: 'black'
-                }
-            );
 
+            var g = this.getGroup( 'sitesTrackG' + this.viewer.getData().uniprotID);
 
             this.drawName(svg, g, y, 'PDB Sites', undefined, this.viewer.getData().pdbsites.label);
 
@@ -874,13 +868,7 @@ define(['params','colors'],
 
             var trackName = "validationReport";
 
-            var g = svg.group({
-                    id: 'validationTrackG' + this.viewer.getData().uniprotID,
-                    fontWeight: 'bold',
-                    fontSize: '10', fill: 'black'
-                }
-            );
-
+            var g = this.getGroup('validationTrackG' + this.viewer.getData().uniprotID);
 
             var defs2 = svg.defs();
 
@@ -1124,10 +1112,7 @@ define(['params','colors'],
 
             var exonTrackHeight = this.param.trackHeight;
 
-            var g = svg.group({
-                id: 'exonTrack', fontWeight: 'bold',
-                fontSize: '10', fill: 'black'
-            });
+            var g = this.getGroup('exonTrack' + this.viewer.getData().uniprotID);
 
             this.drawName(svg, g, y, "Exon Structure", undefined, this.viewer.getData().exon.label);
 
@@ -1153,10 +1138,12 @@ define(['params','colors'],
 
                 var defs = svg.defs();
 
-                var g2 = svg.group({
-                    id: 'exon' + i, fontWeight: 'bold',
-                    fontSize: '10', fill: 'black'
-                });
+                // var g2 = svg.group({
+                //     id: 'exon' + i, fontWeight: 'bold',
+                //     fontSize: '10', fill: 'black'
+                // });
+
+                var g2 = this.getGroup('exon' + i);
 
 
                 if (i % 2 === 0) {
@@ -1226,11 +1213,9 @@ define(['params','colors'],
                 return y;
             }
 
-            var g = svg.group(
-                {fontWeight: 'bold', fontSize: 10, fill: 'black'}
-            );
-            //alert(JSON.stringify(data.jronn));
 
+            //alert(JSON.stringify(data.jronn));
+            var g = this.getGroup('disorder' + this.viewer.getData().uniprotID);
             this.drawName(svg, g, y + this.param.trackHeight, 'Disorder', undefined, this.viewer.getData().jronn.label);
 
             //var min = parseFloat(data.jronn_min);
@@ -1307,9 +1292,8 @@ define(['params','colors'],
 
             var red = this.param.paired_colors[5];
             var blue = this.param.paired_colors[1];
-            var g = svg.group(
-                {fontWeight: 'bold', fontSize: 10, fill: 'black'}
-            );
+
+            var g = this.getGroup('hydropathy' + this.viewer.getData().uniprotID);
 
             this.drawName(svg, g, y + this.param.trackHeight, 'Hydropathy',
                 undefined, this.viewer.getData().hydropathy.label);
@@ -1453,11 +1437,7 @@ define(['params','colors'],
 
             var pfamTrackHeight = this.param.trackHeight;
 
-            var g = svg.group({
-                id: 'pfamTrack', fontWeight: 'bold',
-                fontSize: '10', fill: 'black'
-            });
-
+            var g = this.getGroup('pfamTrack' + this.viewer.getData().uniprotID);
             this.drawName(svg, g, y, "Pfam", undefined,this.viewer.getData().pfam.label);
 
             for (var i = 0; i <this.viewer.getData().pfam.tracks.length; i++) {
@@ -1483,10 +1463,13 @@ define(['params','colors'],
 
                 var defs = svg.defs();
 
-                var g2 = svg.group({
-                    id: 'pfam' + i, fontWeight: 'bold',
-                    fontSize: '10', fill: color.textcolor
-                });
+                // var g2 = svg.group({
+                //     id: 'pfam' + i, fontWeight: 'bold',
+                //     fontSize: '10', fill: color.textcolor
+                // });
+
+                var g2 = this.getGroup('pfam' + i);
+                $(g2).attr('fill',color.textcolor);
 
                 svg.linearGradient(defs, 'pfam' + i, [
                         ['0%', color.lightercolor],
@@ -1547,7 +1530,13 @@ define(['params','colors'],
 
             // first some parameters for this view
 
-            var g = svg.group({id: trackID, fontWeight: 'bold', fontSize: '10', fill: 'black'});
+            //var g = svg.group({id: trackID, fontWeight: 'bold', fontSize: '10', fill: 'black'});
+            var g = this.getGroup(trackID);
+
+            var seqG = this.getGroup(trackID);
+
+            $(seqG).attr('font-family','Helvetica, Arial, sans-serif');
+            $(seqG).attr('font-weight','bold');
 
             var mismatchGroup = svg.group({
                     id: 'sMM' + trackID +this.viewer.getData().uniprotID,
@@ -1731,7 +1720,7 @@ define(['params','colors'],
                                 // need to show the PDB sequence...
                                 var aam = this.viewer.getData().sequence.charAt(s1);
 
-                                svg.text(g, this.seq2Screen(s1) + 1, y +
+                                svg.text(seqG, this.seq2Screen(s1) + 1, y +
                                     this.param.trackHeight - 1, aam);
 
                                 //todo: add tooltip for text here?
@@ -2429,13 +2418,7 @@ define(['params','colors'],
             var trackName = 'Secstruc';
             var label = trackdata.label;
 
-            var g0 = svg.group({
-                    id: label + this.viewer.getData().uniprotID,
-                    fontWeight: 'bold',
-                    fontSize: '10', fill: 'black'
-                }
-            );
-
+            var g0 = this.getGroup(label + this.viewer.getData().uniprotID);
 
             if (this.viewer.getData().tracks.length > 0) {
                 this.drawName(svg, g0, y, trackName, undefined, label);
@@ -2632,12 +2615,14 @@ define(['params','colors'],
 
 
             var colorPos = -1;
-            var g0 = svg.group({
-                    id: label + this.viewer.getData().uniprotID,
-                    fontWeight: 'bold',
-                    fontSize: '10', fill: 'black'
-                }
-            );
+            // var g0 = svg.group({
+            //         id: label + this.viewer.getData().uniprotID,
+            //         fontWeight: 'bold',
+            //         fontSize: '10', fill: 'black'
+            //     }
+            // );
+
+            var g0 = this.getGroup(label + this.viewer.getData().uniprotID);
 
             this.drawName(svg, g0, y, label, undefined, info);
 
@@ -2688,13 +2673,16 @@ define(['params','colors'],
                             }
                         );
 
-                        var g = svg.group({
-                                id: trackName + this.viewer.getData().uniprotID,
-                                fontWeight: 'bold',
-                                fontSize: '10',
-                                fill: color.textcolor
-                            }
-                        );
+                        // var g = svg.group({
+                        //         id: trackName + this.viewer.getData().uniprotID,
+                        //         fontWeight: 'bold',
+                        //         fontSize: '10',
+                        //         fill: color.textcolor
+                        //     }
+                        // );
+
+                        var g = this.getGroup(trackName + this.viewer.getData().uniprotID);
+                        $(g).attr('fill',color.textcolor);
 
                         // draw vertical bars at start and stop:
                         svg.rect(g, x1, y, 1 * this.scale, this.param.trackHeight,
@@ -3244,10 +3232,6 @@ define(['params','colors'],
                 console.log(err);
             }
         };
-
-
-
-
 
         return {
             Draw: function (viewer) {
