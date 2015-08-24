@@ -646,6 +646,7 @@ define(['params','colors'],
 
                             } catch (e) {
                                 alert("Problem while drawing generic track: " + label + " " + e);
+                                console.log(e);
                             }
                         }
                     y += this.param.trackHeight + 5;
@@ -2830,7 +2831,7 @@ define(['params','colors'],
             //cytoplasmic is a the bottom
 
 
-            var g = this.drawGroup(trackName + this.viewer.getData().uniprotID);
+            var g = this.getGroup(trackName + this.viewer.getData().uniprotID);
 
             var width = (range.end - range.start) + 1;
 
