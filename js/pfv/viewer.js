@@ -1417,7 +1417,7 @@ define(['colors', 'draw', 'params'],
         this.hideColorLegend();
         //this.paired_colors = data.colors;
 
-        this.updateTrackColors(this.params.redblue_colors);
+        this.drawer.updateTrackColors(this.params.redblue_colors);
         this.repaint();
         this.showColorLegend();
 
@@ -1425,7 +1425,7 @@ define(['colors', 'draw', 'params'],
 
         this.hideColorLegend();
 
-        this.updateTrackColors(this.params.paired_colors);
+        this.drawer.updateTrackColors(this.params.paired_colors);
         this.repaint();
 
       }
