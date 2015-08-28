@@ -50,7 +50,7 @@ require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/d
     $( document ).ready(function() {
         console.log('document ready - pfv');
 
-        var uniprotID="P06213";
+        var uniprotID="P26663";
 
         // if has not been initialized, initialize...
 
@@ -62,6 +62,7 @@ require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/d
 
         featureView.setRcsbServer("http://www.rcsb.org");
 
+        //featureView.showPDB("4HHB");
         featureView.loadUniprot(uniprotID);
 
 
@@ -116,6 +117,18 @@ require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/d
 
     }); // document ready
 
+
+    $("#colorselect").change(
+      function() {
+        var str = $(this).val();
+        featureView.changeColorSelect(str);
+      });
+
+      $("#sortselect").change(function() {
+        var text = $(this).val();
+        featureView.sortTracks(text);
+        featureView.repaint();
+      });
 
 
 $('#findMotifDialogSubmit').click(function(){
