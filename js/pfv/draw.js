@@ -355,10 +355,9 @@ define(['params','colors'],
             var arrow = svg.createPath();
             svg.path(g, arrow.move(this.param.textLeft - 4, y - 4).line([[this.param.textLeft - 6, y],
                     [this.param.textLeft - 2, y]]).close(),
-                {fill: 'black', stroke: 'black'});
+                    {fill: 'black', stroke: 'black'});
 
             var arrowBody = svg.rect(g, (this.param.textLeft - 5), y, 2, this.param.trackHeight / 2, {fill: 'black'});
-
 
             var title = "Currently showing all PDB matches. Click here to show only representatives.";
 
@@ -3071,16 +3070,16 @@ define(['params','colors'],
 
                 var resolution = track.resolution;
 
-                for (var i = 0; i < (this.redblue_colors.length - 1); i++) {
+                for (var i = 0; i < (this.param.redblue_colors.length - 1); i++) {
 
                     if (resolution < (i + 1) * 1000) {
                         //alert("i " + i + " " + resolution);
-                        return this.redblue_colors[i];
+                        return this.param.redblue_colors[i];
                     }
                 }
 
                 // last one is the max resolution...
-                return this.redblue_colors[this.redblue_colors.length - 1];
+                return this.param.redblue_colors[this.param.redblue_colors.length - 1];
 
             } else if (this.viewer.colorBy === "Alignment Length") {
                 // default is all in one color
