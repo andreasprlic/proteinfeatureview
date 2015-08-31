@@ -1831,12 +1831,12 @@ define(['params','colors'],
                     continue;
                 }
 
+
                 var detail = feature.detail.toUpperCase();
 
                 var color = colorDict[detail];
 
                 var title = feature.detail ;
-
 
                 if ( typeof feature.aa !== 'undefined' )  {
                     title += ' ' + feature.aa ;
@@ -1856,31 +1856,31 @@ define(['params','colors'],
                 var yCorrection = 0;
                 var shape = 'circle';
 
-                if ( detail.startsWith('MODIFIED')) {
+                if ( detail.indexOf('MODIFIED') === 0) {
                     shortText = feature.aa;
                     fontSize = 6;
                     xCorrection = -6;
-                } else if ( detail.startsWith('MICROHETEROGENEITY')) {
+                } else if ( detail.indexOf('MICROHETEROGENEITY') === 0) {
                       shortText = '<>';
                       fontSize = 6;
                       xCorrection = -4;
                       yCorrection = -1;
-                } else  if ( detail.startsWith('CLONING')) {
+                } else  if ( detail.indexOf('CLONING') === 0) {
                     shortText = "C";
-                }  else  if ( detail.startsWith('GAP')) {
+                }  else  if ( detail.indexOf('GAP') === 0) {
                     shortText = "";
                     shape='triangle';
-                } else  if ( detail.startsWith('INITIAL METH')) {
+                } else  if ( detail.indexOf('INITIAL METH') === 0) {
                     shortText = feature.aa;
                     xCorrection = -6;
                     fontSize = 6;
-                } else  if ( detail.startsWith('CHROMOPHORE')) {
+                } else  if ( detail.indexOf('CHROMOPHORE') === 0) {
                     shortText = feature.aa;
                     fontSize = 6;
                     xCorrection = -6;
                 } else if ( detail.indexOf('MUTATION') > -1) {
                     shortText = "M";
-                } else if ( detail.startsWith('ENGINEERED')) {
+                } else if ( detail.indexOf('ENGINEERED') === 0) {
                     shortText = "E";
                 }  else  if ( detail.indexOf(' TAG' ) > -1) {
                     shortText = "T";
