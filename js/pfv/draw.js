@@ -1878,11 +1878,11 @@ define(['params','colors'],
                     shortText = feature.aa;
                     fontSize = 6;
                     xCorrection = -6;
-                } else if ( detail.indexOf('MUTATION') > -1) {
-                    shortText = "M";
                 } else if ( detail.indexOf('ENGINEERED') === 0) {
                     shortText = "E";
-                }  else  if ( detail.indexOf(' TAG' ) > -1) {
+                } else if ( detail.indexOf('MUTATION') > -1) {
+                    shortText = "M";
+                } else  if ( detail.indexOf(' TAG' ) > -1) {
                     shortText = "T";
                     color = this.param.expressionTagColor;
 
