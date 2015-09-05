@@ -1832,11 +1832,15 @@ define(['params','colors'],
                 }
 
 
-                var detail = feature.detail.toUpperCase();
+                var detail = "";
+                var title = "";
+                if ( typeof feature.detail !== 'undefined') {
+
+                   detail = feature.detail.toUpperCase();
+                   title = feature.detail ;
+                 }
 
                 var color = colorDict[detail];
-
-                var title = feature.detail ;
 
                 if ( typeof feature.aa !== 'undefined' )  {
                     title += ' ' + feature.aa ;
