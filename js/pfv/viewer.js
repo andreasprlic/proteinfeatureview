@@ -730,7 +730,7 @@ define(['colors', 'draw', 'params'],
       html += '<div class="modal-dialog">';
       html += '<div class="modal-content">';
       html += '<div class="modal-header">';
-      html += '<a class="close" data-dismiss="modal">×</a>';
+      html += '<a class="close" data-dismiss="modal">&times;</a>';
       html += '<h4>' + heading + '</h4>';
       html += '</div>';
       html += '<div class="modal-body">';
@@ -1336,7 +1336,9 @@ define(['colors', 'draw', 'params'],
       } else {
         var title1 = "Click here to view more details about " + data.uniprotID;
 
+
         var callback1 = function() {
+          //+ "?addPDB=" + that.displayPDB;
           window.location = that.rcsbServer + "/pdb/protein/" + data.uniprotID;
         };
         y = drawer.drawExpandCondensedSymbol(svg, pdbBottomY, title1, callback1);
