@@ -59,6 +59,7 @@ define(['colors', 'draw', 'params'],
       this.showSeqres = true;
       this.singlePDBmode = false;
       this.displayPDB = "";
+      this.addedPDB = [];
 
       this.contentDiv = "#content";
       this.dialogDiv = "#dialog";
@@ -117,6 +118,17 @@ define(['colors', 'draw', 'params'],
       if (this.singlePDBmode) {
         url += "&display=" + this.displayPDB;
       }
+      if ( this.addedPDB.length > 0 ) {
+        url += "&addPDB=";
+
+        for ( var a = 0 ; a < this.addedPDB.length; a++){
+          url += this.addedPDB[a];
+          if ( a >0 && a < this.addedPDB.length -1) {
+            url += ",";
+          }
+        }
+
+      }
       var that = this;
       $.getJSON(url, function(json) {
         // console.log("got json response from " + url);
@@ -126,6 +138,7 @@ define(['colors', 'draw', 'params'],
         that.drawInitial(svg);
         that.updateScale();
         that.repaint();
+
       });
       this.registerEvents();
     };
@@ -551,6 +564,54 @@ define(['colors', 'draw', 'params'],
       }
 
     };
+
+    /** Add a single PDB ID to the 'full'- display. Does not switch the viewr to singlePDBmode
+     *
+     * @param pdbId
+     */
+    Viewer.prototype.addPDB = function(pdbId) {
+
+      if (typeof pdbId !== 'undefined') {
+
+        if (pdbId.length > 3) {
+
+          //this.singlePDBmode = true;
+
+          //this.displayPDB = pdbId;
+
+          this.addedPDB.push(pdbId);
+          this.showCondensed = true;
+        }
+
+      }
+
+    };
+
+
+    /** Add a single PDB ID to the 'full'- display. Does not switch the viewr to singlePDBmode
+     *
+     * @param pdbId
+     */
+    Viewer.prototype.trackShouldBeDisplayed = function(track) {
+
+
+      if (typeof track.bestInCluster !== 'undefined' && track.bestInCluster) {
+        return true;
+      }
+
+      var pdbID = track.pdbID.toUpperCase();
+
+      for ( var a=0 ; a < this.addedPDB.length ; a++ ){
+        if ( this.addedPDB[a].toUpperCase() === pdbID){
+          return true;
+        }
+      }
+
+      return false;
+
+
+    };
+
 
     /** Toggle the display of all PDB ids or the restriction to only one
      *
@@ -1209,7 +1270,9 @@ define(['colors', 'draw', 'params'],
           }
         } else if (this.showCondensed) {
 
-          if (!track.bestInCluster) {
+          var shouldBeDisplayed = this.trackShouldBeDisplayed(track);
+
+          if (!shouldBeDisplayed ) {
             continue;
           }
         }
@@ -1338,8 +1401,12 @@ define(['colors', 'draw', 'params'],
 
 
         var callback1 = function() {
-          //+ "?addPDB=" + that.displayPDB;
-          window.location = that.rcsbServer + "/pdb/protein/" + data.uniprotID;
+          var location =  that.rcsbServer + "/pdb/protein/" + data.uniprotID;
+
+          if ( that.displayPDB !=='') {
+            location += "?addPDB=" + that.displayPDB;
+          }
+          window.location = location;
         };
         y = drawer.drawExpandCondensedSymbol(svg, pdbBottomY, title1, callback1);
       }
@@ -1475,8 +1542,7 @@ define(['colors', 'draw', 'params'],
           if (typeof track === 'undefined' || track === null) {
             continue;
           }
-          if ((typeof track.bestInCluster !== 'undefined') &&
-            (track.bestInCluster)) {
+          if (this.trackShouldBeDisplayed(track)) {
             newTracks.push(track);
           }
         }

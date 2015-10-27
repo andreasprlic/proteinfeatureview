@@ -50,7 +50,7 @@ require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/d
     $( document ).ready(function() {
         console.log('document ready - pfv');
 
-        var uniprotID="P26663";
+        var uniprotID="P05067";
 
         // if has not been initialized, initialize...
 
@@ -60,9 +60,10 @@ require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/d
         featureView.setDialogDiv('#dialog');
         featureView.setScrollBarDiv('#svgScrollBar');
 
-        featureView.setRcsbServer("http://www.rcsb.org");
+        featureView.setRcsbServer("http://pepper.rcsb.org:8080");
 
-        //featureView.showPDB("4HHB");
+        //featureView.addPDB("1z0q");
+
         featureView.loadUniprot(uniprotID);
 
 
