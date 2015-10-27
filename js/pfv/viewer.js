@@ -330,6 +330,24 @@ define(['colors', 'draw', 'params'],
         ];
       }
 
+      if ( ! this.singlePDBmode && this.addedPDB.length > 0){
+        for ( var a =0 ; a< this.addedPDB.length ; a++){
+          this.asyncTracks.push({
+            'name': 'pdbsites',
+            'url': this.rcsbServer + '/pdb/protein/' + this.uniprotID +
+              '?type=json&track=pdbsites&display=' + this.addedPDB[a]
+          });
+          this.asyncTracks.push({
+            'name': 'Validation',
+            'url': this.rcsbServer + '/pdb/protein/' + this.uniprotID +
+              '?type=json&track=validation&display=' + this.addedPDB[a]
+          });
+
+
+      }
+
+      }
+
     };
 
 
@@ -550,17 +568,18 @@ define(['colors', 'draw', 'params'],
 
           this.singlePDBmode = true;
 
-          this.displayPDB = pdbId;
+          this.displayPDB = pdbId.toUpperCase();
 
           this.showCondensed = false;
         } else if (pdbId.length === 0) {
           // pdbId is set to ''
           this.singlePDBmode = false;
-          this.displayPDB = pdbId;
+          this.displayPDB = '';
 
           this.showCondensed = true;
         }
 
+        //  this.setDefaultTracks();
       }
 
     };
@@ -594,12 +613,20 @@ define(['colors', 'draw', 'params'],
      */
     Viewer.prototype.trackShouldBeDisplayed = function(track) {
 
+      if ( ! this.showCondensed ) {
+        return true;
+      }
+
 
       if (typeof track.bestInCluster !== 'undefined' && track.bestInCluster) {
         return true;
       }
 
       var pdbID = track.pdbID.toUpperCase();
+
+      if ( pdbID === this.displayPDB) {
+        return true;
+      }
 
       for ( var a=0 ; a < this.addedPDB.length ; a++ ){
         if ( this.addedPDB[a].toUpperCase() === pdbID){
@@ -1256,6 +1283,8 @@ define(['colors', 'draw', 'params'],
       }
 
       data.tracks = checkedTracks;
+
+      //console.log("single pdb mode : " + this.singlePDBmode + ' ' + this.displayPDB);
 
       for (var i = 0; i < data.tracks.length; i++) {
         var track = data.tracks[i];
