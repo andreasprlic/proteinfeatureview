@@ -60,12 +60,12 @@ require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/d
         featureView.setDialogDiv('#dialog');
         featureView.setScrollBarDiv('#svgScrollBar');
 
-        featureView.setRcsbServer("http://pepper.rcsb.org:8080");
+        featureView.setRcsbServer("http://www.rcsb.org");
 
-        //featureView.addPDB("1z0q");
+        featureView.addPDB("3nyl");
+
 
         featureView.loadUniprot(uniprotID);
-
 
         $('#up-field').val(uniprotID);
 

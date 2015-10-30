@@ -1519,6 +1519,27 @@ define(['params','colors'],
 
         };
 
+
+        Draw.prototype.highlightTrack = function (svg, track, y, trackID) {
+
+            if (track === null) {
+                return y;
+            }
+
+            var g = this.getGroup(trackID);
+
+            var width = this.viewer.getData().length;
+
+            var rect1 = svg.rect(g, 0, y ,
+                this.param.leftBorder+ Math.round(width * this.scale), this.param.trackHeight ,
+                {
+                    fill: 'lightgrey',
+                    stroke: 'lightgrey',
+                    strokeWidth: 1
+                });
+
+          }
+
         Draw.prototype.drawTrack = function (svg, track, y, trackID) {
 
             if (track === null) {
