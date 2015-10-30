@@ -1530,7 +1530,7 @@ define(['params','colors'],
 
             var width = this.viewer.getData().length;
 
-            var rect1 = svg.rect(g, 0, y ,
+            svg.rect(g, 0, y ,
                 this.param.leftBorder+ Math.round(width * this.scale), this.param.trackHeight ,
                 {
                     fill: 'lightgrey',
@@ -1538,7 +1538,7 @@ define(['params','colors'],
                     strokeWidth: 1
                 });
 
-          }
+          };
 
         Draw.prototype.drawTrack = function (svg, track, y, trackID) {
 

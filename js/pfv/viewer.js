@@ -637,14 +637,16 @@ define(['colors', 'draw', 'params'],
     /** check if a PDB ID is contained in the list of "added" PDB IDs.
     */
     Viewer.prototype.isAddedPDB = function(pdbID){
+
       for ( var a=0 ; a < this.addedPDB.length ; a++ ){
+
         if ( this.addedPDB[a].toUpperCase() === pdbID){
           return true;
         }
       }
 
       return false;
-    }
+    };
 
 
     /** Toggle the display of all PDB ids or the restriction to only one
@@ -807,7 +809,7 @@ define(['colors', 'draw', 'params'],
         pdbID + '">View PDB ID ' + pdbID + '</a>';
 
 
-    
+
 
       var heading = 'View ' + pdbID + ' - ' + desc;
 
