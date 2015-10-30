@@ -1531,7 +1531,7 @@ define(['params','colors'],
             var width = this.viewer.getData().length;
 
             svg.rect(g, 0, y ,
-                this.param.leftBorder+ Math.round(width * this.scale), this.param.trackHeight ,
+                this.param.leftBorder+ Math.round(width * this.scale) + this.param.rightBorder, this.param.trackHeight ,
                 {
                     fill: 'lightgrey',
                     stroke: 'lightgrey',
