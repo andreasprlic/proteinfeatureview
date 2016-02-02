@@ -664,14 +664,64 @@ define(['params','colors'],
                 return y;
             }
 
+            // mini space to keep distance to above.
+            y += 7;
+
             var g = this.getGroup('variationTrackG' + this.viewer.getData().uniprotID);
 
             this.drawName(svg, g, y, 'Variation', undefined, this.viewer.getData().variation.label);
 
+            var that = this;
+            var clickVariationMethod = function (event) {
+
+                var parent = event.toElement;
+
+                var title = parent.title;
+
+                if ( typeof title === 'undefined') {
+                    // probably the tooltip is open
+                    title = $(parent).attr('data-original-title');
+                }
+
+                var dbSnpUrl = $(parent).attr('dbSnpUrl');
+
+
+                // show Popup
+                if (typeof pageTracker !== 'undefined') {
+                    pageTracker._trackEvent('ProteinFeatureView',
+                        'clickVariationSNP', that.viewer.data.uniprotID);
+                }
+
+                var html = "<h3>" + title + "</h3>";
+
+                if (typeof dbSnpUrl !== 'undefined') {
+                  html += "<ul>";
+
+
+
+                  html += "<li>Show at <a target='_new'' href='" + dbSnpUrl +
+                      "'>dbSNP website</a></li>";
+
+
+                  html += "</ul>";
+                }
+
+                var heading = title;
+
+                var strSubmitFunc = "";
+                var btnText = "";
+
+                that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
+            };
+
+
+
+
             var siteTrackHeight = this.param.trackHeight + 5;
 
             this.drawSiteResidues(svg, this.viewer.getData().variation, y, 'upVariationTrack' +
-                this.viewer.getData().uniprotID, this.param.paired_colors, 'up', siteTrackHeight);
+                this.viewer.getData().uniprotID, this.param.paired_colors, 'up', siteTrackHeight,
+                clickVariationMethod);
 
             return y + siteTrackHeight;
 
@@ -2274,6 +2324,9 @@ define(['params','colors'],
                 this.registerTooltip(rect);
 
                 $(circle).attr("title", title1);
+                if (typeof site.url !== 'undefined' && site.url !== "") {
+                    $(circle).attr("dbSnpUrl", site.url);
+                }
                 this.registerTooltip(circle);
 
                 if (isPhospho) {
