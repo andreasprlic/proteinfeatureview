@@ -324,7 +324,12 @@ define(['colors', 'draw', 'params'],
             'name': 'phosporylation',
             'url': this.rcsbServer + '/pdb/protein/' + this.uniprotID +
               '?type=json&track=phosphorylation'
-          }
+          }, {
+          'name': 'variation',
+          'url': this.rcsbServer + '/pdb/protein/' + this.uniprotID +
+          '?type=json&track=variation'
+        }
+
 
 
         ];
@@ -548,6 +553,9 @@ define(['colors', 'draw', 'params'],
       } else if (typeof json.validation !== 'undefined') {
         this.data.validation = json.validation;
         console.log("got validation response");
+      } else if (typeof json.variation !== 'undefined') {
+        this.data.variation = json.variation;
+        console.log("got variation response");
       }
       this.repaint();
     };
@@ -1202,6 +1210,8 @@ define(['colors', 'draw', 'params'],
       y = drawer.drawUniprotFeatures(svg, y);
 
       y = drawer.drawUPSites(svg, y);
+
+      y = drawer.drawVariation(svg,y);
 
       var uniprotBottomY = y;
 

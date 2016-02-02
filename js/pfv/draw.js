@@ -654,6 +654,29 @@ define(['params','colors'],
 
         };
 
+
+        Draw.prototype.drawVariation = function (svg, y) {
+            if (typeof this.viewer.getData().variation === 'undefined') {
+                return y;
+            }
+
+            if (this.viewer.getData().variation.tracks.length < 1) {
+                return y;
+            }
+
+            var g = this.getGroup('variationTrackG' + this.viewer.getData().uniprotID);
+
+            this.drawName(svg, g, y, 'Variation', undefined, this.viewer.getData().variation.label);
+
+            var siteTrackHeight = this.param.trackHeight + 5;
+
+            this.drawSiteResidues(svg, this.viewer.getData().variation, y, 'upVariationTrack' +
+                this.viewer.getData().uniprotID, this.param.paired_colors, 'up', siteTrackHeight);
+
+            return y + siteTrackHeight;
+
+        }
+
         Draw.prototype.drawUPSites = function (svg, y) {
 
 
