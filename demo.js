@@ -56,14 +56,22 @@ require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/d
 
         featureView = new proteinFeatureView.PFV();
 
+        featureView.addListener('viewerReady', function(){
+            console.log("viewer ready")
+            var data = featureView.getData();
+            console.log(data.uniprotID + " " + data.desc);
+            $("#dispUniprotID").html(data.uniprotID);
+            $("#dispUniprotName").html(data.desc+"");
+        });
+
+
         featureView.setParentDiv('#pfv-parent');
         featureView.setDialogDiv('#dialog');
         featureView.setScrollBarDiv('#svgScrollBar');
 
-        featureView.setRcsbServer("http://www.rcsb.org");
+        featureView.setRcsbServer("http://www.rcsb.org/");
 
-        featureView.addPDB("3nyl");
-
+        //featureView.addPDB("2lp1");
 
         featureView.loadUniprot(uniprotID);
 
@@ -77,8 +85,6 @@ require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/d
 
             // update the track URLs
             featureView.setUniprotId(val);
-
-
             featureView.setDefaultTracks();
             featureView.loadUniprot(val);
 
