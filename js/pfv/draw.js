@@ -675,7 +675,7 @@ define(['params','colors'],
 
             return y + siteTrackHeight;
 
-        }
+        };
 
         Draw.prototype.drawUPSites = function (svg, y) {
 
