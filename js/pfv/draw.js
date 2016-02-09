@@ -683,30 +683,33 @@ define(['params','colors'],
                     title = $(parent).attr('data-original-title');
                 }
 
-                var dbSnpUrl = $(parent).attr('dbSnpUrl');
-
-
                 // show Popup
                 if (typeof pageTracker !== 'undefined') {
                     pageTracker._trackEvent('ProteinFeatureView',
                         'clickVariationSNP', that.viewer.data.uniprotID);
                 }
 
-                var html = "<h3>" + title + "</h3>";
+                var html = title ;
 
-                if (typeof dbSnpUrl !== 'undefined') {
+                var extLinks = $(parent).data('extLinks');
+                if (typeof extLinks !== 'undefined' && extLinks !== "" && extLinks.length > 0) {
                   html += "<ul>";
 
+                  for (var ext = 0; ext < extLinks.length; ext++) {
 
+                      var extLink = extLinks[ext];
+                      if (typeof extLink !== 'undefined' && extLink !== ""
+                      && extLink.sitename !== 'undefined' && extLink.sitename !== ""
+                      && extLink.siteurl !== 'undefined' && extLink.siteurl !== "") {
+                                html += "<li>Show at <a target='_new'' href='" + extLink.siteurl +
+                                    "'>" + extLink.sitename + "</a></li>";
+                      }
 
-                  html += "<li>Show at <a target='_new'' href='" + dbSnpUrl +
-                      "'>dbSNP website</a></li>";
-
-
+                  }
                   html += "</ul>";
                 }
 
-                var heading = title;
+                var heading = "Variation";
 
                 var strSubmitFunc = "";
                 var btnText = "";
@@ -834,7 +837,7 @@ define(['params','colors'],
                         'clickPhosphoSite', that.viewer.data.uniprotID);
                 }
 
-                var html = "<h3>" + title + "</h3>";
+                var html = title;
                 html += "<ul>";
 
                 var url = "http://www.phosphosite.org/" +
@@ -849,7 +852,7 @@ define(['params','colors'],
 
 
 
-                var heading = title;
+                var heading = "Phosphosite";
 
                 var strSubmitFunc = "";
                 var btnText = "";
@@ -2324,8 +2327,14 @@ define(['params','colors'],
                 this.registerTooltip(rect);
 
                 $(circle).attr("title", title1);
-                if (typeof site.url !== 'undefined' && site.url !== "") {
-                    $(circle).attr("dbSnpUrl", site.url);
+
+
+                if(feature.trackName !== 'undefined' && feature.trackName === 'variation'){
+                  var extLinks = site.externalLinks;
+
+                  if (typeof extLinks !== 'undefined' && extLinks !== "" && extLinks.length > 0) {
+                    $(circle).data("extLinks", site.externalLinks);
+                  }
                 }
                 this.registerTooltip(circle);
 

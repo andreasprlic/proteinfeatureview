@@ -34,7 +34,8 @@ module.exports = function(grunt) {
         browser: true,
         devel: true,
         predef: ['define'],
-        unused: true
+        unused: true,
+        laxbreak: true
       },
       all: SOURCE_FILES
     },
