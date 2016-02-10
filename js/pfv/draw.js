@@ -674,7 +674,7 @@ define(['params','colors'],
             var that = this;
             var clickVariationMethod = function (event) {
 
-                var parent = event.toElement;
+                var parent = event.target || event.toElement;
 
                 var title = parent.title;
 
@@ -760,7 +760,7 @@ define(['params','colors'],
             var that = this;
             var clickUpSiteMethod = function (event) {
 
-                var parent = event.toElement;
+                var parent = event.target || event.toElement;
 
                 var title = parent.title;
 
@@ -775,9 +775,9 @@ define(['params','colors'],
                         'clickUPSite', that.viewer.data.uniprotID);
                 }
 
-                var html = "<h3>" + title + "</h3>";
+                var html = title;
 
-                var heading = title;
+                var heading = "UP Sites";
 
                 var strSubmitFunc = "";
                 var btnText = "";
@@ -820,7 +820,7 @@ define(['params','colors'],
             var that = this;
             var clickPhosphoMethod = function (event) {
 
-                var parent = event.toElement;
+                var parent = event.target || event.toElement;
 
                 var title = parent.title;
 
