@@ -717,13 +717,12 @@ define(['params','colors'],
                 that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
             };
 
-
-
-
             var siteTrackHeight = this.param.trackHeight + 5;
 
+            var variationColors = [this.param.paired_colors[3]];
+
             this.drawSiteResidues(svg, this.viewer.getData().variation, y, 'upVariationTrack' +
-                this.viewer.getData().uniprotID, this.param.paired_colors, 'up', siteTrackHeight,
+                this.viewer.getData().uniprotID, variationColors, 'up', siteTrackHeight,
                 clickVariationMethod);
 
             return y + siteTrackHeight;
