@@ -719,7 +719,8 @@ define(['params','colors'],
 
             var siteTrackHeight = this.param.trackHeight + 5;
 
-            var variationColors = [this.param.paired_colors[3]];
+            var variationColors = new Array(1);
+            variationColors[0] = this.param.paired_colors[3];
 
             this.drawSiteResidues(svg, this.viewer.getData().variation, y, 'upVariationTrack' +
                 this.viewer.getData().uniprotID, variationColors, 'up', siteTrackHeight,
