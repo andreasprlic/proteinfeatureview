@@ -39,13 +39,23 @@ requirejs.config({
     }
 });
 
+
+
+<!-- NGL code part I -->
+
+NGL.useWorker = false;
+
+var stage = new NGL.Stage("nglContainer",{'theme':'light','overwritePreferences':'true'});
+var licorice;
+
+
+
 var proteinFeatureView ;
+var featureView = new Object();
 
 require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/dropdown','bootstrapslider'], function(PFV){
 
     proteinFeatureView = PFV;
-
-    var featureView = new Object();
 
     $( document ).ready(function() {
         console.log('document ready - pfv');
@@ -62,6 +72,24 @@ require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/d
             console.log(data.uniprotID + " " + data.desc);
             $("#dispUniprotID").html(data.uniprotID);
             $("#dispUniprotName").html(data.desc+"");
+
+            var tracks = data.tracks;
+            if ( typeof tracks !== 'undefined' && data.tracks.length > 0){
+                var firstTrack = data.tracks[0];
+                showPdb3d (firstTrack.pdbID);
+                featureView.set3dViewFlag(firstTrack.pdbID,firstTrack.chainID);
+
+            }
+        });
+
+        featureView.addListener('dataReloaded', function(event){
+          console.log("Data got reloaded .. " + event.data.uniprotID);
+          var tracks = event.data.tracks;
+          if ( typeof tracks !== 'undefined' && tracks.length > 0){
+              var firstTrack = tracks[0];
+              showPdb3d (firstTrack.pdbID);
+              featureView.set3dViewFlag(firstTrack.pdbID,firstTrack.chainID);
+          }
         });
 
 
@@ -202,7 +230,52 @@ $("#findSequenceMotif").submit(function(event){
 
 
 
+    <!-- NGL code part II-->
 
+    featureView.addListener("pdbTrackNameClicked",function(event,data, moredata){
+      console.log("user clicked on " + event.pdbID + " " + event.chainID);
+
+      showPdb3d (event.pdbID);
+
+      featureView.set3dViewFlag(event.pdbID,event.chainID);
+
+    });
 
 
 }); // require
+
+
+
+
+
+function showPdb3d( pdbId){
+
+  stage.removeAllComponents();
+
+  stage.loadFile("rcsb://"+pdbId+".mmtf").then(function(comp){
+    comp.addRepresentation("cartoon");
+    licorice = comp.addRepresentation("licorice",{sele:"", visible: false});
+
+    stage.centerView();
+
+  });
+}
+
+// stage.loadFile("rcsb://1crn.mmtf").then(function(comp){
+//   comp.addRepresentation("cartoon");
+//   licorice = comp.addRepresentation("licorice", {sele: "30:A"});
+//
+//   stage.centerView();
+//
+//
+// })
+
+function changeHighlight(sele){
+  licorice.setParameters({sele: sele});
+}
+
+stage.signals.onPicking.add(function(info){
+  console.log(info);
+  // info.atom.resno;  // .chainname
+  // info.bond.atom1.resno;
+});

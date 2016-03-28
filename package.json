@@ -14,7 +14,8 @@
     "url": "git://github.com/rcsb/proteinfeatureview"
   },
   "license": "GPL-3.0",
-  "build": "265",
+  "build": "272",
+  "main": "proteinfeatureview",
   "dependencies": {
     "grunt-contrib-concat": "^0.5.1",
     "grunt-contrib-requirejs": "^0.4.4",

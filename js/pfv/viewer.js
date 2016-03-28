@@ -76,6 +76,9 @@ define(['colors', 'draw', 'params'],
 
       this.oldScale = -1;
 
+      // for flagging which track is shown in 3D
+      this.pdbIn3d = "";
+      this.chainIn3d = "";
 
       try {
         $(this.scrollBarDiv).slider({
@@ -180,6 +183,12 @@ define(['colors', 'draw', 'params'],
             var track = that.data.tracks[id];
 
             that.showDialog(track);
+
+            // notify listeners that user clicked on PDB ID track name
+            that._dispatchEvent({
+                'name': 'pdbTrackNameClicked'
+              },
+              'pdbTrackNameClicked', track);
 
           }
 
@@ -377,6 +386,11 @@ define(['colors', 'draw', 'params'],
             'name': 'viewerReadyEvent'
           },
           'viewerReady', this);
+      } else {
+        this._dispatchEvent({
+            'name': 'dataReloadedEvent'
+          },
+          'dataReloaded', this);
       }
 
       var successMethod = function(json) {
@@ -562,6 +576,20 @@ define(['colors', 'draw', 'params'],
 
     Viewer.prototype.getUniprotID = function() {
       return this.data.uniprotID;
+    };
+
+    /** Sets a flag which PDB and chain Id are shown in the associated 3D viewer.
+    * PFV then draws an icon at the left side of the track,
+    * indicating that it is highlighted in 3D.
+    */
+    Viewer.prototype.set3dViewFlag = function (pdbId, chainId){
+
+      this.pdbIn3d = pdbId.toUpperCase();
+
+      // chain IDs are case sensitive
+      this.chainIn3d = chainId;
+
+      this.repaint();
     };
 
     /** Switch to the display of a single PDB ID
@@ -813,11 +841,18 @@ define(['colors', 'draw', 'params'],
       var html = "<span><img width='240' src='" + this.rcsbServer + "/pdb/images/" +
         pdbID.toLowerCase() + "_bio_r_250.jpg?getBest=true' /></span>";
 
-      html += '<a href="' + this.rcsbServer + '/pdb/explore/explore.do?structureId=' +
-        pdbID + '">View PDB ID ' + pdbID + '</a>';
+      html += '<ul>';
 
+      var showIn3dId =  'pdbIdDialog'+pdbID+'.'+track.chainID;
+      html += '<li><a href="#" id="'+showIn3dId+'" data-dismiss="modal">Show in 3D</a> (on Protein Feature View)</li>';
+      html +='<li><a href="' + this.rcsbServer + '/pdb/explore/explore.do?structureId=' +
+        pdbID + '">Structure Summary Page for ' + pdbID + '</a></li>';
 
+      html+="</ul>";
+      
+      var execjs = 'that._dispatchEvent({"name": "pdbTrackNameClicked"},"pdbTrackNameClicked", track);';
 
+      html += '<script>$("#'+showIn3dId+'").click(function(){'+execjs+'})</script>';
 
       var heading = 'View ' + pdbID + ' - ' + desc;
 
@@ -1310,8 +1345,13 @@ define(['colors', 'draw', 'params'],
       for (var i = 0; i < data.tracks.length; i++) {
         var track = data.tracks[i];
 
-        if ( this.isAddedPDB(track.pdbID.toUpperCase() ) ){
+        var pdbIdUpper = track.pdbID.toUpperCase();
+        if ( this.isAddedPDB( pdbIdUpper) ){
             drawer.highlightTrack(svg, track, y, i);
+        }
+
+        if ( this.pdbIn3d === pdbIdUpper ){
+          drawer.draw3dFlagForTrack(svg,track,y,i);
         }
 
 
