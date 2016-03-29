@@ -1,8 +1,10 @@
 SOURCE_FILES = [
   'js/pfv/viewer.js',
   'js/pfv/colors.js',
+  'js/pfv/icons.js',
   'js/pfv/draw.js',
   'js/pfv/params.js',
+
 ];
 
 module.exports = function(grunt) {

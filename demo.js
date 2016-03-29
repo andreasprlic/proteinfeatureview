@@ -6,6 +6,7 @@ requirejs.config({
         viewer:'pfv/viewer',
         draw:'pfv/draw',
         params:'pfv/params',
+        icons:'pfv/icons',
         jquery:'vendor/jquery-2.1.3.min',
         jquerysvg:'vendor/svg/jquery.svg.min',
         'bootstrap/tooltip':'vendor/bootstrap-3.3.5/js/tooltip',

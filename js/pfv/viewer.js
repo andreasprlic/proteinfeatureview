@@ -11,8 +11,8 @@
  */
 
 
-define(['colors', 'draw', 'params'],
-  function(colors, draw, params) {
+define(['colors', 'draw', 'params','icons'],
+  function(colors, draw, params,icons) {
     /**
      * A No args constructor. Needs to call setParent and loadUniprot from the user side
      */
@@ -32,6 +32,7 @@ define(['colors', 'draw', 'params'],
       var drawer = new draw.Draw(this);
       this.drawer = drawer;
       this.params = params;
+      this.icons = icons;
     }
 
     /** Initialize the internals
@@ -844,12 +845,20 @@ define(['colors', 'draw', 'params'],
       html += '<ul>';
 
       var showIn3dId =  'pdbIdDialog'+pdbID+'.'+track.chainID;
-      html += '<li><a href="#" id="'+showIn3dId+'" data-dismiss="modal">Show in 3D</a> (on Protein Feature View)</li>';
+
+      // var svg = '<svg><g transform="matrix(1,0,0,-1,0,10) scale(0.005)" title="" '+
+      // 'rel="tooltip" data-toggle="tooltip" data-container="body" style="cursor: pointer;" '+
+      // 'data-original-title="Shown in 3D viewer"><path d="' +
+      // this.icons.eye +
+      // '"></path></g></svg>';
+
+
+      html += '<li><a href="#" id="'+showIn3dId+'" data-dismiss="modal"> Show in 3D</a> (on Protein Feature View)</li>';
       html +='<li><a href="' + this.rcsbServer + '/pdb/explore/explore.do?structureId=' +
         pdbID + '">Structure Summary Page for ' + pdbID + '</a></li>';
 
       html+="</ul>";
-      
+
       var execjs = 'that._dispatchEvent({"name": "pdbTrackNameClicked"},"pdbTrackNameClicked", track);';
 
       html += '<script>$("#'+showIn3dId+'").click(function(){'+execjs+'})</script>';
