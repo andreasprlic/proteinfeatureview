@@ -1477,6 +1477,8 @@ define(['params', 'colors', 'icons'],
             $(rect).attr("title", "selection: " + this.viewer.selectionStart + "-" + this.viewer.selectionEnd);
             $(rect).text("selection: " + this.viewer.selectionStart + "-" + this.viewer.selectionEnd);
             $(rect).tooltip();
+
+
             //$(rect).css({'-webkit-transition': 'opacity 15s linear',
             //'-o-transition':'15s linear','transition':'opacity 15s linear'});
 
@@ -2415,9 +2417,8 @@ define(['params', 'colors', 'icons'],
 
         Draw.prototype.drawUniprotFeatures = function (svg, y) {
 
-
             var that = this;
-            var callback = function (path) {
+            var callback = function () {
 
               if ( this.start >= 0) {
                 that.viewer.selectionStart = this.start;

@@ -922,6 +922,7 @@ define(['colors', 'draw', 'params','icons'],
     Viewer.prototype.getPdbPositions = function(seqPos){
       // loop over all tracks
 
+      console.log("mapping uniprot:" + seqPos + " to PDB");
       return [];
     };
 
@@ -949,7 +950,7 @@ define(['colors', 'draw', 'params','icons'],
       }
 
       var pdbPositions = this.getPdbPositions(seqPos);
-
+      console.log("maps to PDB: " + pdbPositions);
 
       //$(this.dialogDiv).attr('title', data.uniprotID );
       if (typeof pageTracker !== 'undefined') {
