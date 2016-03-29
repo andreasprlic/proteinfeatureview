@@ -1441,9 +1441,6 @@ define(['params', 'colors', 'icons'],
 
         Draw.prototype.drawSelection = function (svg) {
 
-
-
-
             if (this.viewer.selectionStart < 0) {
                 return;
             }
@@ -1453,7 +1450,9 @@ define(['params', 'colors', 'icons'],
             var g = svg.group({
                     id: 'selection' + this.viewer.getData().uniprotID,
                     fontWeight: 'bold',
-                    fontSize: '10', border: this.param.paired_colors[6].color, fill: 'white'
+                    fontSize: '10', border: this.param.paired_colors[6].color,
+                    fill: 'white',
+                    'fill-opacity':'0'
                 }
             );
 
@@ -1475,8 +1474,8 @@ define(['params', 'colors', 'icons'],
             $(rect).attr("data-toggle", "tooltip");
             $(rect).attr("data-placement", "top");
             $(rect).attr("data-container", "body");
-            $(rect).attr("title", "selection: " + this.viewer.selectionStart + "-" + this.selectionEnd);
-            $(rect).text("selection: " + this.viewer.selectionStart + "-" + this.selectionEnd);
+            $(rect).attr("title", "selection: " + this.viewer.selectionStart + "-" + this.viewer.selectionEnd);
+            $(rect).text("selection: " + this.viewer.selectionStart + "-" + this.viewer.selectionEnd);
             $(rect).tooltip();
             //$(rect).css({'-webkit-transition': 'opacity 15s linear',
             //'-o-transition':'15s linear','transition':'opacity 15s linear'});
@@ -2393,8 +2392,6 @@ define(['params', 'colors', 'icons'],
                 return y;
             }
 
-
-
             y = this.drawGenericTrack(svg, rows, y, 'Molec. Processing', 'chainTrack',
                 this.param.up_colors, undefined, callback, this.viewer.getData().chains.label);
 
@@ -2420,7 +2417,14 @@ define(['params', 'colors', 'icons'],
 
 
             var that = this;
-            var callback = function () {
+            var callback = function (path) {
+
+              if ( this.start >= 0) {
+                that.viewer.selectionStart = this.start;
+                that.viewer.selectionEnd = this.end;
+                that.viewer.repaint();
+              }
+
                 // show draw dialog..
 
                 var txt = this.name;

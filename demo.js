@@ -234,7 +234,24 @@ $("#findSequenceMotif").submit(function(event){
     <!-- NGL code part II-->
 
     featureView.addListener("pdbTrackNameClicked",function(event,data, moredata){
-      console.log("user clicked on " + event.pdbID + " " + event.chainID);
+
+      var pdbId ="";
+      var chainId="";
+
+      if ( typeof event === 'undefined'){
+        console.log("user clicked on empty space")
+        return;
+      }
+
+      if ( typeof event.pdbID !== 'undefined'){
+        pdbId = event.pdbID;
+      }
+
+      if ( typeof event.chainID !== 'undefined'){
+        chainId = event.chainID;
+      }
+
+      console.log("user clicked on " + pdbId  + " " + chainId);
 
       showPdb3d (event.pdbID);
 

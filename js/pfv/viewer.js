@@ -169,7 +169,7 @@ define(['colors', 'draw', 'params','icons'],
             }
           } else if (id.indexOf('seq') > -1) {
 
-            that.showSequenceDialog();
+            that.showSequenceDialog(path);
 
           } else if (id.indexOf('exon') > -1) {
 
@@ -785,16 +785,10 @@ define(['colors', 'draw', 'params','icons'],
 
     Viewer.prototype.repaint = function() {
 
-
-      // var now = new Date().getTime();
-
-      //    console.log("repainting. time since start: " + (now - this.startedAt ));
-
       if (typeof this.parent === 'undefined') {
         console.error("can't repaint, no parent");
         return;
       }
-
 
       $("#uniprotsubheader").html("");
 
@@ -812,7 +806,6 @@ define(['colors', 'draw', 'params','icons'],
         this.drawInitial(svg);
 
         this.drawer.maxY = this.y + this.params.bottomBorder;
-
 
         // prevent hanging tooltips on resize
         $('.tooltip').tooltip('hide');
@@ -923,10 +916,39 @@ define(['colors', 'draw', 'params','icons'],
 
 
 
-    Viewer.prototype.showSequenceDialog = function() {
+    /** Returns matching PDB positions for a UniProt sequence position.
+    * if no matching positions, returns and empty array.
+    */
+    Viewer.prototype.getPdbPositions = function(seqPos){
+      // loop over all tracks
+
+      return [];
+    };
+
+
+
+    Viewer.prototype.showSequenceDialog = function(path) {
 
 
       var data = this.data;
+
+      var x = path.pageX;
+      var seqPos = this.drawer.screen2Seq(x);
+
+      if ( seqPos > this.data.sequence.length) {
+        seqPos = -1;
+      }
+
+      console.log("user clicked at position "+ seqPos);
+
+      if ( seqPos >= 0 ){
+        this.selectionStart = seqPos;
+        this.selectionEnd   = seqPos;
+        this.repaint();
+
+      }
+
+      var pdbPositions = this.getPdbPositions(seqPos);
 
 
       //$(this.dialogDiv).attr('title', data.uniprotID );
@@ -960,6 +982,7 @@ define(['colors', 'draw', 'params','icons'],
       var btnText = "";
 
       this.doModal(this.dialogDiv, heading, html, strSubmitFunc, btnText);
+
 
     };
 
@@ -1194,9 +1217,6 @@ define(['colors', 'draw', 'params','icons'],
 
       header += "</h1>";
 
-      //$('#uniprotheader').html(header);
-
-
       this.filterTracks();
 
       var html = data.uniprotID + " <span class='iconSet-main icon-external' " +
@@ -1236,8 +1256,6 @@ define(['colors', 'draw', 'params','icons'],
       if (drawer.scale < 0) {
         this.updateScale();
       }
-
-      drawer.drawSelection(svg);
 
 
       y = drawer.height;
@@ -1545,6 +1563,8 @@ define(['colors', 'draw', 'params','icons'],
 
       this.y = y;
 
+      drawer.drawSelection(svg);
+
       //var timet = new Date().getTime();
 
       $('[data-toggle="tooltip"]').tooltip();
@@ -1736,12 +1756,14 @@ define(['colors', 'draw', 'params','icons'],
     };
 
     Viewer.prototype.sequenceMotifPopup = function(motif, txt) {
+
+      console.log("sequenceMotifPopup " + motif + " | " + txt);
+
       var html = "<h3>" + txt + "</h3>";
       html += "<ul>";
       if (typeof pageTracker !== 'undefined') {
         pageTracker._trackEvent('ProteinFeatureView', 'showSeqMotifDialog', txt);
       }
-
 
       var url = this.rcsbServer + "/pdb/search/smart.do?&smartSearchSubtype_0=" +
         "MotifQuery&target=Current&motif_0=";
