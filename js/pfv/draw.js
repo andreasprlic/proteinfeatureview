@@ -17,8 +17,8 @@
  * Provides the "view" of the data
  */
 
-define(['params', 'colors', 'icons'],
-    function(params, colors, icons) {
+define(['params', 'colors', 'icons','popups'],
+    function(params, colors, icons, popups) {
 
         var colorDict = {};
 
@@ -29,6 +29,10 @@ define(['params', 'colors', 'icons'],
             this.param = new params.Params();
 
             this.icons = new icons.Icons();
+
+            this.popups = new popups.Popups();
+
+            this.popups.init(this.viewer,this.viewer.rcsbServer);
 
             this.scale = 1 ;
 
@@ -311,7 +315,6 @@ define(['params', 'colors', 'icons'],
             for (var i = 0; i < mylist.length; i++) {
 
                 var me = mylist[i];
-
 
                 this.registerTooltip(me,title);
 
@@ -639,8 +642,8 @@ define(['params', 'colors', 'icons'],
                                     //function(event){callbackFunction(event,range);});
                                     //$(txt).bind('click',
                                     //function(event){callbackFunction(event,range);});
-                                    $(rect).bind('click', $.proxy(callbackFunction, range));
-                                    $(txt).bind('click', $.proxy(callbackFunction, range));
+                                    $(rect).bind('click', $.proxy(callbackFunction, this,range));
+                                    $(txt).bind('click', $.proxy(callbackFunction, this,range));
                                 }
 
                             } catch (e) {
@@ -758,38 +761,10 @@ define(['params', 'colors', 'icons'],
             var siteTrackHeight = this.param.trackHeight + 5;
 
             var that = this;
-            var clickUpSiteMethod = function (event) {
-
-                var parent = event.target || event.toElement;
-
-                var title = parent.title;
-
-                if ( typeof title === 'undefined') {
-                    // probably the tooltip is open
-                    title = $(parent).attr('data-original-title');
-                }
-
-                // show Popup
-                if (typeof pageTracker !== 'undefined') {
-                    pageTracker._trackEvent('ProteinFeatureView',
-                        'clickUPSite', that.viewer.data.uniprotID);
-                }
-
-                var html = title;
-
-                var heading = "UP Sites";
-
-                var strSubmitFunc = "";
-                var btnText = "";
-
-                that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
-            };
-
-
 
             this.drawSiteResidues(svg, this.viewer.getData().upsites, y, 'upsitesTrack' +
                 this.viewer.getData().uniprotID, this.param.paired_colors, 'up', siteTrackHeight,
-                clickUpSiteMethod);
+                this.popups.clickUpSiteMethod);
 
             return y + siteTrackHeight;
 
@@ -818,54 +793,10 @@ define(['params', 'colors', 'icons'],
             var siteTrackHeight = this.param.trackHeight + 5;
 
             var that = this;
-            var clickPhosphoMethod = function (event) {
-
-                var parent = event.target || event.toElement;
-
-                var title = parent.title;
-
-                if ( typeof title === 'undefined') {
-                    // probably the tooltip is open
-                    title = $(parent).attr('data-original-title');
-                }
-
-                console.log( title);
-
-                // show Popup
-                if (typeof pageTracker !== 'undefined') {
-                    pageTracker._trackEvent('ProteinFeatureView',
-                        'clickPhosphoSite', that.viewer.data.uniprotID);
-                }
-
-                var html = title;
-                html += "<ul>";
-
-                var url = "http://www.phosphosite.org/" +
-                    "proteinSearchSubmitAction.do?accessionIds=" +
-                    that.viewer.data.uniprotID;
-
-                html += "<li>Show at <a target='_new'' href='" + url +
-                    "'>PhosphoSitePlus website</a></li>";
-
-
-                html += "</ul>";
-
-
-
-                var heading = "Phosphosite";
-
-                var strSubmitFunc = "";
-                var btnText = "";
-
-                that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
-            };
-
-
-
 
             this.drawSiteResidues(svg, this.viewer.getData().phospho, y, 'phosphositesTrack' +
                 this.viewer.getData().uniprotID, this.param.paired_colors,
-                'up', siteTrackHeight, clickPhosphoMethod);
+                'up', siteTrackHeight, this.popups.clickPhosphoMethod);
 
             return y + siteTrackHeight + 22;
 
@@ -1078,49 +1009,13 @@ define(['params', 'colors', 'icons'],
             }
 
             var that = this;
-            var scopcallback = function () {
-                // show draw dialog..
-
-                var txt = this.name;
-
-                if (this.name !== this.desc) {
-                    txt += " - " + this.desc;
-
-                    if (typeof this.note !== 'undefined') {
-                        txt += " (" + this.note + ")";
-                    }
-                }
-
-                var html = "<h1>" + txt + "</h1>";
-                html += "<ul>";
-                if (typeof pageTracker !== 'undefined') {
-                    pageTracker._trackEvent('ProteinFeatureView', 'showSCOPeDialog', txt);
-                }
-
-                var url = "http://scop.mrc-lmb.cam.ac.uk/scop/search.cgi?ver=1.75&key=" + this.name;
-
-                html += "<li>Show at <a target='_new'' href='" + url + "'>SCOP website</a></li>";
-
-
-                html += "</ul>";
-
-
-
-                var heading = txt;
-
-                var strSubmitFunc = "";
-                var btnText = "";
-
-                that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
-
-            };
 
             var trackrows = this.breakTrackInRows(this.viewer.getData().scop.tracks);
 
             //console.log("SCOP trackrows: " + trackrows);
 
             y = this.drawGenericTrack(svg, trackrows, y, 'SCOP domains',
-                'scopDomains', colors.rgb.getDomainColors(), undefined, scopcallback, this.viewer.getData().scop.label);
+                'scopDomains', colors.rgb.getDomainColors(), undefined, this.popups.scopcallback, this.viewer.getData().scop.label);
 
             if (typeof this.viewer.getData().scope === 'undefined') {
                 return y;
@@ -2358,7 +2253,9 @@ define(['params', 'colors', 'icons'],
 
                 if ( typeof modalFunction !== 'undefined') {
                     $(circle).css('cursor', 'pointer');
-                    $(circle).bind('click', modalFunction);
+                    //// need to pass site info in..
+
+                    $(circle).bind('click', $.proxy(modalFunction,this,site));
                 }
 
 
@@ -2396,47 +2293,13 @@ define(['params', 'colors', 'icons'],
         };
 
 
+
+
         Draw.prototype.drawUniprotFeatures = function (svg, y) {
 
             var that = this;
-            var callback = function () {
 
-              if ( this.start >= 0) {
-                that.viewer.selectionStart = this.start;
-                that.viewer.selectionEnd = this.end;
-                that.viewer.repaint();
-              }
-
-                // show draw dialog..
-
-                var txt = this.name;
-
-                if (this.name !== this.desc) {
-                    txt += " - " + this.desc;
-                }
-
-
-                var html = "";
-                if (this.name === "short sequence motif") {
-
-                    var spl = this.desc.split(" ");
-                    if (spl.length === 2) {
-                        html = that.viewer.sequenceMotifPopup(spl[0], txt);
-                    }
-                }
-
-                if (html === "") {
-                    var seq = that.viewer.getData().sequence.substr(this.start, (this.end - this.start + 1));
-                    html = that.viewer.blastPopup(seq, this.url, this.hits, this.desc, txt);
-                }
-
-
-                var heading = "<h1>"+txt+"</h1>";
-                var strSubmitFunc = "";
-                var btnText = "";
-
-                that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
-            };
+            var callback = this.popups.callbackUniProtFeature;
 
 
             if (typeof this.viewer.getData().chains !== 'undefined') {
@@ -2444,8 +2307,6 @@ define(['params', 'colors', 'icons'],
                 y= this.drawUniprotChainData(svg, y, callback);
 
             }
-
-
 
             if (
                 (typeof this.viewer.getData().motifs !== 'undefined' ) &&
@@ -2464,8 +2325,6 @@ define(['params', 'colors', 'icons'],
 
             }
 
-
-
             if ((typeof this.viewer.getData().enzymeClassification !== 'undefined') &&
                 (this.viewer.getData().enzymeClassification.tracks.length > 0) )
             {
@@ -2474,39 +2333,8 @@ define(['params', 'colors', 'icons'],
 
                 var ecrows = this.breakTrackInRows(ecs);
 
-                var brendaurl = "http://www.brenda-enzymes.org/php/result_flat.php4?ecno=";
-                var pdbecurl = this.viewer.rcsbServer  + "/pdb/search/smartSubquery.do?smartSearchSubtype=" +
-                    "EnzymeClassificationQuery&Enzyme_Classification=" ;
-
-                var callbackec = function () {
-
-
-
-
-
-                    var html = "<h3>" + this.name + " - " + this.desc + "</h3>";
-                    html += "<ul><li>View in <a href='" + brendaurl + this.name +
-                        "' target='_new'>BRENDA</a></li>";
-                    html += "<li>View <a href='" + pdbecurl + this.name + "'>other PDB entries with" +
-                        " the same E.C. number</a></li>";
-                    html += "</ul>";
-
-                    if (typeof pageTracker !== 'undefined') {
-                        pageTracker._trackEvent('ProteinFeatureView', 'showECDialog', this.name);
-                    }
-
-
-                    var heading = this.name + ' - ' + this.desc;
-
-                    var strSubmitFunc = "";
-                    var btnText = "";
-
-                    that.viewer.doModal(that.viewer.dialogDiv,heading, html, strSubmitFunc, btnText);
-
-                };
-
                 y = this.drawRangedTrack(svg, ecrows, y, 'E.C.', 'enzymeClassificationTrack',
-                    this.param.up_colors, undefined, callbackec, this.viewer.getData().enzymeClassification.label);
+                    this.param.up_colors, undefined, this.popups.callbackec, this.viewer.getData().enzymeClassification.label);
 
             }
 
@@ -2879,8 +2707,8 @@ define(['params', 'colors', 'icons'],
                         if (typeof callbackFunction !== 'undefined') {
                             $(rect).css('cursor', 'pointer');
                             $(txt).css('cursor', 'pointer');
-                            $(rect).bind('click', $.proxy(callbackFunction, range));
-                            $(txt).bind('click', $.proxy(callbackFunction, range));
+                            $(rect).bind('click', $.proxy(callbackFunction, this,range));
+                            $(txt).bind('click', $.proxy(callbackFunction,this, range));
                         }
 
 

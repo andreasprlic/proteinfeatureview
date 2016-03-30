@@ -11,8 +11,8 @@
  */
 
 
-define(['colors', 'draw', 'params', 'icons'],
-  function(colors, draw, params, icons) {
+define(['colors', 'draw', 'params', 'icons','popups'],
+  function(colors, draw, params, icons, popups) {
     /**
      * A No args constructor. Needs to call setParent and loadUniprot from the user side
      */
@@ -33,6 +33,9 @@ define(['colors', 'draw', 'params', 'icons'],
       this.drawer = drawer;
       this.params = params;
       this.icons = icons;
+      this.popups = new popups.Popups();
+
+      this.popups.init(this,this.rcsbServer);
     }
 
     /** Initialize the internals
@@ -165,7 +168,7 @@ define(['colors', 'draw', 'params', 'icons'],
 
             var pfampos = id.substring(4, id.length);
             if (pfampos !== 'track') {
-              that.showPfamDialog(that.data.pfam.tracks[pfampos]);
+              that.popups.showPfamDialog(that.data.pfam.tracks[pfampos]);
             }
           } else if (id.indexOf('seq') > -1) {
 
@@ -795,7 +798,7 @@ define(['colors', 'draw', 'params', 'icons'],
       var svg = this.getSVGWrapper();
 
       if (typeof svg === 'undefined') {
-        console.error("can't repaint, no svg");
+        console.warn("can't repaint, no svg");
         return;
       }
 
@@ -846,8 +849,8 @@ define(['colors', 'draw', 'params', 'icons'],
       // '"></path></g></svg>';
 
 
-      html += '<li><a href="#" id="' + showIn3dId + '" data-dismiss="modal"> Show in 3D</a>'+
-      ' (on Protein Feature View)</li>';
+      html += '<li><a href="#" id="' + showIn3dId + '" data-dismiss="modal"> Show in 3D</a>' +
+        ' (on Protein Feature View)</li>';
       html += '<li><a href="' + this.rcsbServer + '/pdb/explore/explore.do?structureId=' +
         pdbID + '">Structure Summary Page for ' + pdbID + '</a></li>';
 
@@ -919,10 +922,15 @@ define(['colors', 'draw', 'params', 'icons'],
     /** Returns matching PDB positions for a UniProt sequence position.
      * if no matching positions, returns and empty array.
      */
-    Viewer.prototype.getPdbPositions = function(seqPos) {
+    Viewer.prototype.getPdbPositions = function(seqStart, seqEnd) {
       // loop over all tracks
 
-      console.log("mapping uniprot:" + seqPos + " to PDB");
+      console.log("mapping uniprot:" + seqStart + " " + seqEnd + " to PDB");
+
+      if (typeof seqEnd === 'undefined') {
+        seqEnd = seqStart;
+      }
+
 
       var pdbPositions = [];
 
@@ -948,22 +956,29 @@ define(['colors', 'draw', 'params', 'icons'],
             range.observed = rangeOrig.observed;
             range.mismatch = rangeOrig.mismatch;
 
-            if (seqPos >= range.start && seqPos <= range.end) {
+            var tmpEnd = seqEnd;
+            if (seqStart === seqEnd) {
+              tmpEnd++;
+            }
+
+            var overlap = (this.drawer.getOverlap(seqStart, tmpEnd, range.start, range.end));
+
+            if (overlap > 0) {
               // we found an overlap!
-              console.log(rangeOrig);
 
               if (typeof rangeOrig.pdbStart !== 'undefined') {
 
                 // get the offset to the beginning..
-                var offset = seqPos - range.start;
-
+                var offsetLeft = seqStart - range.start;
+                var offsetRight = range.end - seqEnd;
                 var pos = {};
 
-                pos.seqPos = seqPos + 1;
-                pos.pdbStart = parseInt(rangeOrig.pdbStart) + offset;
+                pos.seqPos = seqStart + 1 + offsetLeft;
+                pos.pdbStart = parseInt(rangeOrig.pdbStart) + offsetLeft;
+                pos.pdbEnd   = parseInt(rangeOrig.pdbEnd) - offsetRight ;
                 pos.pdbId = track.pdbID;
                 pos.chainId = track.chainID;
-                pos.offset = offset;
+
                 pdbPositions.push(pos);
               }
             }
@@ -1007,28 +1022,7 @@ define(['colors', 'draw', 'params', 'icons'],
       }
       var html = "";
 
-      if ( pdbPositions.length > 0){
-          html += "<h3>Show in 3D on PDB structure</h3>";
-      }
-
-      for (var i = 0; i < pdbPositions.length; i++) {
-
-        var pdbPos = pdbPositions[i];
-
-        var showIn3dId = "showIn3d"+ pdbPos.pdbId +pdbPos.chainId+pdbPos.pdbStart ;
-
-        html += "<ul><li>Show in 3D on PDB <a href='#' id='"+showIn3dId+"' data-dismiss='modal'>" +
-         pdbPos.pdbId + "." + pdbPos.chainId + " (";
-
-        html += pdbPos.pdbStart;
-
-        if (typeof pdbPos.pdbEnd !== 'undefined') {
-          html += "-" + pdbPos.pdbEnd;
-        }
-        html += ")</a></ul></li>";
-
-        // html += "<script>$('#"+showIn3dId+"').bind(showPositionIn3d,pdbPos)</script>";
-      }
+      html += this.showPdb3dLinks(pdbPositions);
 
       if (this.singlePDBmode) {
         html += "<h3>" + data.uniprotID + "-" + data.name + "</h3>";
@@ -1059,14 +1053,18 @@ define(['colors', 'draw', 'params', 'icons'],
 
       this.doModal(this.dialogDiv, heading, html, strSubmitFunc, btnText);
 
-      console.log("bind callbacks");
+      this.registerPdb3dLinks(pdbPositions);
+    };
+
+    Viewer.prototype.registerPdb3dLinks = function(pdbPositions) {
 
       var that = this;
-      var show3dCallback = function(ppos){
+      var show3dCallback = function(ppos) {
 
-          that._dispatchEvent(
-            {"name": "showPositionIn3d"},
-            "showPositionIn3d", ppos);
+        that._dispatchEvent({
+            "name": "showPositionIn3d"
+          },
+          "showPositionIn3d", ppos);
       };
 
       // now bind the callback to the anchor tags in the modal dialog
@@ -1074,41 +1072,43 @@ define(['colors', 'draw', 'params', 'icons'],
 
         var pdbPos2 = pdbPositions[p];
 
-        var showIn3dId2 = "showIn3d"+ pdbPos2.pdbId +pdbPos2.chainId+pdbPos2.pdbStart ;
+        var showIn3dId2 = "showIn3d" + pdbPos2.pdbId + pdbPos2.chainId + pdbPos2.pdbStart;
 
         $("#" + showIn3dId2).bind('click', show3dCallback(pdbPos2));
       }
     };
 
-    Viewer.prototype.showPfamDialog = function(pfam) {
+    Viewer.prototype.showPdb3dLinks = function(pdbPositions) {
+      var html = "";
 
-      var pfamId = pfam.acc;
-      var desc = pfam.desc;
-      //$(this.dialogDiv).attr('title', pfamId + ' - '  + pfam.name);
-      if (typeof pageTracker !== 'undefined') {
-        pageTracker._trackEvent('ProteinFeatureView', 'showPfamDialog', pfamId);
+      if (pdbPositions.length <= 0) {
+        return html;
       }
 
-      var html = "<h3> " + desc + "</h3>" +
-        "<ul><li>Go to Pfam site for <a href=\"http://pfam.sanger.ac.uk/family/" +
-        pfamId + "\"" +
-        " target=\"_new\">" + pfamId +
-        "<span class='iconSet-main icon-external'> &nbsp;</span> </a></li>";
+      html += "<h3>Show in 3D on PDB structure</h3>";
 
-      html += "<li>Find <a href='" + this.rcsbServer +
-        "/pdb/search/smartSubquery.do?smartSearchSubtype=PfamIdQuery&amp;pfamID=" +
-        pfamId + "'>other PDB entries with the same Pfam domain</a></li>";
-      html += "</ul>";
+      for (var i = 0; i < pdbPositions.length; i++) {
 
+        var pdbPos = pdbPositions[i];
 
+        var showIn3dId = "showIn3d" + pdbPos.pdbId + pdbPos.chainId + pdbPos.pdbStart;
 
-      var heading = pfamId + " - " + pfam.name;
-      var strSubmitFunc = "";
-      var btnText = "";
+        html += "<ul><li>Show in 3D on PDB <a href='#' id='" + showIn3dId + "' data-dismiss='modal'>" +
+          pdbPos.pdbId + "." + pdbPos.chainId + " (";
 
-      this.doModal(this.dialogDiv, heading, html, strSubmitFunc, btnText);
+        html += pdbPos.pdbStart;
 
+        if (typeof pdbPos.pdbEnd !== 'undefined' && (pdbPos.pdbStart !== pdbPos.pdbEnd) ) {
+          html += "-" + pdbPos.pdbEnd;
+        }
+        html += ")</a></ul></li>";
+
+        // html += "<script>$('#"+showIn3dId+"').bind(showPositionIn3d,pdbPos)</script>";
+      }
+      return html;
     };
+
+
 
     Viewer.prototype.showExonDialog = function(exon) {
 
@@ -1844,73 +1844,9 @@ define(['colors', 'draw', 'params', 'icons'],
     };
 
 
-
-
-
-
-
-
-
     Viewer.prototype.getSequence = function() {
       return this.data.sequence;
     };
-
-    Viewer.prototype.sequenceMotifPopup = function(motif, txt) {
-
-      console.log("sequenceMotifPopup " + motif + " | " + txt);
-
-      var html = "<h3>" + txt + "</h3>";
-      html += "<ul>";
-      if (typeof pageTracker !== 'undefined') {
-        pageTracker._trackEvent('ProteinFeatureView', 'showSeqMotifDialog', txt);
-      }
-
-      var url = this.rcsbServer + "/pdb/search/smart.do?&smartSearchSubtype_0=" +
-        "MotifQuery&target=Current&motif_0=";
-
-      html += "<li>Perform a <a href='" + url + motif + "'>Sequence Motif Search</a>.</li>";
-
-
-      html += "</ul>";
-      return html;
-
-    };
-
-    Viewer.prototype.blastPopup = function(seq, url, hits, desc, txt) {
-      var html = "<h3>" + txt + "</h3>";
-      html += "<ul>";
-      if (typeof pageTracker !== 'undefined') {
-        pageTracker._trackEvent('ProteinFeatureView', 'showUniProtDialog', txt);
-      }
-
-
-      var murl = this.rcsbServer + "/pdb/search/smart.do?" +
-        "chainId_0=&eCutOff_0=0.001&" +
-        "maskLowComplexity_0=yes&searchTool_0=blast&smartComparator=" +
-        "and&smartSearchSubtype_0=" +
-        "SequenceQuery&structureId_0=&target=Current&sequence_0=";
-
-      html += "<li>Perform a <a href='" + murl + seq +
-        "'>Blast sequence search against PDB</a> using this sequence region.</li>";
-
-      if (typeof url !== "undefined") {
-        // there is a URL, show it
-
-        var urllabel = desc;
-        if (typeof hits !== "undefined") {
-
-          urllabel = "Show " + hits + " PDB entries that contain " + desc +
-            " from " + this.data.uniprotID;
-        }
-
-        html += '<li><a href="' + url + '">' + urllabel + '</a></li>';
-      }
-
-      html += "</ul>";
-
-      return html;
-    };
-
 
 
 
@@ -2073,7 +2009,6 @@ define(['colors', 'draw', 'params', 'icons'],
 
     };
 
-
     /** seqposEnd is optional */
     Viewer.prototype.highlight = function(seqposStart, seqposEnd) {
 
@@ -2111,15 +2046,11 @@ define(['colors', 'draw', 'params', 'icons'],
       return finalURL;
     };
 
-
-
-
     Viewer.prototype._dispatchEvent = function(event, newEventName, arg) {
 
       var callbacks = this.listenerMap[newEventName];
       if (callbacks) {
         callbacks.forEach(function(callback) {
-          console.log(callback);
           callback(arg, event);
         });
       }

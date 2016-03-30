@@ -1,43 +1,80 @@
 'use strict';
 requirejs.config({
-    baseUrl: 'js',
-    paths:{
-        colors:'pfv/colors',
-        viewer:'pfv/viewer',
-        draw:'pfv/draw',
-        params:'pfv/params',
-        icons:'pfv/icons',
-        jquery:'vendor/jquery-2.1.3.min',
-        jquerysvg:'vendor/svg/jquery.svg.min',
-        'bootstrap/tooltip':'vendor/bootstrap-3.3.5/js/tooltip',
-        'bootstrap/modal':'vendor/bootstrap-3.3.5/js/modal',
-        'bootstrap/button':'vendor/bootstrap-3.3.5/js/button',
-        'bootstrap/dropdown':'vendor/bootstrap-3.3.5/js/dropdown',
-        bootstrapslider:'vendor/bootstrap-slider.min'
+  baseUrl: 'js',
+  paths: {
+    colors: 'pfv/colors',
+    viewer: 'pfv/viewer',
+    draw: 'pfv/draw',
+    params: 'pfv/params',
+    icons: 'pfv/icons',
+    popups: 'pfv/popups',
+    jquery: 'vendor/jquery-2.1.3.min',
+    jquerysvg: 'vendor/svg/jquery.svg.min',
+    'bootstrap/tooltip': 'vendor/bootstrap-3.3.5/js/tooltip',
+    'bootstrap/modal': 'vendor/bootstrap-3.3.5/js/modal',
+    'bootstrap/button': 'vendor/bootstrap-3.3.5/js/button',
+    'bootstrap/dropdown': 'vendor/bootstrap-3.3.5/js/dropdown',
+    bootstrapslider: 'vendor/bootstrap-slider.min'
+  },
+  shim: {
+    'jquerysvg': {
+      exports: "$",
+      deps: ['jquery']
     },
-    shim:{
-        'jquerysvg': {
-            exports:"$",
-            deps:['jquery']
-        },
-        'bootstrap/affix':      { deps: ['jquery'], exports: '$.fn.affix' },
-        'bootstrap/alert':      { deps: ['jquery'], exports: '$.fn.alert' },
-        'bootstrap/button':     { deps: ['jquery'], exports: '$.fn.button' },
-        'bootstrap/carousel':   { deps: ['jquery'], exports: '$.fn.carousel' },
-        'bootstrap/collapse':   { deps: ['jquery'], exports: '$.fn.collapse' },
-        'bootstrap/dropdown':   { deps: ['jquery'], exports: '$.fn.dropdown' },
-        'bootstrap/modal':      { deps: ['jquery'], exports: '$.fn.modal' },
-        'bootstrap/popover':    { deps: ['jquery'], exports: '$.fn.popover' },
-        'bootstrap/scrollspy':  { deps: ['jquery'], exports: '$.fn.scrollspy' },
-        'bootstrap/tab':        { deps: ['jquery'], exports: '$.fn.tab'        },
-        'bootstrap/tooltip':    { deps: ['jquery'], exports: '$.fn.tooltip' },
-        'bootstrap/transition': { deps: ['jquery'], exports: '$.fn.transition' },
+    'bootstrap/affix': {
+      deps: ['jquery'],
+      exports: '$.fn.affix'
+    },
+    'bootstrap/alert': {
+      deps: ['jquery'],
+      exports: '$.fn.alert'
+    },
+    'bootstrap/button': {
+      deps: ['jquery'],
+      exports: '$.fn.button'
+    },
+    'bootstrap/carousel': {
+      deps: ['jquery'],
+      exports: '$.fn.carousel'
+    },
+    'bootstrap/collapse': {
+      deps: ['jquery'],
+      exports: '$.fn.collapse'
+    },
+    'bootstrap/dropdown': {
+      deps: ['jquery'],
+      exports: '$.fn.dropdown'
+    },
+    'bootstrap/modal': {
+      deps: ['jquery'],
+      exports: '$.fn.modal'
+    },
+    'bootstrap/popover': {
+      deps: ['jquery'],
+      exports: '$.fn.popover'
+    },
+    'bootstrap/scrollspy': {
+      deps: ['jquery'],
+      exports: '$.fn.scrollspy'
+    },
+    'bootstrap/tab': {
+      deps: ['jquery'],
+      exports: '$.fn.tab'
+    },
+    'bootstrap/tooltip': {
+      deps: ['jquery'],
+      exports: '$.fn.tooltip'
+    },
+    'bootstrap/transition': {
+      deps: ['jquery'],
+      exports: '$.fn.transition'
+    },
 
-        'bootstrapslider': {
-            deps:['bootstrap/tooltip']
-        }
-
+    'bootstrapslider': {
+      deps: ['bootstrap/tooltip']
     }
+
+  }
 });
 
 
@@ -46,230 +83,234 @@ requirejs.config({
 
 NGL.useWorker = false;
 
-var stage = new NGL.Stage("nglContainer",{'theme':'light','overwritePreferences':'true'});
+var stage = new NGL.Stage("nglContainer", {
+  'theme': 'light',
+  'overwritePreferences': 'true'
+});
 var licorice;
 
 
 
-var proteinFeatureView ;
+var proteinFeatureView;
 var featureView = new Object();
 
-require(['viewer','jquerysvg','bootstrap/tooltip','bootstrap/modal','bootstrap/dropdown','bootstrapslider'], function(PFV){
+require(['viewer', 'jquerysvg', 'bootstrap/tooltip', 'bootstrap/modal', 'bootstrap/dropdown', 'bootstrapslider'], function(PFV) {
 
-    proteinFeatureView = PFV;
+  proteinFeatureView = PFV;
 
-    $( document ).ready(function() {
-        console.log('document ready - pfv');
+  $(document).ready(function() {
+    console.log('document ready - pfv');
 
-        var uniprotID="P05067";
+    //P05067
+    var uniprotID = "P43379";
 
-        // if has not been initialized, initialize...
+    // if has not been initialized, initialize...
 
-        featureView = new proteinFeatureView.PFV();
+    featureView = new proteinFeatureView.PFV();
 
-        featureView.addListener('viewerReady', function(){
-            console.log("viewer ready")
-            var data = featureView.getData();
-            console.log(data.uniprotID + " " + data.desc);
-            $("#dispUniprotID").html(data.uniprotID);
-            $("#dispUniprotName").html(data.desc+"");
+    featureView.addListener('viewerReady', function() {
+      console.log("viewer ready")
+      var data = featureView.getData();
+      console.log(data.uniprotID + " " + data.desc);
+      $("#dispUniprotID").html(data.uniprotID);
+      $("#dispUniprotName").html(data.desc + "");
 
-            var tracks = data.tracks;
-            if ( typeof tracks !== 'undefined' && data.tracks.length > 0){
-                var firstTrack = data.tracks[0];
-                showPdb3d (firstTrack.pdbID);
-                featureView.set3dViewFlag(firstTrack.pdbID,firstTrack.chainID);
+      var tracks = data.tracks;
+      if (typeof tracks !== 'undefined' && data.tracks.length > 0) {
+        var firstTrack = data.tracks[0];
+        showPdb3d(firstTrack.pdbID);
+        featureView.set3dViewFlag(firstTrack.pdbID, firstTrack.chainID);
 
-            }
-        });
+      }
+    });
 
-        featureView.addListener('dataReloaded', function(event){
-          console.log("Data got reloaded .. " + event.data.uniprotID);
-          var tracks = event.data.tracks;
-          if ( typeof tracks !== 'undefined' && tracks.length > 0){
-              var firstTrack = tracks[0];
-              showPdb3d (firstTrack.pdbID);
-              featureView.set3dViewFlag(firstTrack.pdbID,firstTrack.chainID);
-          }
-        });
-
-
-        featureView.setParentDiv('#pfv-parent');
-        featureView.setDialogDiv('#dialog');
-        featureView.setScrollBarDiv('#svgScrollBar');
-
-        featureView.setRcsbServer("http://www.rcsb.org/");
-
-        //featureView.addPDB("2lp1");
-
-        featureView.loadUniprot(uniprotID);
-
-        $('#up-field').val(uniprotID);
-
-        $('#up-field').change(function(){
-
-            var val =   $('#up-field').val();
-
-            console.log("loading new uniprot " + val );
-
-            // update the track URLs
-            featureView.setUniprotId(val);
-            featureView.setDefaultTracks();
-            featureView.loadUniprot(val);
-
-        });
-
-        $("#zoomOut").click(function(){
-
-            var val = featureView.getScrollBarValue();
-            val -= 25;
-            featureView.setScrollValue(val);
-
-        });
-        $("#zoomIn").click(function(){
-            var val = featureView.getScrollBarValue();
-
-            val += 25;
-
-            featureView.setScrollValue(val);
-        });
-
-
-        $('#fullScreen').click(function(){
-            featureView.requestFullscreen();
-            return false;
-        });
-
-        $('#export').click(
-            function() {
-                var svg = featureView.getSVGWrapper();
-                var xml = svg.toSVG();
-                open("data:image/svg+xml," + encodeURIComponent(xml));
-
-            });
-
-
-
-
-    }); // document ready
-
-
-    $("#colorselect").change(
-      function() {
-        var str = $(this).val();
-        featureView.changeColorSelect(str);
-      });
-
-      $("#sortselect").change(function() {
-        var text = $(this).val();
-        featureView.sortTracks(text);
-        featureView.repaint();
-      });
-
-
-$('#findMotifDialogSubmit').click(function(){
-
-        // $('mySequenceMotifDialog').modal({'show':false});
-
-        $("#findSequenceMotif").submit();
+    featureView.addListener('dataReloaded', function(event) {
+      console.log("Data got reloaded .. " + event.data.uniprotID);
+      var tracks = event.data.tracks;
+      if (typeof tracks !== 'undefined' && tracks.length > 0) {
+        var firstTrack = tracks[0];
+        showPdb3d(firstTrack.pdbID);
+        featureView.set3dViewFlag(firstTrack.pdbID, firstTrack.chainID);
+      }
     });
 
 
-var previousMotif = "";
-var myRegExp = new RegExp("$");
+    featureView.setParentDiv('#pfv-parent');
+    featureView.setDialogDiv('#dialog');
+    featureView.setScrollBarDiv('#svgScrollBar');
 
-$("#findSequenceMotif").submit(function(event){
+    featureView.setRcsbServer("http://www.rcsb.org/");
+
+    //featureView.addPDB("2lp1");
+
+    featureView.loadUniprot(uniprotID);
+
+    $('#up-field').val(uniprotID);
+
+    $('#up-field').change(function() {
+
+      var val = $('#up-field').val();
+
+      console.log("loading new uniprot " + val);
+
+      // update the track URLs
+      featureView.setUniprotId(val);
+      featureView.setDefaultTracks();
+      featureView.loadUniprot(val);
+
+    });
+
+    $("#zoomOut").click(function() {
+
+      var val = featureView.getScrollBarValue();
+      val -= 25;
+      featureView.setScrollValue(val);
+
+    });
+    $("#zoomIn").click(function() {
+      var val = featureView.getScrollBarValue();
+
+      val += 25;
+
+      featureView.setScrollValue(val);
+    });
+
+
+    $('#fullScreen').click(function() {
+      featureView.requestFullscreen();
+      return false;
+    });
+
+    $('#export').click(
+      function() {
+        var svg = featureView.getSVGWrapper();
+        var xml = svg.toSVG();
+        open("data:image/svg+xml," + encodeURIComponent(xml));
+
+      });
+
+
+
+
+  }); // document ready
+
+
+  $("#colorselect").change(
+    function() {
+      var str = $(this).val();
+      featureView.changeColorSelect(str);
+    });
+
+  $("#sortselect").change(function() {
+    var text = $(this).val();
+    featureView.sortTracks(text);
+    featureView.repaint();
+  });
+
+
+  $('#findMotifDialogSubmit').click(function() {
+
+    // $('mySequenceMotifDialog').modal({'show':false});
+
+    $("#findSequenceMotif").submit();
+  });
+
+
+  var previousMotif = "";
+  var myRegExp = new RegExp("$");
+
+  $("#findSequenceMotif").submit(function(event) {
 
     var motif = $('#enterMotif').val();
 
-        // to upper case
-        motif = motif.toUpperCase();
+    // to upper case
+    motif = motif.toUpperCase();
 
-        //replaceAll("X", "[A-Z]"
-            motif = motif.replace(/X/g,'[A-Z]');
+    //replaceAll("X", "[A-Z]"
+    motif = motif.replace(/X/g, '[A-Z]');
 
-            console.log('looking for motif ' + motif);
+    console.log('looking for motif ' + motif);
 
-            var seq = featureView.getSequence();
-
-
-            if ( previousMotif != motif){
-                previousMotif = motif;
-                myRegExp = new RegExp(motif,"g");
-            }
-
-            var match = myRegExp.exec(seq);
-
-            var pos = -1;
+    var seq = featureView.getSequence();
 
 
+    if (previousMotif != motif) {
+      previousMotif = motif;
+      myRegExp = new RegExp(motif, "g");
+    }
 
-        //if ( match[0].length > 0)
-        try {
-            if ( match != null)
-                pos = match.index;
-            console.log("found at at position " + pos);
+    var match = myRegExp.exec(seq);
 
-            if (pos < 0) {
-                alert('Motif not found!');
-                event.preventDefault();
-            } else {
-             //console.log(pos + " " + match[0] + " lastIndex:" + myRegExp.lastIndex);
-             var seqLength = match[0].length;
+    var pos = -1;
 
-            featureView.highlight(pos, pos + seqLength - 1);
 
-            if ( myRegExp.lastIndex == 0)
-                $('#mySequenceMotifDialog').modal('hide');
 
-             }
-    } catch (e){
-        console.log(e);
+    //if ( match[0].length > 0)
+    try {
+      if (match != null)
+        pos = match.index;
+      console.log("found at at position " + pos);
+
+      if (pos < 0) {
+        alert('Motif not found!');
+        event.preventDefault();
+      } else {
+        //console.log(pos + " " + match[0] + " lastIndex:" + myRegExp.lastIndex);
+        var seqLength = match[0].length;
+
+        featureView.highlight(pos, pos + seqLength - 1);
+
+        if (myRegExp.lastIndex == 0)
+          $('#mySequenceMotifDialog').modal('hide');
+
+      }
+    } catch (e) {
+      console.log(e);
     }
     event.preventDefault();
-    }); //
+  }); //
 
 
 
-    <!-- NGL code part II-->
-    featureView.addListener("showPositionIn3d", function(event,data,moredate){
+  <!-- NGL code part II-->
+  featureView.addListener("showPositionIn3d", function(event, data, moredate) {
 
-      //console.log("event:" + event);
-      console.log("data:" + JSON.stringify(event));
+    //console.log("event:" + event);
+    console.log("data:" + JSON.stringify(event));
 
-      var pdbId = event.pdbId;
+    var pdbId = event.pdbId;
 
-      showPdb3d(pdbId, event.chainId,event.pdbStart);
+    showPdb3d(pdbId, event.chainId, event.pdbStart, event.pdbEnd);
 
-      featureView.set3dViewFlag(pdbId,event.chainID);
+    featureView.set3dViewFlag(pdbId, event.chainID);
 
-    });
+  });
 
 
-    featureView.addListener("pdbTrackNameClicked",function(event,data, moredata){
+  featureView.addListener("pdbTrackNameClicked", function(event, data, moredata) {
 
-      var pdbId ="";
-      var chainId="";
+    var pdbId = "";
+    var chainId = "";
 
-      if ( typeof event === 'undefined'){
-        return;
-      }
+    if (typeof event === 'undefined') {
+      return;
+    }
 
-      if ( typeof event.pdbID !== 'undefined'){
-        pdbId = event.pdbID;
-      }
+    if (typeof event.pdbID !== 'undefined') {
+      pdbId = event.pdbID;
+    }
 
-      if ( typeof event.chainID !== 'undefined'){
-        chainId = event.chainID;
-      }
+    if (typeof event.chainID !== 'undefined') {
+      chainId = event.chainID;
+    }
 
-      console.log("user clicked on " + pdbId  + " " + chainId);
+    //console.log("user clicked on " + pdbId  + " " + chainId);
 
-      showPdb3d (event.pdbID);
+    showPdb3d(event.pdbID);
 
-      featureView.set3dViewFlag(event.pdbID,event.chainID);
+    featureView.set3dViewFlag(event.pdbID, event.chainID);
 
-    });
+  });
 
 
 }); // require
@@ -278,29 +319,50 @@ $("#findSequenceMotif").submit(function(event){
 
 
 
-function showPdb3d( pdbId, chainId, pdbStart, pdbEnd ){
+function showPdb3d(pdbId, chainId, pdbStart, pdbEnd) {
 
-  try{
+  try {
     stage.removeAllComponents();
-  }catch(e){
+  } catch (e) {
     console.error(e);
   }
 
-  stage.loadFile("rcsb://"+pdbId+".mmtf").then(function(comp){
+  console.log("Showing in NGL " + pdbId + "  " + chainId + " " + pdbStart + " " + pdbEnd);
 
-    var cartoonParams;
-    var licoriceParams;
-    var spacefillParams;
+  stage.loadFile("rcsb://" + pdbId + ".mmtf").then(function(comp) {
 
-    if( chainId !== undefined && pdbStart !== undefined && pdbEnd !== undefined ){
-      comp.addRepresentation("spacefill", {
+    comp.addRepresentation("licorice", {
+      sele: 'not polymer and not water',
+      color: "green"
+    });
+
+    if (chainId !== undefined && pdbStart !== undefined && pdbEnd !== undefined) {
+
+      var color = 'lightblue';
+      var style = 'licorice';
+
+      if (pdbEnd - pdbStart < 10) {
+        color = 'yellow';
+        style = 'spacefill';
+      }
+
+      if (pdbEnd - pdbStart < 10) {
+        comp.addRepresentation(style, {
+          sele: pdbStart + "-" + pdbEnd + ":" + chainId,
+          color: "element"
+        });
+      }
+
+      comp.addRepresentation("cartoon", {
         sele: pdbStart + "-" + pdbEnd + ":" + chainId,
-        color: "element"
+        color: color
       });
       comp.addRepresentation("cartoon", {
+        sele: "not " + pdbStart + "-" + pdbEnd + ":" + chainId,
         color: "grey"
       });
-    }else if( chainId !== undefined && pdbStart !== undefined ){
+
+    } else if (chainId !== undefined && pdbStart !== undefined) {
       comp.addRepresentation("spacefill", {
         sele: pdbStart + ":" + chainId,
         color: "element"
@@ -308,7 +370,7 @@ function showPdb3d( pdbId, chainId, pdbStart, pdbEnd ){
       comp.addRepresentation("cartoon", {
         color: "grey"
       });
-    }else if( chainId !== undefined ){
+    } else if (chainId !== undefined) {
       comp.addRepresentation("cartoon", {
         sele: ":" + chainId,
         color: "sstruc"
@@ -317,7 +379,7 @@ function showPdb3d( pdbId, chainId, pdbStart, pdbEnd ){
         sele: "not :" + chainId,
         color: "grey"
       });
-    }else{
+    } else {
       comp.addRepresentation("cartoon", {
         colorScheme: "sstruc"
       });
@@ -337,11 +399,13 @@ function showPdb3d( pdbId, chainId, pdbStart, pdbEnd ){
 //
 // })
 
-function changeHighlight(sele){
-  licorice.setParameters({sele: sele});
+function changeHighlight(sele) {
+  licorice.setParameters({
+    sele: sele
+  });
 }
 
-stage.signals.onPicking.add(function(info){
+stage.signals.onPicking.add(function(info) {
   console.log(info);
   // info.atom.resno;  // .chainname
   // info.bond.atom1.resno;

@@ -4,7 +4,7 @@ SOURCE_FILES = [
   'js/pfv/icons.js',
   'js/pfv/draw.js',
   'js/pfv/params.js',
-
+  'js/pfv/popups.js',
 ];
 
 module.exports = function(grunt) {

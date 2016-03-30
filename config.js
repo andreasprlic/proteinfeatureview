@@ -7,6 +7,7 @@ requirejs.config({
     draw: 'pfv/draw',
     params: 'pfv/params',
     icons:'pfv/icons',
+    popups:'pfv/popups',
   },
   options: {
     include: ['vendor/require.js'],
