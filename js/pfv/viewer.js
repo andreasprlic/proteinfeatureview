@@ -11,7 +11,7 @@
  */
 
 
-define(['colors', 'draw', 'params', 'icons','popups'],
+define(['colors', 'draw', 'params', 'icons', 'popups'],
   function(colors, draw, params, icons, popups) {
     /**
      * A No args constructor. Needs to call setParent and loadUniprot from the user side
@@ -35,7 +35,7 @@ define(['colors', 'draw', 'params', 'icons','popups'],
       this.icons = icons;
       this.popups = new popups.Popups();
 
-      this.popups.init(this,this.rcsbServer);
+      this.popups.init(this, this.rcsbServer);
     }
 
     /** Initialize the internals
@@ -154,25 +154,49 @@ define(['colors', 'draw', 'params', 'icons','popups'],
 
     Viewer.prototype.registerEvents = function() {
 
-
       var that = this;
       $(this.parent).bind('click',
+      $.proxy(
         function(path) {
 
           var g = path.target.parentNode;
           var id = g.id;
 
-          // console.log("user clicked " + id);
+          console.log("user clicked >" + id+"<");
+
+          if ( id === ""){
+            // user clicked somewhere on the screen..
+
+            var svg = this.getSVGWrapper();
+
+            var offset = $(svg.root()).offset();
+
+            var x = path.pageX - offset.left;
+
+            //var y = path.pageY - offset.top;
+            var seqPos = this.drawer.screen2Seq(x) - 1;
+
+            if (seqPos > this.data.sequence.length) {
+              seqPos = -1;
+            }
+
+            this.popups.showSequenceDialog(path);
+
+            if ( seqPos >= 0){
+              //this.highlight(seqPos,seqPos);
+            }
+
+          }
 
           if (id.indexOf('pfam') > -1) {
 
             var pfampos = id.substring(4, id.length);
             if (pfampos !== 'track') {
-              that.popups.showPfamDialog(that.data.pfam.tracks[pfampos]);
+              this.popups.showPfamDialog(that.data.pfam.tracks[pfampos]);
             }
           } else if (id.indexOf('seq') > -1) {
 
-            that.showSequenceDialog(path);
+            this.popups.showSequenceDialog(path);
 
           } else if (id.indexOf('exon') > -1) {
 
@@ -181,22 +205,29 @@ define(['colors', 'draw', 'params', 'icons','popups'],
             // console.log("clicked on exon " + id + " " + exonpos);
 
             if (exonpos !== 'track') {
-              that.showExonDialog(that.data.exon.tracks[exonpos]);
+              this.popups.showExonDialog(that.data.exon.tracks[exonpos]);
             }
+          } else if (id.indexOf('Secstruc') > -1){
+            // user clicked on a secondary structure element
+            this.popups.showSequenceDialog(path);
           } else if (id >= 0) {
-            var track = that.data.tracks[id];
 
-            that.showDialog(track);
+            var track = this.data.tracks[id];
+
+            this.popups.showDialog(track,path);
 
             // notify listeners that user clicked on PDB ID track name
-            that._dispatchEvent({
+            this._dispatchEvent({
                 'name': 'pdbTrackNameClicked'
               },
               'pdbTrackNameClicked', track);
 
           }
 
-        });
+        }, this
+      )
+      );
+
 
 
       $(this.scrollBarDiv).on('slide', $.proxy(this, 'scrollValueChanged'));
@@ -376,7 +407,6 @@ define(['colors', 'draw', 'params', 'icons','popups'],
     Viewer.prototype.setData = function(json) {
 
       this.data = json;
-
 
       // trigger async loads...
       if (typeof this.asyncTracks === 'undefined') {
@@ -818,57 +848,7 @@ define(['colors', 'draw', 'params', 'icons','popups'],
       }
     };
 
-    Viewer.prototype.showDialog = function(track) {
 
-
-      if (typeof track === 'undefined') {
-        return;
-      }
-
-
-      var pdbID = track.pdbID.trim();
-      var desc = track.desc;
-      //var chainID = track.chainID.trim();
-
-      if (typeof pageTracker !== 'undefined') {
-        pageTracker._trackEvent('ProteinFeatureView', 'showPDBDialog', desc);
-      }
-
-
-      var html = "<span><img width='240' src='" + this.rcsbServer + "/pdb/images/" +
-        pdbID.toLowerCase() + "_bio_r_250.jpg?getBest=true' /></span>";
-
-      html += '<ul>';
-
-      var showIn3dId = 'pdbIdDialog' + pdbID + '.' + track.chainID;
-
-      // var svg = '<svg><g transform="matrix(1,0,0,-1,0,10) scale(0.005)" title="" '+
-      // 'rel="tooltip" data-toggle="tooltip" data-container="body" style="cursor: pointer;" '+
-      // 'data-original-title="Shown in 3D viewer"><path d="' +
-      // this.icons.eye +
-      // '"></path></g></svg>';
-
-
-      html += '<li><a href="#" id="' + showIn3dId + '" data-dismiss="modal"> Show in 3D</a>' +
-        ' (on Protein Feature View)</li>';
-      html += '<li><a href="' + this.rcsbServer + '/pdb/explore/explore.do?structureId=' +
-        pdbID + '">Structure Summary Page for ' + pdbID + '</a></li>';
-
-      html += "</ul>";
-
-      var execjs = 'that._dispatchEvent({"name": "pdbTrackNameClicked"},"pdbTrackNameClicked", track);';
-
-      html += '<script>$("#' + showIn3dId + '").click(function(){' + execjs + '})</script>';
-
-      var heading = 'View ' + pdbID + ' - ' + desc;
-
-      //var strSubmitFunc = that.load3DChain(pdbID, chainID);
-      var strSubmitFunc = "";
-      var btnText = "";
-
-      this.doModal(this.dialogDiv, heading, html, strSubmitFunc, btnText);
-
-    };
 
 
     Viewer.prototype.doModal = function(placementId, heading, formContent, strSubmitFunc, btnText) {
@@ -913,11 +893,7 @@ define(['colors', 'draw', 'params', 'icons','popups'],
       window.location = this.rcsbServer + "/pdb/explore/explore.do?structureId=" + pdbID;
       return;
 
-
-
     };
-
-
 
     /** Returns matching PDB positions for a UniProt sequence position.
      * if no matching positions, returns and empty array.
@@ -930,7 +906,6 @@ define(['colors', 'draw', 'params', 'icons','popups'],
       if (typeof seqEnd === 'undefined') {
         seqEnd = seqStart;
       }
-
 
       var pdbPositions = [];
 
@@ -951,8 +926,8 @@ define(['colors', 'draw', 'params', 'icons','popups'],
 
             var range = {};
 
-            range.start = rangeOrig.start - 1;
-            range.end = rangeOrig.end - 1;
+            range.start    = rangeOrig.start - 1;
+            range.end      = rangeOrig.end - 1;
             range.observed = rangeOrig.observed;
             range.mismatch = rangeOrig.mismatch;
 
@@ -965,17 +940,26 @@ define(['colors', 'draw', 'params', 'icons','popups'],
 
             if (overlap > 0) {
               // we found an overlap!
-
               if (typeof rangeOrig.pdbStart !== 'undefined') {
 
+                var leftTerm  = Math.max(range.start,seqStart);
+                var rightTerm = Math.min(range.end, seqEnd);
+
                 // get the offset to the beginning..
-                var offsetLeft = seqStart - range.start;
-                var offsetRight = range.end - seqEnd;
+                var offsetLeft  = 0;
+                var offsetRight = 0;
+                if ( seqStart > range.start){
+                  offsetLeft = seqStart - range.start;
+                }
+                if ( seqEnd < range.end){
+                  offsetRight = range.end - seqEnd ;
+                }
                 var pos = {};
 
-                pos.seqPos = seqStart + 1 + offsetLeft;
+                pos.seqPos = leftTerm;
+                pos.seqEnd = rightTerm;
                 pos.pdbStart = parseInt(rangeOrig.pdbStart) + offsetLeft;
-                pos.pdbEnd   = parseInt(rangeOrig.pdbEnd) - offsetRight ;
+                pos.pdbEnd = parseInt(rangeOrig.pdbEnd) - offsetRight +1;
                 pos.pdbId = track.pdbID;
                 pos.chainId = track.chainID;
 
@@ -991,94 +975,48 @@ define(['colors', 'draw', 'params', 'icons','popups'],
     };
 
 
-    Viewer.prototype.showSequenceDialog = function(path) {
-
-      var data = this.data;
-
-      var svg = this.getSVGWrapper();
-
-      var offset = $(svg.root()).offset();
-
-      var x = path.pageX - offset.left;
-
-      //var y = path.pageY - offset.top;
-      var seqPos = this.drawer.screen2Seq(x) - 1;
-
-      if (seqPos > this.data.sequence.length) {
-        seqPos = -1;
-      }
-      if (seqPos >= 0) {
-        this.selectionStart = seqPos;
-        this.selectionEnd = seqPos;
-        this.repaint();
-
-      }
-
-      var pdbPositions = this.getPdbPositions(seqPos);
-
-      //$(this.dialogDiv).attr('title', data.uniprotID );
-      if (typeof pageTracker !== 'undefined') {
-        pageTracker._trackEvent('ProteinFeatureView', 'showSequenceDialog', data.uniprotID);
-      }
-      var html = "";
-
-      html += this.showPdb3dLinks(pdbPositions);
-
-      if (this.singlePDBmode) {
-        html += "<h3>" + data.uniprotID + "-" + data.name + "</h3>";
-        html += "Show All <a href='" + this.rcsbServer + "/pdb/protein/" + data.uniprotID +
-          "'>PDB-UniProtKB mappings</a> that are available for " + data.uniprotID;
-
-      } else {
-
-        html += "<h3>Search RCSB PDB</h3>";
-
-        html += "<ul><li><a href='" + this.rcsbServer +
-          "/pdb/search/smartSubquery.do?smartSearchSubtype=" +
-          "UpAccessionIdQuery&accessionIdList=" +
-          data.uniprotID + "'>Show All PDB chains</a> that are linked to UniProtKB ID <b>" +
-          data.uniprotID + "</b> - " + data.name + " ?</li>" +
-          " <li>View UniProtKB record for <a href=\"http://www.uniprot.org/uniprot/" +
-          data.uniprotID + "\" " +
-          " target=\"_new\">" + data.uniprotID +
-          "<span class='iconSet-main icon-external'> &nbsp;</span></a></li>";
-        html += "</ul>";
-
-      }
 
 
-      var heading = data.uniprotID + " - " + data.name;
-      var strSubmitFunc = "";
-      var btnText = "";
-
-      this.doModal(this.dialogDiv, heading, html, strSubmitFunc, btnText);
-
-      this.registerPdb3dLinks(pdbPositions);
-    };
-
-    Viewer.prototype.registerPdb3dLinks = function(pdbPositions) {
-
-      var that = this;
-      var show3dCallback = function(ppos) {
-
-        that._dispatchEvent({
-            "name": "showPositionIn3d"
-          },
-          "showPositionIn3d", ppos);
-      };
+    Viewer.prototype.registerPdb3dLinks = function(pdbPositions, name) {
 
       // now bind the callback to the anchor tags in the modal dialog
       for (var p = 0; p < pdbPositions.length; p++) {
 
         var pdbPos2 = pdbPositions[p];
 
-        var showIn3dId2 = "showIn3d" + pdbPos2.pdbId + pdbPos2.chainId + pdbPos2.pdbStart;
+        var showIn3dId2 = "showIn3d" + pdbPos2.pdbId;
 
-        $("#" + showIn3dId2).bind('click', show3dCallback(pdbPos2));
+        if (typeof pdbPos2.chainId !== 'undefined') {
+          showIn3dId2 += pdbPos2.chainId;
+        }
+
+        if (typeof pdbPos2.pdbStart !== 'undefined') {
+          showIn3dId2 += pdbPos2.pdbStart;
+        }
+
+        if ( typeof name !== 'undefined'){
+          showIn3dId2 += name;
+        }
+
+        $("#" + showIn3dId2).bind('click', $.proxy( this.show3dCallback,this,pdbPos2));
       }
     };
 
-    Viewer.prototype.showPdb3dLinks = function(pdbPositions) {
+    Viewer.prototype.show3dCallback = function(ppos) {
+
+      console.log("show3dCallback " + JSON.stringify(ppos));
+
+      this._dispatchEvent({
+          "name": "showPositionIn3d"
+        },
+        "showPositionIn3d", ppos);
+
+        if ( typeof ppos.seqPos !== 'undefined' && typeof ppos.seqEnd !== 'undefined' ){
+          this.highlight(ppos.seqPos,ppos.seqEnd);
+        }
+    };
+
+    Viewer.prototype.showPdb3dLinks = function(pdbPositions,name) {
       var html = "";
 
       if (pdbPositions.length <= 0) {
@@ -1091,48 +1029,49 @@ define(['colors', 'draw', 'params', 'icons','popups'],
 
         var pdbPos = pdbPositions[i];
 
-        var showIn3dId = "showIn3d" + pdbPos.pdbId + pdbPos.chainId + pdbPos.pdbStart;
+        var showIn3dId = "showIn3d" + pdbPos.pdbId;
+
+        if (typeof pdbPos.chainId !== 'undefined') {
+          showIn3dId += pdbPos.chainId;
+        }
+
+        if (typeof pdbPos.pdbStart !== 'undefined') {
+          showIn3dId += pdbPos.pdbStart;
+        }
+
+        if ( typeof name !== 'undefined'){
+          showIn3dId += name;
+        }
 
         html += "<ul><li>Show in 3D on PDB <a href='#' id='" + showIn3dId + "' data-dismiss='modal'>" +
-          pdbPos.pdbId + "." + pdbPos.chainId + " (";
+          pdbPos.pdbId;
 
-        html += pdbPos.pdbStart;
+        if (typeof pdbPos.chainId !== 'undefined') {
+          html += "." + pdbPos.chainId;
+        }
 
-        if (typeof pdbPos.pdbEnd !== 'undefined' && (pdbPos.pdbStart !== pdbPos.pdbEnd) ) {
+        if (typeof pdbPos.pdbStart !== 'undefined') {
+          html += "(" + pdbPos.pdbStart;
+        }
+
+        if (typeof pdbPos.pdbEnd !== 'undefined' && (pdbPos.pdbStart !== pdbPos.pdbEnd)) {
           html += "-" + pdbPos.pdbEnd;
         }
-        html += ")</a></ul></li>";
 
-        // html += "<script>$('#"+showIn3dId+"').bind(showPositionIn3d,pdbPos)</script>";
+        if (typeof pdbPos.pdbStart !== 'undefined') {
+          html += ")";
+        }
+
+        html += "</a></ul></li>";
+
+
       }
       return html;
     };
 
 
 
-    Viewer.prototype.showExonDialog = function(exon) {
 
-      var geneId = exon.acc;
-      var desc = exon.desc;
-      //$(this.dialogDiv).attr('title', pfamId + ' - '  + pfam.name);
-      if (typeof pageTracker !== 'undefined') {
-        pageTracker._trackEvent('ProteinFeatureView', 'showExonDialog', geneId);
-      }
-
-      var html = "<h3> Exon " + desc + "</h3>" +
-        "<ul><li>Go to RCSB Gene View for <a href=\"/pdb/gene/" + geneId + "\"" +
-        " target=\"_new\">" + geneId + " </a></li>";
-
-      html += "</ul>";
-
-
-      var heading = geneId + " - " + exon.name;
-      var strSubmitFunc = "";
-      var btnText = "";
-
-      this.doModal(this.dialogDiv, heading, html, strSubmitFunc, btnText);
-
-    };
 
     /** Set the zoom level. Can be either "View whole" or "Maximum zoom"
      *
@@ -1469,7 +1408,9 @@ define(['colors', 'draw', 'params', 'icons','popups'],
           drawer.highlightTrack(svg, track, y, i);
         }
 
-        if (this.pdbIn3d === pdbIdUpper) {
+        // console.log(this.pdbIn3d + " " + this.chainIn3d + " " + pdbIdUpper + " " +track.chainID);
+
+        if (this.pdbIn3d === pdbIdUpper && this.chainIn3d === track.chainID) {
           drawer.draw3dFlagForTrack(svg, track, y, i);
         }
 
@@ -2016,7 +1957,7 @@ define(['colors', 'draw', 'params', 'icons','popups'],
         seqposEnd = seqposStart;
       }
 
-      //console.log('highlighting seq pos' + seqposStart + "-" +seqposEnd);
+      console.log('highlighting seq pos' + seqposStart + "-" +seqposEnd);
 
       this.selectionStart = seqposStart;
       this.selectionEnd = seqposEnd;

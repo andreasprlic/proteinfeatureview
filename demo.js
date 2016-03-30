@@ -102,6 +102,7 @@ require(['viewer', 'jquerysvg', 'bootstrap/tooltip', 'bootstrap/modal', 'bootstr
     console.log('document ready - pfv');
 
     //P05067
+    //P43379
     var uniprotID = "P43379";
 
     // if has not been initialized, initialize...
@@ -118,7 +119,7 @@ require(['viewer', 'jquerysvg', 'bootstrap/tooltip', 'bootstrap/modal', 'bootstr
       var tracks = data.tracks;
       if (typeof tracks !== 'undefined' && data.tracks.length > 0) {
         var firstTrack = data.tracks[0];
-        showPdb3d(firstTrack.pdbID);
+        showPdb3d(firstTrack.pdbID, firstTrack.chainID);
         featureView.set3dViewFlag(firstTrack.pdbID, firstTrack.chainID);
 
       }
@@ -129,7 +130,7 @@ require(['viewer', 'jquerysvg', 'bootstrap/tooltip', 'bootstrap/modal', 'bootstr
       var tracks = event.data.tracks;
       if (typeof tracks !== 'undefined' && tracks.length > 0) {
         var firstTrack = tracks[0];
-        showPdb3d(firstTrack.pdbID);
+        showPdb3d(firstTrack.pdbID, firstTrack.chainID);
         featureView.set3dViewFlag(firstTrack.pdbID, firstTrack.chainID);
       }
     });
@@ -279,36 +280,10 @@ require(['viewer', 'jquerysvg', 'bootstrap/tooltip', 'bootstrap/modal', 'bootstr
     console.log("data:" + JSON.stringify(event));
 
     var pdbId = event.pdbId;
+    var chainId = event.chainId;
+    showPdb3d(pdbId, chainId, event.pdbStart, event.pdbEnd);
 
-    showPdb3d(pdbId, event.chainId, event.pdbStart, event.pdbEnd);
-
-    featureView.set3dViewFlag(pdbId, event.chainID);
-
-  });
-
-
-  featureView.addListener("pdbTrackNameClicked", function(event, data, moredata) {
-
-    var pdbId = "";
-    var chainId = "";
-
-    if (typeof event === 'undefined') {
-      return;
-    }
-
-    if (typeof event.pdbID !== 'undefined') {
-      pdbId = event.pdbID;
-    }
-
-    if (typeof event.chainID !== 'undefined') {
-      chainId = event.chainID;
-    }
-
-    //console.log("user clicked on " + pdbId  + " " + chainId);
-
-    showPdb3d(event.pdbID);
-
-    featureView.set3dViewFlag(event.pdbID, event.chainID);
+    featureView.set3dViewFlag(pdbId, chainId);
 
   });
 
@@ -327,7 +302,7 @@ function showPdb3d(pdbId, chainId, pdbStart, pdbEnd) {
     console.error(e);
   }
 
-  console.log("Showing in NGL " + pdbId + "  " + chainId + " " + pdbStart + " " + pdbEnd);
+  //console.log("Showing in NGL " + pdbId + "  " + chainId + " " + pdbStart + " " + pdbEnd);
 
   stage.loadFile("rcsb://" + pdbId + ".mmtf").then(function(comp) {
 
@@ -338,7 +313,7 @@ function showPdb3d(pdbId, chainId, pdbStart, pdbEnd) {
 
     if (chainId !== undefined && pdbStart !== undefined && pdbEnd !== undefined) {
 
-      var color = 'lightblue';
+      var color = 'red';
       var style = 'licorice';
 
       if (pdbEnd - pdbStart < 10) {
