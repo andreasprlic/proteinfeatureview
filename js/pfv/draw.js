@@ -96,7 +96,6 @@ define(['params', 'colors', 'icons'],
             var majorTickHeight = 5;
             var minorTickHeight = 2;
 
-
             svg.rect(this.seq2Screen(0), y, sequence.length * this.scale, 1,
                 {fill: 'black'});
 
@@ -1478,24 +1477,6 @@ define(['params', 'colors', 'icons'],
             $(rect).text("selection: " + this.viewer.selectionStart + "-" + this.viewer.selectionEnd);
             $(rect).tooltip();
 
-
-            //$(rect).css({'-webkit-transition': 'opacity 15s linear',
-            //'-o-transition':'15s linear','transition':'opacity 15s linear'});
-
-
-            // // this prevents too many tooltips from being rendered, when zooming in...
-            // $(rect).on('show.bs.tooltip', function () {
-
-            //     setTimeout(function () {
-            //         $(rect).tooltip('hide');
-            //     }, 2000);
-            // });
-            // $(rect).on('hidden.bs.tooltip', function () {
-
-            //     $(rect).tooltip('destroy');
-            // });
-
-            // $(rect).tooltip('show');
 
 
         };

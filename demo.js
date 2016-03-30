@@ -232,6 +232,19 @@ $("#findSequenceMotif").submit(function(event){
 
 
     <!-- NGL code part II-->
+    featureView.addListener("showPositionIn3d", function(event,data,moredate){
+
+      //console.log("event:" + event);
+      console.log("data:" + JSON.stringify(event));
+
+      var pdbId = event.pdbId;
+
+      showPdb3d(pdbId, event.chainId,event.pdbStart);
+
+      featureView.set3dViewFlag(pdbId,event.chainID);
+
+    });
+
 
     featureView.addListener("pdbTrackNameClicked",function(event,data, moredata){
 
@@ -239,7 +252,6 @@ $("#findSequenceMotif").submit(function(event){
       var chainId="";
 
       if ( typeof event === 'undefined'){
-        console.log("user clicked on empty space")
         return;
       }
 
@@ -266,13 +278,50 @@ $("#findSequenceMotif").submit(function(event){
 
 
 
-function showPdb3d( pdbId){
+function showPdb3d( pdbId, chainId, pdbStart, pdbEnd ){
 
-  stage.removeAllComponents();
+  try{
+    stage.removeAllComponents();
+  }catch(e){
+    console.error(e);
+  }
 
   stage.loadFile("rcsb://"+pdbId+".mmtf").then(function(comp){
-    comp.addRepresentation("cartoon");
-    licorice = comp.addRepresentation("licorice",{sele:"", visible: false});
+
+    var cartoonParams;
+    var licoriceParams;
+    var spacefillParams;
+
+    if( chainId !== undefined && pdbStart !== undefined && pdbEnd !== undefined ){
+      comp.addRepresentation("spacefill", {
+        sele: pdbStart + "-" + pdbEnd + ":" + chainId,
+        color: "element"
+      });
+      comp.addRepresentation("cartoon", {
+        color: "grey"
+      });
+    }else if( chainId !== undefined && pdbStart !== undefined ){
+      comp.addRepresentation("spacefill", {
+        sele: pdbStart + ":" + chainId,
+        color: "element"
+      });
+      comp.addRepresentation("cartoon", {
+        color: "grey"
+      });
+    }else if( chainId !== undefined ){
+      comp.addRepresentation("cartoon", {
+        sele: ":" + chainId,
+        color: "sstruc"
+      });
+      comp.addRepresentation("cartoon", {
+        sele: "not :" + chainId,
+        color: "grey"
+      });
+    }else{
+      comp.addRepresentation("cartoon", {
+        colorScheme: "sstruc"
+      });
+    }
 
     stage.centerView();
 

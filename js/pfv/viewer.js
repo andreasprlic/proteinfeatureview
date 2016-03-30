@@ -11,8 +11,8 @@
  */
 
 
-define(['colors', 'draw', 'params','icons'],
-  function(colors, draw, params,icons) {
+define(['colors', 'draw', 'params', 'icons'],
+  function(colors, draw, params, icons) {
     /**
      * A No args constructor. Needs to call setParent and loadUniprot from the user side
      */
@@ -122,12 +122,12 @@ define(['colors', 'draw', 'params','icons'],
       if (this.singlePDBmode) {
         url += "&display=" + this.displayPDB;
       }
-      if ( this.addedPDB.length > 0 ) {
+      if (this.addedPDB.length > 0) {
         url += "&addPDB=";
 
-        for ( var a = 0 ; a < this.addedPDB.length; a++){
+        for (var a = 0; a < this.addedPDB.length; a++) {
           url += this.addedPDB[a];
-          if ( a >0 && a < this.addedPDB.length -1) {
+          if (a > 0 && a < this.addedPDB.length - 1) {
             url += ",";
           }
         }
@@ -138,7 +138,7 @@ define(['colors', 'draw', 'params','icons'],
         // console.log("got json response from " + url);
         that.setData(json);
         $(that.parent).svg();
-        var svg = $(that.parent).svg('get');
+        var svg = that.getSVGWrapper();
         that.drawInitial(svg);
         that.updateScale();
         that.repaint();
@@ -335,18 +335,18 @@ define(['colors', 'draw', 'params','icons'],
             'url': this.rcsbServer + '/pdb/protein/' + this.uniprotID +
               '?type=json&track=phosphorylation'
           }, {
-          'name': 'variation',
-          'url': this.rcsbServer + '/pdb/protein/' + this.uniprotID +
-          '?type=json&track=variation'
-        }
+            'name': 'variation',
+            'url': this.rcsbServer + '/pdb/protein/' + this.uniprotID +
+              '?type=json&track=variation'
+          }
 
 
 
         ];
       }
 
-      if ( ! this.singlePDBmode && this.addedPDB.length > 0){
-        for ( var a =0 ; a< this.addedPDB.length ; a++){
+      if (!this.singlePDBmode && this.addedPDB.length > 0) {
+        for (var a = 0; a < this.addedPDB.length; a++) {
           this.asyncTracks.push({
             'name': 'pdbsites',
             'url': this.rcsbServer + '/pdb/protein/' + this.uniprotID +
@@ -359,7 +359,7 @@ define(['colors', 'draw', 'params','icons'],
           });
 
 
-      }
+        }
 
       }
 
@@ -580,10 +580,10 @@ define(['colors', 'draw', 'params','icons'],
     };
 
     /** Sets a flag which PDB and chain Id are shown in the associated 3D viewer.
-    * PFV then draws an icon at the left side of the track,
-    * indicating that it is highlighted in 3D.
-    */
-    Viewer.prototype.set3dViewFlag = function (pdbId, chainId){
+     * PFV then draws an icon at the left side of the track,
+     * indicating that it is highlighted in 3D.
+     */
+    Viewer.prototype.set3dViewFlag = function(pdbId, chainId) {
 
       this.pdbIn3d = pdbId.toUpperCase();
 
@@ -650,7 +650,7 @@ define(['colors', 'draw', 'params','icons'],
      */
     Viewer.prototype.trackShouldBeDisplayed = function(track) {
 
-      if ( ! this.showCondensed ) {
+      if (!this.showCondensed) {
         return true;
       }
 
@@ -661,7 +661,7 @@ define(['colors', 'draw', 'params','icons'],
 
       var pdbID = track.pdbID.toUpperCase();
 
-      if ( pdbID === this.displayPDB) {
+      if (pdbID === this.displayPDB) {
         return true;
       }
 
@@ -672,12 +672,12 @@ define(['colors', 'draw', 'params','icons'],
 
 
     /** check if a PDB ID is contained in the list of "added" PDB IDs.
-    */
-    Viewer.prototype.isAddedPDB = function(pdbID){
+     */
+    Viewer.prototype.isAddedPDB = function(pdbID) {
 
-      for ( var a=0 ; a < this.addedPDB.length ; a++ ){
+      for (var a = 0; a < this.addedPDB.length; a++) {
 
-        if ( this.addedPDB[a].toUpperCase() === pdbID){
+        if (this.addedPDB[a].toUpperCase() === pdbID) {
           return true;
         }
       }
@@ -771,7 +771,7 @@ define(['colors', 'draw', 'params','icons'],
 
       $("#uniprotsubheader").html("");
 
-      this.svg = $(this.parent).svg('get');
+      this.svg = this.getSVGWrapper();
 
       if (typeof svg === 'undefined') {
         return;
@@ -792,7 +792,7 @@ define(['colors', 'draw', 'params','icons'],
 
       $("#uniprotsubheader").html("");
 
-      var svg = $(this.parent).svg('get');
+      var svg = this.getSVGWrapper();
 
       if (typeof svg === 'undefined') {
         console.error("can't repaint, no svg");
@@ -837,7 +837,7 @@ define(['colors', 'draw', 'params','icons'],
 
       html += '<ul>';
 
-      var showIn3dId =  'pdbIdDialog'+pdbID+'.'+track.chainID;
+      var showIn3dId = 'pdbIdDialog' + pdbID + '.' + track.chainID;
 
       // var svg = '<svg><g transform="matrix(1,0,0,-1,0,10) scale(0.005)" title="" '+
       // 'rel="tooltip" data-toggle="tooltip" data-container="body" style="cursor: pointer;" '+
@@ -846,15 +846,16 @@ define(['colors', 'draw', 'params','icons'],
       // '"></path></g></svg>';
 
 
-      html += '<li><a href="#" id="'+showIn3dId+'" data-dismiss="modal"> Show in 3D</a> (on Protein Feature View)</li>';
-      html +='<li><a href="' + this.rcsbServer + '/pdb/explore/explore.do?structureId=' +
+      html += '<li><a href="#" id="' + showIn3dId + '" data-dismiss="modal"> Show in 3D</a>'+
+      ' (on Protein Feature View)</li>';
+      html += '<li><a href="' + this.rcsbServer + '/pdb/explore/explore.do?structureId=' +
         pdbID + '">Structure Summary Page for ' + pdbID + '</a></li>';
 
-      html+="</ul>";
+      html += "</ul>";
 
       var execjs = 'that._dispatchEvent({"name": "pdbTrackNameClicked"},"pdbTrackNameClicked", track);';
 
-      html += '<script>$("#'+showIn3dId+'").click(function(){'+execjs+'})</script>';
+      html += '<script>$("#' + showIn3dId + '").click(function(){' + execjs + '})</script>';
 
       var heading = 'View ' + pdbID + ' - ' + desc;
 
@@ -865,7 +866,6 @@ define(['colors', 'draw', 'params','icons'],
       this.doModal(this.dialogDiv, heading, html, strSubmitFunc, btnText);
 
     };
-
 
 
     Viewer.prototype.doModal = function(placementId, heading, formContent, strSubmitFunc, btnText) {
@@ -917,54 +917,129 @@ define(['colors', 'draw', 'params','icons'],
 
 
     /** Returns matching PDB positions for a UniProt sequence position.
-    * if no matching positions, returns and empty array.
-    */
-    Viewer.prototype.getPdbPositions = function(seqPos){
+     * if no matching positions, returns and empty array.
+     */
+    Viewer.prototype.getPdbPositions = function(seqPos) {
       // loop over all tracks
 
       console.log("mapping uniprot:" + seqPos + " to PDB");
-      return [];
-    };
 
+      var pdbPositions = [];
+
+      for (var i = 0; i < this.data.tracks.length; i++) {
+
+        var track = this.data.tracks[i];
+
+        if (typeof track === 'undefined') {
+          continue;
+        }
+        // we only deal with the representatives..
+        if (typeof track.bestInCluster !== 'undefined' && track.bestInCluster) {
+
+          // determine the overlap with that sequence position...
+          for (var r = 0; r < track.ranges.length; r++) {
+
+            var rangeOrig = track.ranges[r];
+
+            var range = {};
+
+            range.start = rangeOrig.start - 1;
+            range.end = rangeOrig.end - 1;
+            range.observed = rangeOrig.observed;
+            range.mismatch = rangeOrig.mismatch;
+
+            if (seqPos >= range.start && seqPos <= range.end) {
+              // we found an overlap!
+              console.log(rangeOrig);
+
+              if (typeof rangeOrig.pdbStart !== 'undefined') {
+
+                // get the offset to the beginning..
+                var offset = seqPos - range.start;
+
+                var pos = {};
+
+                pos.seqPos = seqPos + 1;
+                pos.pdbStart = parseInt(rangeOrig.pdbStart) + offset;
+                pos.pdbId = track.pdbID;
+                pos.chainId = track.chainID;
+                pos.offset = offset;
+                pdbPositions.push(pos);
+              }
+            }
+          }
+        }
+
+      }
+
+      return pdbPositions;
+    };
 
 
     Viewer.prototype.showSequenceDialog = function(path) {
 
-
       var data = this.data;
 
-      var x = path.pageX;
-      var seqPos = this.drawer.screen2Seq(x);
+      var svg = this.getSVGWrapper();
 
-      if ( seqPos > this.data.sequence.length) {
+      var offset = $(svg.root()).offset();
+
+      var x = path.pageX - offset.left;
+
+      //var y = path.pageY - offset.top;
+      var seqPos = this.drawer.screen2Seq(x) - 1;
+
+      if (seqPos > this.data.sequence.length) {
         seqPos = -1;
       }
-
-      console.log("user clicked at position "+ seqPos);
-
-      if ( seqPos >= 0 ){
+      if (seqPos >= 0) {
         this.selectionStart = seqPos;
-        this.selectionEnd   = seqPos;
+        this.selectionEnd = seqPos;
         this.repaint();
 
       }
 
       var pdbPositions = this.getPdbPositions(seqPos);
-      console.log("maps to PDB: " + pdbPositions);
 
       //$(this.dialogDiv).attr('title', data.uniprotID );
       if (typeof pageTracker !== 'undefined') {
         pageTracker._trackEvent('ProteinFeatureView', 'showSequenceDialog', data.uniprotID);
       }
       var html = "";
+
+      if ( pdbPositions.length > 0){
+          html += "<h3>Show in 3D on PDB structure</h3>";
+      }
+
+      for (var i = 0; i < pdbPositions.length; i++) {
+
+        var pdbPos = pdbPositions[i];
+
+        var showIn3dId = "showIn3d"+ pdbPos.pdbId +pdbPos.chainId+pdbPos.pdbStart ;
+
+        html += "<ul><li>Show in 3D on PDB <a href='#' id='"+showIn3dId+"' data-dismiss='modal'>" +
+         pdbPos.pdbId + "." + pdbPos.chainId + " (";
+
+        html += pdbPos.pdbStart;
+
+        if (typeof pdbPos.pdbEnd !== 'undefined') {
+          html += "-" + pdbPos.pdbEnd;
+        }
+        html += ")</a></ul></li>";
+
+        // html += "<script>$('#"+showIn3dId+"').bind(showPositionIn3d,pdbPos)</script>";
+      }
+
       if (this.singlePDBmode) {
-        html = "<h3>" + data.uniprotID + "-" + data.name + "</h3>";
+        html += "<h3>" + data.uniprotID + "-" + data.name + "</h3>";
         html += "Show All <a href='" + this.rcsbServer + "/pdb/protein/" + data.uniprotID +
           "'>PDB-UniProtKB mappings</a> that are available for " + data.uniprotID;
 
       } else {
 
-        html = "<ul><li><a href='" + this.rcsbServer +
+        html += "<h3>Search RCSB PDB</h3>";
+
+        html += "<ul><li><a href='" + this.rcsbServer +
           "/pdb/search/smartSubquery.do?smartSearchSubtype=" +
           "UpAccessionIdQuery&accessionIdList=" +
           data.uniprotID + "'>Show All PDB chains</a> that are linked to UniProtKB ID <b>" +
@@ -984,7 +1059,25 @@ define(['colors', 'draw', 'params','icons'],
 
       this.doModal(this.dialogDiv, heading, html, strSubmitFunc, btnText);
 
+      console.log("bind callbacks");
 
+      var that = this;
+      var show3dCallback = function(ppos){
+
+          that._dispatchEvent(
+            {"name": "showPositionIn3d"},
+            "showPositionIn3d", ppos);
+      };
+
+      // now bind the callback to the anchor tags in the modal dialog
+      for (var p = 0; p < pdbPositions.length; p++) {
+
+        var pdbPos2 = pdbPositions[p];
+
+        var showIn3dId2 = "showIn3d"+ pdbPos2.pdbId +pdbPos2.chainId+pdbPos2.pdbStart ;
+
+        $("#" + showIn3dId2).bind('click', show3dCallback(pdbPos2));
+      }
     };
 
     Viewer.prototype.showPfamDialog = function(pfam) {
@@ -1194,8 +1287,6 @@ define(['colors', 'draw', 'params','icons'],
         return;
       }
 
-      //var now = new Date().getTime();
-
       var data = this.data;
 
       var y = this.y;
@@ -1274,7 +1365,7 @@ define(['colors', 'draw', 'params','icons'],
 
       y = drawer.drawUPSites(svg, y);
 
-      y = drawer.drawVariation(svg,y);
+      y = drawer.drawVariation(svg, y);
 
       var uniprotBottomY = y;
 
@@ -1374,12 +1465,12 @@ define(['colors', 'draw', 'params','icons'],
         var track = data.tracks[i];
 
         var pdbIdUpper = track.pdbID.toUpperCase();
-        if ( this.isAddedPDB( pdbIdUpper) ){
-            drawer.highlightTrack(svg, track, y, i);
+        if (this.isAddedPDB(pdbIdUpper)) {
+          drawer.highlightTrack(svg, track, y, i);
         }
 
-        if ( this.pdbIn3d === pdbIdUpper ){
-          drawer.draw3dFlagForTrack(svg,track,y,i);
+        if (this.pdbIn3d === pdbIdUpper) {
+          drawer.draw3dFlagForTrack(svg, track, y, i);
         }
 
 
@@ -1395,7 +1486,7 @@ define(['colors', 'draw', 'params','icons'],
 
           var shouldBeDisplayed = this.trackShouldBeDisplayed(track);
 
-          if (!shouldBeDisplayed ) {
+          if (!shouldBeDisplayed) {
             continue;
           }
         }
@@ -1438,95 +1529,18 @@ define(['colors', 'draw', 'params','icons'],
       }
 
 
-
       if (!this.singlePDBmode) {
 
-        //if ( data.externalTracks.names.length > 0)
-        //  y = drawSeparator(svg,y);
-
-
-        var pmpTopY = y;
-
-        if (typeof data.pmp !== 'undefined') {
-
-          // add a spacer..
-          y += this.params.trackHeight;
-
-          var trackName = data.pmp.label;
-
-          trackName = trackName.replace(' ', '_');
-
-          colorPos++;
-
-          if (colorPos >= colors.length) {
-            colorPos = 0;
-          }
-          var trackdata = data.pmp;
-
-
-          //var trackrows = breakTrackInRows(trackdata.tracks);
-          var trackrows = drawer.breakTrackInRows(data.pmp.tracks);
-
-          var url = "http://www.proteinmodelportal.org/query/up/" + data.uniprotID;
-
-          var callbackexternal = function() {};
-
-          if (trackdata.label === "Homology Models from Protein Model Portal") {
-            callbackexternal = function() {
-              if (typeof pageTracker !== 'undefined') {
-                pageTracker._trackEvent('ProteinFeatureView',
-                  'showPMPDialog', data.uniprotID);
-              }
-
-              var html = "<h3>" + this.desc + "</h3>";
-
-              html += "<li>View all <a href='" + url +
-                "' target='_new'>Homology Models at the Protein Model Portal</a></li>";
-              html += "</ul>";
-
-              var heading = "Protein Model Portal";
-
-              var strSubmitFunc = "";
-              var btnText = "";
-
-              that.doModal(that.dialogDiv, heading, html, strSubmitFunc, btnText);
-            };
-          }
-
-
-          if (trackrows.length > 0) {
-
-            if (trackdata.label === "Homology Models from Protein Model Portal") {
-
-              y = drawer.drawRangedTrack(svg, trackrows, y,
-                "Homology Models", "Homology_Models",
-                this.params.homColors, undefined, callbackexternal, trackdata.label);
-            } else {
-              y = drawer.drawGenericTrack(svg, trackrows, y, trackName, trackrows[0].desc,
-                this.params.homColors, url, undefined, trackdata.label);
-            }
-          }
-        }
-
-
-        // spacer
-        y += this.params.trackHeight;
-
-        var pmpBottomY = y;
-        if (pmpBottomY - pmpTopY < 40) {
-          y = pmpTopY + 40;
-          pmpBottomY = y;
-        }
-        drawer.drawSourceIndication(svg, 'Structural Biology Knowledge Base', pmpTopY, pmpBottomY);
+        y = this.drawMultiPdbTracks(svg, y, colorPos);
 
       } else {
+
         var title1 = "Click here to view more details about " + data.uniprotID;
 
-
         var callback1 = function() {
-          var location =  that.rcsbServer + "/pdb/protein/" + data.uniprotID;
+          var location = that.rcsbServer + "/pdb/protein/" + data.uniprotID;
 
-          if ( that.displayPDB !=='') {
+          if (that.displayPDB !== '') {
             location += "?addPDB=" + that.displayPDB;
           }
           window.location = location;
@@ -1580,6 +1594,91 @@ define(['colors', 'draw', 'params','icons'],
 
     };
 
+    Viewer.prototype.drawMultiPdbTracks = function(svg, y, colorPos) {
+
+      //if ( data.externalTracks.names.length > 0)
+      //  y = drawSeparator(svg,y);
+
+      var data = this.data;
+      var drawer = this.drawer;
+
+      var pmpTopY = y;
+
+      if (typeof data.pmp !== 'undefined') {
+
+        // add a spacer..
+        y += this.params.trackHeight;
+
+        var trackName = data.pmp.label;
+
+        trackName = trackName.replace(' ', '_');
+
+        colorPos++;
+
+        if (colorPos >= colors.length) {
+          colorPos = 0;
+        }
+        var trackdata = data.pmp;
+
+
+        //var trackrows = breakTrackInRows(trackdata.tracks);
+        var trackrows = drawer.breakTrackInRows(data.pmp.tracks);
+
+        var url = "http://www.proteinmodelportal.org/query/up/" + data.uniprotID;
+
+        var callbackexternal = function() {};
+        var that = this;
+        if (trackdata.label === "Homology Models from Protein Model Portal") {
+          callbackexternal = function() {
+            if (typeof pageTracker !== 'undefined') {
+              pageTracker._trackEvent('ProteinFeatureView',
+                'showPMPDialog', data.uniprotID);
+            }
+
+            var html = "<h3>" + this.desc + "</h3>";
+
+            html += "<li>View all <a href='" + url +
+              "' target='_new'>Homology Models at the Protein Model Portal</a></li>";
+            html += "</ul>";
+
+            var heading = "Protein Model Portal";
+
+            var strSubmitFunc = "";
+            var btnText = "";
+
+            that.doModal(that.dialogDiv, heading, html, strSubmitFunc, btnText);
+          };
+        }
+
+
+        if (trackrows.length > 0) {
+
+          if (trackdata.label === "Homology Models from Protein Model Portal") {
+
+            y = drawer.drawRangedTrack(svg, trackrows, y,
+              "Homology Models", "Homology_Models",
+              this.params.homColors, undefined, callbackexternal, trackdata.label);
+          } else {
+            y = drawer.drawGenericTrack(svg, trackrows, y, trackName, trackrows[0].desc,
+              this.params.homColors, url, undefined, trackdata.label);
+          }
+        }
+      }
+
+
+      // spacer
+      y += this.params.trackHeight;
+
+      var pmpBottomY = y;
+      if (pmpBottomY - pmpTopY < 40) {
+        y = pmpTopY + 40;
+        pmpBottomY = y;
+      }
+      drawer.drawSourceIndication(svg, 'Structural Biology Knowledge Base', pmpTopY, pmpBottomY);
+
+      return y;
+
+    };
 
     /** Returns the total number of PDB entries that match to this UniProt.
      *
@@ -2020,6 +2119,7 @@ define(['colors', 'draw', 'params','icons'],
       var callbacks = this.listenerMap[newEventName];
       if (callbacks) {
         callbacks.forEach(function(callback) {
+          console.log(callback);
           callback(arg, event);
         });
       }
