@@ -952,14 +952,14 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
                   offsetLeft = seqStart - range.start;
                 }
                 if ( seqEnd < range.end){
-                  offsetRight = range.end - seqEnd ;
+                  offsetRight = range.end - seqEnd  ;
                 }
                 var pos = {};
 
                 pos.seqPos = leftTerm;
                 pos.seqEnd = rightTerm;
                 pos.pdbStart = parseInt(rangeOrig.pdbStart) + offsetLeft;
-                pos.pdbEnd = parseInt(rangeOrig.pdbEnd) - offsetRight +1;
+                pos.pdbEnd = parseInt(rangeOrig.pdbEnd) - offsetRight ;
                 pos.pdbId = track.pdbID;
                 pos.chainId = track.chainID;
 

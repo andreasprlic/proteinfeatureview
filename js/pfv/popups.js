@@ -187,7 +187,7 @@ define(
 
       this.viewer.registerPdb3dLinks(pdbPositions);
 
-      this.viewer.highlight(site.start - 1, site.end - 1);
+      //this.viewer.highlight(site.start - 1, site.end - 1);
 
     };
 
@@ -345,7 +345,7 @@ define(
 
       this.viewer.doModal(this.viewer.dialogDiv, heading, html, strSubmitFunc, btnText);
       this.viewer.registerPdb3dLinks(pdbPositions,"scop");
-      this.viewer.highlight(range.start - 1, range.end - 1);
+      //this.viewer.highlight(range.start - 1, range.end - 1);
 
     };
 
@@ -386,7 +386,7 @@ define(
 
     Popups.prototype.showPfamDialog = function(pfam) {
 
-      console.log(pfam);
+      
       var pfamId = pfam.acc;
       var desc = pfam.desc;
       //$(this.dialogDiv).attr('title', pfamId + ' - '  + pfam.name);
@@ -419,7 +419,7 @@ define(
 
       this.viewer.doModal(this.viewer.dialogDiv, heading, html, strSubmitFunc, btnText);
       this.viewer.registerPdb3dLinks(pdbPositions);
-      this.viewer.highlight(pfam.start - 1, pfam.end - 1);
+
     };
 
 
@@ -452,7 +452,7 @@ define(
 
       this.viewer.doModal(this.viewer.dialogDiv, heading, html, strSubmitFunc, btnText);
       this.viewer.registerPdb3dLinks(pdbPositions);
-      this.viewer.highlight(exon.start - 1, exon.end - 1);
+      //this.viewer.highlight(exon.start - 1, exon.end - 1);
     };
 
     Popups.prototype.clickVariationMethod = function(range,event) {
@@ -505,7 +505,7 @@ define(
 
       this.viewer.registerPdb3dLinks(pdbPositions);
 
-      this.viewer.highlight(range.start - 1, range.end - 1);
+      //this.viewer.highlight(range.start - 1, range.end - 1);
     };
 
 
