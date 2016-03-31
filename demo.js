@@ -103,7 +103,7 @@ require(['viewer', 'jquerysvg', 'bootstrap/tooltip', 'bootstrap/modal', 'bootstr
 
     //P05067
     //P43379
-    var uniprotID = "P43379";
+    var uniprotID = "P50225";
 
     // if has not been initialized, initialize...
 
@@ -293,8 +293,76 @@ require(['viewer', 'jquerysvg', 'bootstrap/tooltip', 'bootstrap/modal', 'bootstr
 
 
 
+var currentPdbId = "";
+
+
+function highlight3d(comp,chainId, pdbStart, pdbEnd){
+
+  comp.addRepresentation("licorice", {
+    sele: 'not polymer and not water',
+    color: "green"
+  });
+
+  if (chainId !== undefined && pdbStart !== undefined && pdbEnd !== undefined) {
+
+    var color = 'red';
+    var style = 'licorice';
+
+    if (pdbEnd - pdbStart < 10) {
+      color = 'yellow';
+      style = 'spacefill';
+    }
+
+    if (pdbEnd - pdbStart < 10) {
+      comp.addRepresentation(style, {
+        sele: pdbStart + "-" + pdbEnd + ":" + chainId,
+        color: "element"
+      });
+    }
+
+    comp.addRepresentation("cartoon", {
+      sele: pdbStart + "-" + pdbEnd + ":" + chainId,
+      color: color
+    });
+    comp.addRepresentation("cartoon", {
+      sele: "not " + pdbStart + "-" + pdbEnd + ":" + chainId,
+      color: "grey"
+    });
+
+  } else if (chainId !== undefined && pdbStart !== undefined) {
+    comp.addRepresentation("spacefill", {
+      sele: pdbStart + ":" + chainId,
+      color: "element"
+    });
+    comp.addRepresentation("cartoon", {
+      color: "grey"
+    });
+  } else if (chainId !== undefined) {
+    comp.addRepresentation("cartoon", {
+      sele: ":" + chainId,
+      color: "sstruc"
+    });
+    comp.addRepresentation("cartoon", {
+      sele: "not :" + chainId,
+      color: "grey"
+    });
+  } else {
+    comp.addRepresentation("cartoon", {
+      colorScheme: "sstruc"
+    });
+  }
+
+}
 
 function showPdb3d(pdbId, chainId, pdbStart, pdbEnd) {
+
+  if ( currentPdbId === pdbId) {
+    stage.eachComponents(function(comp){
+          highlight3d(comp,chainId, pdbStart, pdbEnd);
+    });
+
+    return;
+  }
 
   try {
     stage.removeAllComponents();
@@ -306,59 +374,7 @@ function showPdb3d(pdbId, chainId, pdbStart, pdbEnd) {
 
   stage.loadFile("rcsb://" + pdbId + ".mmtf").then(function(comp) {
 
-    comp.addRepresentation("licorice", {
-      sele: 'not polymer and not water',
-      color: "green"
-    });
-
-    if (chainId !== undefined && pdbStart !== undefined && pdbEnd !== undefined) {
-
-      var color = 'red';
-      var style = 'licorice';
-
-      if (pdbEnd - pdbStart < 10) {
-        color = 'yellow';
-        style = 'spacefill';
-      }
-
-      if (pdbEnd - pdbStart < 10) {
-        comp.addRepresentation(style, {
-          sele: pdbStart + "-" + pdbEnd + ":" + chainId,
-          color: "element"
-        });
-      }
-
-      comp.addRepresentation("cartoon", {
-        sele: pdbStart + "-" + pdbEnd + ":" + chainId,
-        color: color
-      });
-      comp.addRepresentation("cartoon", {
-        sele: "not " + pdbStart + "-" + pdbEnd + ":" + chainId,
-        color: "grey"
-      });
-
-    } else if (chainId !== undefined && pdbStart !== undefined) {
-      comp.addRepresentation("spacefill", {
-        sele: pdbStart + ":" + chainId,
-        color: "element"
-      });
-      comp.addRepresentation("cartoon", {
-        color: "grey"
-      });
-    } else if (chainId !== undefined) {
-      comp.addRepresentation("cartoon", {
-        sele: ":" + chainId,
-        color: "sstruc"
-      });
-      comp.addRepresentation("cartoon", {
-        sele: "not :" + chainId,
-        color: "grey"
-      });
-    } else {
-      comp.addRepresentation("cartoon", {
-        colorScheme: "sstruc"
-      });
-    }
+    highlight3d(comp,chainId, pdbStart, pdbEnd);
 
     stage.centerView();
 

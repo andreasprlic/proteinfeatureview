@@ -219,13 +219,9 @@ define(['params', 'colors', 'icons', 'popups'],
 
       this.registerTooltip(rect);
 
-
-
       y += seqTrackHeight;
 
-
       // add label on sequence
-
 
       var label = sequence.name + " - " + this.viewer.getData().name + " - " +
         this.viewer.getData().desc;
@@ -1425,13 +1421,13 @@ define(['params', 'colors', 'icons', 'popups'],
 
     };
 
-    Draw.prototype.draw3dFlagForTrack = function(svg, track, y, trackID) {
+    Draw.prototype.draw3dFlagForTrack = function(svg, track, y) {
 
       if (track === null) {
         return y;
       }
 
-      console.log("showing track in 3D:" + trackID + " " + track.pdbID);
+      // console.log("showing track in 3D:" + trackID + " " + track.pdbID);
 
       var trnsfrm = "matrix(1,0,0,-1,0," + (y + this.param.trackHeight) + ") scale(0.005)";
 
@@ -1984,7 +1980,6 @@ define(['params', 'colors', 'icons', 'popups'],
 
       // draw features base line...
       var defs1 = svg.defs();
-
 
       var isPhospho = false;
       // color gradient of base line. Default .. UP color

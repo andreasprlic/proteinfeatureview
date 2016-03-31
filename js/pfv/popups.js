@@ -216,6 +216,7 @@ define(
           'clickPhosphoSite', this.viewer.data.uniprotID);
       }
 
+      html += "<h3>PhosphoSitePlus</h3>";
 
       html += "<ul>";
 
@@ -386,7 +387,7 @@ define(
 
     Popups.prototype.showPfamDialog = function(pfam) {
 
-      
+
       var pfamId = pfam.acc;
       var desc = pfam.desc;
       //$(this.dialogDiv).attr('title', pfamId + ' - '  + pfam.name);
@@ -541,7 +542,7 @@ define(
         }
 
       var allPdbPositions = this.viewer.getPdbPositions(seqPos);
-      console.log(allPdbPositions);
+      //console.log(allPdbPositions);
       var pdbPositions = [];
 
       var pos = {};

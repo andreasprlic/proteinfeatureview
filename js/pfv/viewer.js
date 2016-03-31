@@ -974,9 +974,6 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
       return pdbPositions;
     };
 
-
-
-
     Viewer.prototype.registerPdb3dLinks = function(pdbPositions, name) {
 
       // now bind the callback to the anchor tags in the modal dialog
@@ -1013,6 +1010,8 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
 
         if ( typeof ppos.seqPos !== 'undefined' && typeof ppos.seqEnd !== 'undefined' ){
           this.highlight(ppos.seqPos,ppos.seqEnd);
+        } else {
+          this.highlight(-1,-1);
         }
     };
 
