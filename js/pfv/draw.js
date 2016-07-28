@@ -1264,10 +1264,14 @@ define(['params', 'colors', 'icons', 'popups'],
 
     };
 
-    Draw.prototype.drawSelection = function(svg) {
+    Draw.prototype.drawSelection = function(svg, bottomY) {
 
       if (this.viewer.selectionStart < 0) {
         return;
+      }
+
+      if ( typeof bottomY ==='undefined'){
+        bottomY = this.maxY;
       }
 
       var topY = 0;
@@ -1286,7 +1290,7 @@ define(['params', 'colors', 'icons', 'popups'],
 
       //console.log("selection:" + this.viewer.selectionStart + " - " + this.selectionEnd);
 
-      var rect = svg.rect(g, this.seq2Screen(this.viewer.selectionStart), topY, length * this.scale, this.maxY,
+      var rect = svg.rect(g, this.seq2Screen(this.viewer.selectionStart), topY, length * this.scale, bottomY,
         0, 0, {
           //                fill: 'url(#selection' +this.viewer.getData().uniprotID + ')',
           stroke: this.param.paired_colors[5].lightercolor,

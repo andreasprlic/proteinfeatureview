@@ -80,6 +80,7 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
 
       this.oldScale = -1;
 
+      this.previousY = 0;
       // for flagging which track is shown in 3D
       this.pdbIn3d = "";
       this.chainIn3d = "";
@@ -971,6 +972,7 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
 
       }
 
+      console.log(pdbPositions);
       return pdbPositions;
     };
 
@@ -1290,6 +1292,7 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
 
       y = drawer.height;
 
+      drawer.drawSelection(svg,this.previousY);
 
       if (!this.singlePDBmode) {
         y = drawer.drawRuler(svg, this.sequence, y);
@@ -1518,7 +1521,8 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
 
       this.y = y;
 
-      drawer.drawSelection(svg);
+      this.previousY = y;
+
 
       //var timet = new Date().getTime();
 
@@ -1958,10 +1962,20 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
 
       console.log('highlighting seq pos' + seqposStart + "-" +seqposEnd);
 
+      if ( seqposStart === this.selectionStart && this.seqposEnd === this.selectionEnd){
+        // nothing to be done here.
+        return;
+      }
+
       this.selectionStart = seqposStart;
       this.selectionEnd = seqposEnd;
 
       this.repaint();
+
+      this._dispatchEvent({
+          'name': 'selectionChangedEvent'
+        },
+        'selectionChanged', this);
 
     };
 
