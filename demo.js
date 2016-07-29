@@ -85,7 +85,8 @@ NGL.useWorker = false;
 
 var stage = new NGL.Stage("nglContainer", {
   'theme': 'light',
-  'overwritePreferences': 'true'
+  'overwritePreferences': 'true',
+  'backgroundColor':'white',
 });
 var licorice;
 
@@ -103,7 +104,7 @@ require(['viewer', 'jquerysvg', 'bootstrap/tooltip', 'bootstrap/modal', 'bootstr
 
     //P05067
     //P43379
-    var uniprotID = "P50225";
+    var uniprotID = "P68871";
 
     // if has not been initialized, initialize...
 
@@ -271,8 +272,6 @@ require(['viewer', 'jquerysvg', 'bootstrap/tooltip', 'bootstrap/modal', 'bootstr
     event.preventDefault();
   }); //
 
-
-
   <!-- NGL code part II-->
   featureView.addListener("showPositionIn3d", function(event, data, moredate) {
 
@@ -288,25 +287,43 @@ require(['viewer', 'jquerysvg', 'bootstrap/tooltip', 'bootstrap/modal', 'bootstr
   });
 
 
+  featureView.addListener("selectionChanged", function(event, data, moredate) {
+
+    //console.log("event:" + event);
+    console.log("selection changed:" + JSON.stringify(data) + " " + JSON.stringify(moredate));
+
+  });
+
+
+
 }); // require
-
-
 
 
 var currentPdbId = "";
 
 
-function highlight3d(comp,chainId, pdbStart, pdbEnd){
+function highlight3d(comp, chainId, pdbStart, pdbEnd) {
 
   comp.addRepresentation("licorice", {
     sele: 'not polymer and not water',
-    color: "green"
+    color: "element",
+    radius: .4
   });
+
+  comp.addRepresentation("spacefill", {
+    sele: 'not polymer and not water ',
+    color: "element",
+    radius: .6
+  });
+
+  comp.centerView();
 
   if (chainId !== undefined && pdbStart !== undefined && pdbEnd !== undefined) {
 
     var color = 'red';
     var style = 'licorice';
+
+    var sele = pdbStart + "-" + pdbEnd + ":" + chainId;
 
     if (pdbEnd - pdbStart < 10) {
       color = 'yellow';
@@ -315,13 +332,16 @@ function highlight3d(comp,chainId, pdbStart, pdbEnd){
 
     if (pdbEnd - pdbStart < 10) {
       comp.addRepresentation(style, {
-        sele: pdbStart + "-" + pdbEnd + ":" + chainId,
+        sele: sele,
         color: "element"
       });
+
     }
 
+    comp.centerView(false, sele);
+
     comp.addRepresentation("cartoon", {
-      sele: pdbStart + "-" + pdbEnd + ":" + chainId,
+      sele: sele,
       color: color
     });
     comp.addRepresentation("cartoon", {
@@ -330,6 +350,7 @@ function highlight3d(comp,chainId, pdbStart, pdbEnd){
     });
 
   } else if (chainId !== undefined && pdbStart !== undefined) {
+
     comp.addRepresentation("spacefill", {
       sele: pdbStart + ":" + chainId,
       color: "element"
@@ -347,18 +368,22 @@ function highlight3d(comp,chainId, pdbStart, pdbEnd){
       color: "grey"
     });
   } else {
+
     comp.addRepresentation("cartoon", {
       colorScheme: "sstruc"
     });
+
   }
 
 }
 
 function showPdb3d(pdbId, chainId, pdbStart, pdbEnd) {
 
-  if ( currentPdbId === pdbId) {
-    stage.eachComponents(function(comp){
-          highlight3d(comp,chainId, pdbStart, pdbEnd);
+  console.log("current PDB: " + currentPdbId + " old: " + pdbId);
+
+  if (currentPdbId === pdbId) {
+    stage.eachComponents(function(comp) {
+      highlight3d(comp, chainId, pdbStart, pdbEnd);
     });
 
     return;
@@ -370,25 +395,18 @@ function showPdb3d(pdbId, chainId, pdbStart, pdbEnd) {
     console.error(e);
   }
 
-  //console.log("Showing in NGL " + pdbId + "  " + chainId + " " + pdbStart + " " + pdbEnd);
+  console.log("Showing in NGL " + pdbId + "  " + chainId + " " + pdbStart + " " + pdbEnd);
 
   stage.loadFile("rcsb://" + pdbId + ".mmtf").then(function(comp) {
 
-    highlight3d(comp,chainId, pdbStart, pdbEnd);
+    //stage.centerView();
 
-    stage.centerView();
+    highlight3d(comp, chainId, pdbStart, pdbEnd);
 
   });
 }
 
-// stage.loadFile("rcsb://1crn.mmtf").then(function(comp){
-//   comp.addRepresentation("cartoon");
-//   licorice = comp.addRepresentation("licorice", {sele: "30:A"});
-//
-//   stage.centerView();
-//
-//
-// })
+
 
 function changeHighlight(sele) {
   licorice.setParameters({
@@ -396,8 +414,22 @@ function changeHighlight(sele) {
   });
 }
 
-stage.signals.onPicking.add(function(info) {
+stage.signals.clicked.add(function(info) {
   console.log(info);
-  // info.atom.resno;  // .chainname
-  // info.bond.atom1.resno;
+
+
+  if (info.atom !== undefined) {
+
+    $("#ngl_status").text(info.atom.chainname + " " + info.atom.resno + " " + info.atom.resname + " " + info.atom.atomname );
+  }
+  if (info.bond !== undefined) {
+
+    var atom1 = info.bond.atom1.chainname + " " + info.bond.atom1.resno + " " + info.bond.atom1.resname + " " + info.bond.atom1.atomname
+    var atom2 = info.bond.atom2.chainname + " " + info.bond.atom2.resno + " " + info.bond.atom2.resname + " " + info.bond.atom2.atomname
+
+    $("#ngl_status").text(atom1 + " - " + atom2);
+  }
+
+
+
 });
