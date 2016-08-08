@@ -325,17 +325,16 @@ function highlight3d(comp, chainId, pdbStart, pdbEnd) {
 
     var sele = pdbStart + "-" + pdbEnd + ":" + chainId;
 
-    if (pdbEnd - pdbStart < 10) {
+    if (pdbEnd - pdbStart < 2) {
       color = 'yellow';
       style = 'spacefill';
     }
 
-    if (pdbEnd - pdbStart < 10) {
+    if (pdbEnd - pdbStart < 2) {
       comp.addRepresentation(style, {
         sele: sele,
         color: "element"
       });
-
     }
 
     comp.centerView(false, sele);
