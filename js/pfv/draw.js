@@ -2292,9 +2292,11 @@ define(['params', 'colors', 'icons', 'popups'],
         return y;
       }
 
+      var callback = this.popups.callbackSecStruc;
 
       var trackName = 'Secstruc';
       var label = trackdata.label;
+
 
       var g0 = this.getGroup(label + this.viewer.getData().uniprotID);
 
@@ -2326,8 +2328,10 @@ define(['params', 'colors', 'icons', 'popups'],
           }
 
           var range = {};
-          range.start = rangeOrig.start - 1;
-          range.end = rangeOrig.end - 1;
+          range.start = rangeOrig.start -1;
+          range.end = rangeOrig.end  -1;
+          range.name = "secstruc";
+          range.desc = "coil";
 
           var width = (range.end - range.start) + 1;
 
@@ -2344,10 +2348,17 @@ define(['params', 'colors', 'icons', 'popups'],
 
           $(line).attr("title", 'coil');
 
+
+
           //$(line).bind('mouseover', this.popuptooltipMethod);
           //$(line).mouseout(this.mouseoutMethod);
           //$(line).css('cursor','pointer');
           this.registerTooltip(line);
+          if (typeof callback !== 'undefined') {
+            $(line).css('cursor', 'pointer');
+            $(line).bind('click', $.proxy(callback, this, range));
+
+          }
         }
       }
 
@@ -2363,11 +2374,6 @@ define(['params', 'colors', 'icons', 'popups'],
 
         var width1 = (range1.end - range1.start) + 1;
 
-        // something is off!
-        // if too long, something is fishy..
-        if (width1 > 30) {
-          continue;
-        }
 
         if (range1.end > this.viewer.getData().length) {
           // probably a chimera protein, we can't deal with those currently
@@ -2426,6 +2432,8 @@ define(['params', 'colors', 'icons', 'popups'],
               stroke: color.darkercolor,
               strokeWidth: 1
             });
+
+
         }
 
         if (range1.name === 'H') {
@@ -2448,11 +2456,18 @@ define(['params', 'colors', 'icons', 'popups'],
         }
         var title = t + " (" + rangeOrig1.start + "-" + rangeOrig1.end + ")";
         $(rect).attr('title', title);
+
         //$(rect).bind('mouseover', this.popuptooltipMethod);
         //$(rect).mouseout(this.mouseoutMethod);
         //$(rect).css('cursor','pointer');
         //console.log(rect);
-        this.registerTooltip(rect);
+        //this.registerTooltip(rect);
+        if (typeof callback !== 'undefined') {
+          $(rect).css('cursor', 'pointer');
+          $(rect).bind('click', $.proxy(callback, this, range1));
+
+          this.registerTooltip(rect);
+        }
 
       }
 

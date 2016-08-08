@@ -210,7 +210,8 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
             }
           } else if (id.indexOf('Secstruc') > -1){
             // user clicked on a secondary structure element
-            this.popups.showSequenceDialog(path);
+            //this.popups.showSequenceDialog(path);
+            // now handled as custom event
           } else if (id >= 0) {
 
             var track = this.data.tracks[id];

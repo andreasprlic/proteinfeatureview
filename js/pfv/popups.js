@@ -266,13 +266,7 @@ define(
 
     };
 
-    Popups.prototype.callbackUniProtFeature = function(event) {
-
-      // if (event.start >= 0) {
-      //   this.viewer.selectionStart = event.start - 1;
-      //   this.viewer.selectionEnd = event.end - 1;
-      //   this.viewer.repaint();
-      // }
+    Popups.prototype.callbackSecStruc = function(event) {
 
       // show draw dialog..
 
@@ -281,7 +275,31 @@ define(
       if (event.name !== event.desc) {
         txt += " - " + event.desc;
       }
+      
+      var pdbPositions = this.viewer.getPdbPositions(event.start , event.end );
 
+      var html = this.viewer.showPdb3dLinks(pdbPositions,"secstruc");
+      var heading = "<h1>" + txt + "</h1>";
+      var strSubmitFunc = "";
+      var btnText = "";
+
+      this.viewer.doModal(this.viewer.dialogDiv, heading, html, strSubmitFunc, btnText);
+
+      this.viewer.registerPdb3dLinks(pdbPositions,"secstruc");
+    };
+
+
+    Popups.prototype.callbackUniProtFeature = function(event) {
+
+
+      // show draw dialog..
+
+      var txt = event.name;
+
+      if (event.name !== event.desc) {
+        txt += " - " + event.desc;
+      }
+      console.log("UniProt click " + JSON.stringify(event));
       var pdbPositions = this.viewer.getPdbPositions(event.start - 1, event.end - 1);
 
       var html = "";
