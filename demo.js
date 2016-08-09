@@ -339,14 +339,15 @@ function highlight3d(comp, chainId, pdbStart, pdbEnd) {
 
     comp.centerView(false, sele);
 
+    var schemeId = NGL.ColorMakerRegistry.addSelectionScheme( [
+                            [ "red", sele ],
+                            [ "grey", "*" ],
+                        ], "my custom schema");
+
+
     comp.addRepresentation("cartoon", {
-      sele: sele,
-      color: color
-    });
-    comp.addRepresentation("cartoon", {
-      sele: "not " + pdbStart + "-" + pdbEnd + ":" + chainId,
-      color: "grey"
-    });
+                           color: schemeId
+                        });
 
   } else if (chainId !== undefined && pdbStart !== undefined) {
 
