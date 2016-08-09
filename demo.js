@@ -349,6 +349,14 @@ function highlight3d(comp, chainId, pdbStart, pdbEnd) {
                            color: schemeId
                         });
 
+    // draw labels
+    comp.addRepresentation("label", {
+                            sele: sele+".CA",
+                            color: "gold",
+                            scale: 2.0,
+                            zOffset: 4.0
+                        });
+
   } else if (chainId !== undefined && pdbStart !== undefined) {
 
     comp.addRepresentation("spacefill", {
