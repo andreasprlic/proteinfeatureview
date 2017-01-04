@@ -929,7 +929,7 @@ define(['params', 'colors', 'icons', 'popups'],
 
           });
 
-        var title = valid.desc + " geometric outliers for " + valid.pdbID + " residue " + valid.pdbStart +
+        var title = valid.desc + " problem(s) for " + valid.pdbID + " residue " + valid.pdbStart +
           "  in chain " + valid.chainID;
 
         $(rect).attr("title", title);
