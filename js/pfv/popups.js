@@ -275,7 +275,7 @@ define(
       if (event.name !== event.desc) {
         txt += " - " + event.desc;
       }
-      
+
       var pdbPositions = this.viewer.getPdbPositions(event.start , event.end );
 
       var html = this.viewer.showPdb3dLinks(pdbPositions,"secstruc");
@@ -420,7 +420,7 @@ define(
       html += this.viewer.showPdb3dLinks(pdbPositions);
 
       html += "<h3> " + desc + "</h3>" +
-        "<ul><li>Go to Pfam site for <a href=\"http://pfam.sanger.ac.uk/family/" +
+        "<ul><li>Go to Pfam site for <a href=\"http://pfam.xfam.org/family/" +
         pfamId + "\"" +
         " target=\"_new\">" + pfamId +
         "<span class='iconSet-main icon-external'> &nbsp;</span> </a></li>";
