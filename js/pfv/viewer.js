@@ -905,6 +905,8 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
 
       console.log("mapping uniprot:" + seqStart + " " + seqEnd + " to PDB");
 
+
+
       if (typeof seqEnd === 'undefined') {
         seqEnd = seqStart;
       }
@@ -986,6 +988,8 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
 
         var showIn3dId2 = "showIn3d" + pdbPos2.pdbId;
 
+        console.log("register 3D links " + showIn3dId2);
+
         if (typeof pdbPos2.chainId !== 'undefined') {
           showIn3dId2 += pdbPos2.chainId;
         }
@@ -998,7 +1002,15 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
           showIn3dId2 += name;
         }
 
-        $("#" + showIn3dId2).bind('click', $.proxy( this.show3dCallback,this,pdbPos2));
+        if ( typeof NGL === 'undefined'){
+            // get href of anchor tag
+            var url = $("#" + showIn3dId2).attr("href");
+            pdbPos2.url = url;
+          }
+
+
+          $("#" + showIn3dId2).bind('click', $.proxy( this.show3dCallback,this,pdbPos2));
+
       }
     };
 
@@ -1011,6 +1023,14 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
         },
         "showPositionIn3d", ppos);
 
+        if ( typeof NGL === 'undefined'){
+            // get href of anchor tag
+            var url = ppos.url;
+
+              window.location=url;
+        }
+
+
         if ( typeof ppos.seqPos !== 'undefined' && typeof ppos.seqEnd !== 'undefined' ){
           this.highlight(ppos.seqPos,ppos.seqEnd);
         } else {
@@ -1019,17 +1039,24 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
     };
 
     Viewer.prototype.showPdb3dLinks = function(pdbPositions,name) {
-      var html = "";
+
 
       if (pdbPositions.length <= 0) {
-        return html;
+        return "";
       }
 
-      html += "<h3>Show in 3D on PDB structure</h3>";
+      var nglPresent = true;
+      if ( typeof NGL === 'undefined'){
+          nglPresent = false;
+      }
+
+      var html = "<h3>Show in 3D on PDB structure</h3>";
 
       for (var i = 0; i < pdbPositions.length; i++) {
 
         var pdbPos = pdbPositions[i];
+
+        console.log(pdbPos);
 
         var showIn3dId = "showIn3d" + pdbPos.pdbId;
 
@@ -1045,7 +1072,26 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
           showIn3dId += name;
         }
 
-        html += "<ul><li>Show in 3D on PDB <a href='#' id='" + showIn3dId + "' data-dismiss='modal'>" +
+        html += "<ul><li>Show in 3D on PDB <a href=";
+
+
+        if ( nglPresent) {
+          html += "'#'";
+        } else {
+          html += "'" + this.rcsbServer + "/pdb/protein/" + this.data.uniprotID +
+            "?addPDB="+pdbPos.pdbId+
+            "&selectionStart="+ pdbPos.seqPos ;
+
+          if ( typeof pdbPos.seqEnd !== 'undefined') {
+            html += "&selectionEnd=" + pdbPos.seqEnd ;
+          }
+          html +=  "'";
+        }
+
+
+        //
+
+        html += " id='" + showIn3dId + "' data-dismiss='modal'>" +
           pdbPos.pdbId;
 
         if (typeof pdbPos.chainId !== 'undefined') {
@@ -1482,11 +1528,14 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
         var title1 = "Click here to view more details about " + data.uniprotID;
 
         var callback1 = function() {
-          var location = that.rcsbServer + "/pdb/protein/" + data.uniprotID;
+          var location = that.rcsbServer + "/pdb/protein/" + data.uniprotID + "?showAll=true";
 
           if (that.displayPDB !== '') {
-            location += "?addPDB=" + that.displayPDB;
+            location += "&addPDB=" + that.displayPDB;
           }
+
+
+
           window.location = location;
         };
         y = drawer.drawExpandCondensedSymbol(svg, pdbBottomY, title1, callback1);
