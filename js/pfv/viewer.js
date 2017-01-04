@@ -666,12 +666,8 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
 
         if (pdbId.length > 3) {
 
-          //this.singlePDBmode = true;
-
-          //this.displayPDB = pdbId;
-
           this.addedPDB.push(pdbId);
-          this.showCondensed = true;
+
         }
 
       }
@@ -1679,6 +1675,9 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
      */
     Viewer.prototype.getTotalNrPDBTracks = function() {
 
+      if ( typeof this.data.tracks === 'undefined'){
+        return 0;
+      }
 
       var fullTrackCount = this.data.tracks.length;
       if (typeof this.data.backupTracks !== 'undefined') {
@@ -1721,13 +1720,13 @@ define(['colors', 'draw', 'params', 'icons', 'popups'],
 
     Viewer.prototype.setShowCondensed = function(flag) {
 
+      this.showCondensed = flag;
 
       var totalTracks = this.getTotalNrPDBTracks();
+
       if (totalTracks < 2) {
         return;
       }
-
-      this.showCondensed = flag;
 
       this.filterTracks();
 
