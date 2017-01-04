@@ -81,6 +81,7 @@ requirejs.config({
 
 <!-- NGL code part I -->
 
+if ( typeof NGL !== 'undefined') {
 NGL.useWorker = false;
 
 var stage = new NGL.Stage("nglContainer", {
@@ -88,6 +89,7 @@ var stage = new NGL.Stage("nglContainer", {
   'overwritePreferences': 'true',
   'backgroundColor':'white',
 });
+}
 var licorice;
 
 
@@ -120,7 +122,9 @@ require(['viewer', 'jquerysvg', 'bootstrap/tooltip', 'bootstrap/modal', 'bootstr
       var tracks = data.tracks;
       if (typeof tracks !== 'undefined' && data.tracks.length > 0) {
         var firstTrack = data.tracks[0];
-        showPdb3d(firstTrack.pdbID, firstTrack.chainID);
+        if ( typeof NGL !== 'undefined') {
+          showPdb3d(firstTrack.pdbID, firstTrack.chainID);
+        }
         featureView.set3dViewFlag(firstTrack.pdbID, firstTrack.chainID);
 
       }
@@ -131,8 +135,11 @@ require(['viewer', 'jquerysvg', 'bootstrap/tooltip', 'bootstrap/modal', 'bootstr
       var tracks = event.data.tracks;
       if (typeof tracks !== 'undefined' && tracks.length > 0) {
         var firstTrack = tracks[0];
-        showPdb3d(firstTrack.pdbID, firstTrack.chainID);
-        featureView.set3dViewFlag(firstTrack.pdbID, firstTrack.chainID);
+        if ( typeof NGL !== 'undefined') {
+            showPdb3d(firstTrack.pdbID, firstTrack.chainID);
+
+          featureView.set3dViewFlag(firstTrack.pdbID, firstTrack.chainID);
+        }
       }
     });
 
@@ -387,6 +394,11 @@ function highlight3d(comp, chainId, pdbStart, pdbEnd) {
 
 function showPdb3d(pdbId, chainId, pdbStart, pdbEnd) {
 
+  if ( typeof NGL === 'undefined') {
+    return;
+  }
+
+
   console.log("current PDB: " + currentPdbId + " old: " + pdbId);
 
   if (currentPdbId === pdbId) {
@@ -422,6 +434,7 @@ function changeHighlight(sele) {
   });
 }
 
+if ( typeof stage !== 'undefined'){
 stage.signals.clicked.add(function(info) {
   console.log(info);
 
@@ -441,3 +454,25 @@ stage.signals.clicked.add(function(info) {
 
 
 });
+}
+
+// If jQuery is loaded, print the version- else display a warning at the top of the page
+if (typeof jQuery != 'undefined') {
+    console.info("Software Version: jQuery " + jQuery.fn.jquery);
+    //console.info("Software Version: Bootstrap " + $.fn.modal.Constructor.VERSION);
+    $(document).ready(function(){
+        if (jQuery) {
+            if (jQuery.ui) {
+                console.warn("WARNING: jQuery UI is being deprecated!\nSoftware Version: jQuery UI " + jQuery.ui.version);
+            }
+        }
+        if (typeof Jmol != 'undefined') {
+            if (typeof Jmol.___JmolVersion != 'undefined') {
+                console.info("Software Version: JSmol " + Jmol.___JmolVersion)
+            }
+        }
+    });
+} else {
+    console.error("No jQuery loaded!");
+    document.getElementById("UnsupportedBrowser").className = "hidden-print";
+}
