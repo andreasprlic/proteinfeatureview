@@ -1833,6 +1833,10 @@ define(['params', 'colors', 'icons', 'popups'],
           color = this.param.deletionColor;
         }
 
+        if ( typeof shortText === 'undefined') {
+          shortText = "";
+        }
+
 
         if (typeof color === 'undefined') {
           colorPos++;
@@ -1863,8 +1867,6 @@ define(['params', 'colors', 'icons', 'popups'],
 
           }
         );
-
-
 
         if (shape === 'triangle') {
 
@@ -1910,9 +1912,6 @@ define(['params', 'colors', 'icons', 'popups'],
           $(circle).attr("title", title);
           this.registerTooltip(circle);
 
-
-
-
         }
 
         var rect = svg.rect(g, xpos, y + baseLineHeight,
@@ -1935,11 +1934,6 @@ define(['params', 'colors', 'icons', 'popups'],
           this.registerTooltip(txt);
 
         }
-
-
-
-
-
 
 
       }
